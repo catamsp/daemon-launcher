@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name" translatable="false">μLauncher</string>
+    <string name="app_name" translatable="false">Daemon launcher</string>
     <!--
       -
       - Settings
@@ -13,6 +13,7 @@
     <string name="settings_widgets_custom_panels_key" translatable="false">widgets.custom_panels</string>
     <string name="settings_apps_favorites_key" translatable="false">apps.favorites</string>
     <string name="settings_apps_hidden_key" translatable="false">apps.hidden</string>
+    <string name="settings_apps_distracting_apps_key" translatable="false">apps.distracting_apps</string>
     <string name="settings_apps_pinned_shortcuts_key" translatable="false">apps.pinned_shortcuts</string>
     <string name="settings_apps_custom_names_key" translatable="false">apps.custom_names</string>
     <string name="settings_apps_hide_bound_apps_key" translatable="false">apps.hide_bound_apps</string>
@@ -23,7 +24,7 @@
     <string name="settings_list_reverse_layout_key" translatable="false">list.reverse_layout</string>
     <string name="settings_general_choose_home_screen_key" translatable="false">general.select_launcher</string>
 
-    <!-- values of de.jrpie.android.launcher.preferences.list.ListLayout -->
+    <!-- values of com.catamsp.Daemon.preferences.list.ListLayout -->
     <string-array name="settings_list_layout_values" translatable="false">
         <item>DEFAULT</item>
         <item>TEXT</item>
@@ -38,7 +39,7 @@
         <item>@string/settings_list_layout_item_grid_only_icons</item>
     </string-array>
 
-    <!-- values de.jrpie.android.launcher.preferences.list.AppName -->
+    <!-- values com.catamsp.Daemon.preferences.list.AppName -->
     <string-array name="settings_list_app_name_format_values" translatable="false">
         <item>DEFAULT</item>
         <item>UPPERCASE</item>
@@ -116,7 +117,7 @@
     <string name="settings_theme_wallpaper_key" translatable="false">theme.wallpaper</string>
     <string name="settings_theme_font_key" translatable="false">theme.font</string>
 
-    <!-- values of de.jrpie.android.launcher.preferences.theme.Font -->
+    <!-- values of com.catamsp.Daemon.preferences.theme.Font -->
     <string-array name="settings_theme_font_values" translatable="false">
         <item>HACK</item>
         <item>SYSTEM_DEFAULT</item>
@@ -141,7 +142,7 @@
     <!--
       -
       - Settings : Clock
-      -
+    ...
       -->
     <string name="settings_clock_font_key" translatable="false">clock.font</string>
     <string name="settings_clock_color_key" translatable="false">clock.color</string>
@@ -180,16 +181,16 @@
       - URLs
       -
     -->
-    <string name="settings_meta_link_github" translatable="false">https://github.com/jrpie/Launcher</string>
-    <string name="settings_meta_link_docs" translatable="false">https://launcher.jrpie.de/</string>
-    <string name="settings_meta_report_bug_link" translatable="false">https://github.com/jrpie/Launcher/issues/new?template=bug_report.yaml</string>
-    <string name="settings_meta_report_bug_mail" translatable="false">android-launcher-crash@jrpie.de</string>
-    <string name="settings_meta_report_vulnerability_link" translatable="false">https://github.com/jrpie/Launcher/security/policy</string>
-    <string name="settings_meta_fork_contact_url" translatable="false">https://s.jrpie.de/contact</string>
-    <string name="settings_meta_privacy_url" translatable="false">https://s.jrpie.de/android-legal</string>
+    <string name="settings_meta_link_github" translatable="false">https://github.com/catamsp/IDK-launcher</string>
+    <string name="settings_meta_link_docs" translatable="false">https://github.com/catamsp/IDK-launcher/</string>
+    <string name="settings_meta_report_bug_link" translatable="false">https://github.com/catamsp/IDK-launcher/issues/new?template=bug_report.yaml</string>
+    <string name="settings_meta_report_bug_mail" translatable="false">android-launcher-crash@github.com/catamsp/IDK-launcher</string>
+    <string name="settings_meta_report_vulnerability_link" translatable="false">https://github.com/catamsp/IDK-launcher/security/policy</string>
+    <string name="settings_meta_fork_contact_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/contact</string>
+    <string name="settings_meta_privacy_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/android-legal</string>
     <string name="settings_meta_contact_url" translatable="false">https://www.finnmglas.com/contact/</string>
-    <string name="settings_meta_chat_url" translatable="false">https://s.jrpie.de/launcher-chat</string>
-    <string name="settings_meta_donate_url" translatable="false">https://s.jrpie.de/launcher-donate</string>
+    <string name="settings_meta_chat_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/launcher-chat</string>
+    <string name="settings_meta_donate_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/launcher-donate</string>
 
     <!--
       -
@@ -201,17 +202,17 @@
 
     <!-- Legal -->
     <string name="legal_info_text"><![CDATA[
-        <h2>μLauncher</h2>
-        Modifications to Launcher.
-        <p><a href=\"https://github.com/jrpie/launcher\">github.com/jrpie/launcher</a></p>
+        <h2>Daemon launcher</h2>
+        Modifications to Daemon launcher.
+        <p><a href=\"https://github.com/catamsp/launcher\">github.com/catamsp/launcher</a></p>
 
         <p>MIT License</p>
 
-        Copyright © 2025 Josia Pietsch<br/><br/>
+        Copyright © 2025 catamsp<br/><br/>
         Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the \"Software\"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:<br/><br/>The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.<br/><br/>THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
         <br/><br/>
 
-        <h2>Launcher</h2>
+        <h2>Daemon launcher</h2>
         The original project by Finn Glas.
         <p><a href=\"https://github.com/finnmglas/launcher\">github.com/finnmglas/launcher</a></p>
 

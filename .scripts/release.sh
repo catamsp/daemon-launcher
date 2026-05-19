@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# This script builds all variants of µLauncher to create a release, namely:
+# This script builds all variants of Daemon launcher to create a release, namely:
 # - app-release.apk (GitHub release; used by F-Droid for reproducible builds)
 # - launcher-accrescent.apks (Accrescent)
 # - app-release.aab (Play Store)
 
-# This is only intended to work on my (@jrpie) computer.
+# This is only intended to work on my (@catamsp) computer.
 # To use this script for building a fork you need to:
 #   - install bundletool.jar and
 #   - create a keystore and modify the variables below accordingly
@@ -15,9 +15,9 @@ OUTPUT_DIR="$HOME/launcher-release"
 BUILD_TOOLS_DIR="$HOME/Android/Sdk/build-tools/35.0.0"
 
 # keystore for the default release
-KEYSTORE="$HOME/data/keys/launcher_jrpie.jks"
+KEYSTORE="$HOME/data/keys/launcher_catamsp.jks"
 # keystore for the default accrescent release
-KEYSTORE_ACCRESCENT="$HOME/data/keys/launcher_jrpie_accrescent.jks"
+KEYSTORE_ACCRESCENT="$HOME/data/keys/launcher_catamsp_accrescent.jks"
 
 # keepassxc-password is a custom script to fetch passwords from my password manager
 KEYSTORE_PASS=$(keepassxc-password "android_keys/launcher")

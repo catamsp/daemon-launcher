@@ -5,7 +5,7 @@
 # Settings
 
 Tweaks and customizations can be made from within the settings page.
-The settings can be opened by binding the Settings action to a gesture (this is especially useful when configuring &mu;Launcher for the first time) or from the settings icon in the app drawer.[^1]
+The settings can be opened by binding the Settings action to a gesture (this is especially useful when configuring &mu;Daemon launcher for the first time) or from the settings icon in the app drawer.[^1]
 
 [^1]: i.e., the 'All Apps', 'Favorite Apps', and 'Private Space' views.
 
@@ -14,7 +14,7 @@ The settings can be opened by binding the Settings action to a gesture (this is 
 ### Choose a wallpaper
 
 This triggers Android's mechanism to change the wallpaper using a photo app, file explorer, or native wallpaper setting app.
-µLauncher uses the system-wide wallpaper, i.e., this change also affects other launchers.
+Daemon launcher uses the system-wide wallpaper, i.e., this change also affects other launchers.
 
 ### Color Theme
 
@@ -143,7 +143,7 @@ This launches an [`Intent.ACTION_WEB_SEARCH`](https://developer.android.com/refe
 If you want to change the default later, go to Android Settings > Apps > select the app > Open by default.
 Note that this is independent of the default browser.
 
-You can also use an app like [&mu;Search](https://git.jrpie.de/jrpie/usearch)
+You can also use an app like [&mu;Search](https://git.github.com/catamsp/IDK-launcher/catamsp/usearch)
 to switch between multiple search engines.
 
 {{% hint warning %}}
@@ -188,10 +188,10 @@ There are two methods to lock the screen, and unfortunately, both have downsides
 2. **`Accessibility Service`**
 
     - Requires excessive privileges.
-      &mu;Launcher will use those privileges *only* for locking the screen.
+      &mu;Daemon launcher will use those privileges *only* for locking the screen.
       As a rule of thumb, it is [not recommended](https://android.stackexchange.com/questions/248171/is-it-safe-to-give-accessibility-permission-to-an-app)
       to grant access to accessibility services to a random app.
-      Always review the [source code](https://github.com/jrpie/launcher/blob/master/app/src/main/java/de/jrpie/android/launcher/actions/lock/LauncherAccessibilityService.kt) before granting accessibility permissions so you can familiarize yourself with what the code might do.
+      Always review the [source code](https://github.com/catamsp/launcher/blob/master/app/src/main/java/com/catamsp/Daemon/actions/lock/LauncherAccessibilityService.kt) before granting accessibility permissions so you can familiarize yourself with what the code might do.
     - On some devices, the start-up PIN will no longer be used for encrypting data after activating an accessibility service. This can be [reactivated](https://issuetracker.google.com/issues/37010136#comment36) afterwards.
 
    **type:**&nbsp;`text buttons`
@@ -199,7 +199,7 @@ There are two methods to lock the screen, and unfortunately, both have downsides
    **options:**&nbsp;`USE DEVICE ADMIN`,`USE ACCESSIBILITY SERVICE`
 
 {{% hint warning %}}
-Due to [Accrescent's policy on accessibility services](https://accrescent.app/docs/guide/publish/requirements.html#androidaccessibilityserviceaccessibilityservice) the version of &mu;Launcher distributed via Accrescent doesn't include an accessibility service. Device admin is always used and this setting is disabled.
+Due to [Accrescent's policy on accessibility services](https://accrescent.app/docs/guide/publish/requirements.html#androidaccessibilityserviceaccessibilityservice) the version of &mu;Daemon launcher distributed via Accrescent doesn't include an accessibility service. Device admin is always used and this setting is disabled.
 {{% /hint %}}
 
 ## Apps

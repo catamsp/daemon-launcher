@@ -135,7 +135,7 @@
         <item>{\"type\": \"action:app\", \"app\": {\"packageName\": \"org.fedorahosted.freeotp\", \"activityName\": null}}</item>
         <item>{\"type\": \"action:app\", \"app\": {\"packageName\": \"proton.android.pass.fdroid\", \"activityName\": null}}</item> <!-- Proton Pass -->
         <item>{\"type\": \"action:app\", \"app\": {\"packageName\": \"com.kunzisoft.keepass.libre\", \"activityName\": null}}</item> <!-- KeePassDX -->
-        <item>{\"type\": \"action:launcher\", \"value\": \"settings\"}</item> <!-- Launcher Settings -->
+        <item>{\"type\": \"action:launcher\", \"value\": \"settings\"}</item> <!-- Daemon launcher Settings -->
     </string-array>
 
     <!-- Time / Clock -->

@@ -1,5 +1,9 @@
-# Reporting Security Issues
+# Security Policy
 
-For security related issues, please use the contact information
-from the [security.txt](https://jrpie.de/.well-known/security.txt) on my website
-or [report a vulnerability](https://github.com/jrpie/Launcher/security/advisories/new) on github.
+## Supported Versions
+
+Only the latest release gets security updates.
+
+## Reporting a Vulnerability
+
+If you find a security vulnerability, please [report a vulnerability](https://github.com/catamsp/IDK-launcher/security/advisories/new) on github.

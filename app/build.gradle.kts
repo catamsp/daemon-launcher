@@ -30,11 +30,11 @@ val gitCommitProvider = providers.of(GitCommitValueSource::class) {}
 val gitCommit = gitCommitProvider.get()
 
 android {
-    namespace = "de.jrpie.android.launcher"
+    namespace = "com.catamsp.Daemon"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "de.jrpie.android.launcher"
+        applicationId = "com.catamsp.Daemon"
         minSdk = 21
         targetSdk = 36
         versionCode = 56
@@ -134,6 +134,7 @@ dependencies {
     implementation(libs.androidx.preference.ktx)
     implementation(libs.androidx.recyclerview)
     implementation(libs.google.material)
+    implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.jonahbauer.android.preference.annotations)
     annotationProcessor(libs.jonahbauer.android.preference.annotations)

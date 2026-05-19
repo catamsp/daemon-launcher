@@ -1,13 +1,13 @@
 +++
-title = 'Differences to the original Launcher'
+title = 'Differences to the original Daemon launcher'
 +++
 
-# Notable changes compared to Finn's Launcher
+# Notable changes compared to Finn's Daemon launcher
 
-µLauncher is a fork of [finnmglas's app Launcher](https://github.com/finnmglas/Launcher).
+Daemon launcher is a fork of [finnmglas's app Daemon launcher](https://github.com/finnmglas/Daemon launcher).
 Here is an incomplete list of changes:
-<!--The last commit of the original project is [340ee731](https://github.com/jrpie/launcher/commit/340ee7315293b028c060638e058516435bca296a)
-The first commit of µLauncher is [cc2e7710](https://github.com/jrpie/launcher/commit/cc2e7710c824549c367d97a81a1646d27c6c8993),
+<!--The last commit of the original project is [340ee731](https://github.com/catamsp/launcher/commit/340ee7315293b028c060638e058516435bca296a)
+The first commit of Daemon launcher is [cc2e7710](https://github.com/catamsp/launcher/commit/cc2e7710c824549c367d97a81a1646d27c6c8993),
 which at the time was still intended as a patch for the launcher.
 The decision to create a hard fork was made two years later.-->
 
@@ -46,14 +46,14 @@ The decision to create a hard fork was made two years later.-->
 
 - Improved gesture detection.
 - Different apps are set as the defaults.
-- Package name was changed to `de.jrpie.android.launcher` to avoid clashing with the original app.
+- Package name was changed to `com.catamsp.Daemon` to avoid clashing with the original app.
 - Dropped support for API < 21 (i.e., pre Lollypop).
 - Fixed some bugs.
 - Some refactoring.
 
-The complete list of changes can be viewed [here](https://github.com/jrpie/launcher/compare/340ee731...master).
+The complete list of changes can be viewed [here](https://github.com/catamsp/launcher/compare/340ee731...master).
 
 ---
 
-[original-repo]: https://github.com/finnmglas/Launcher
+[original-repo]: https://github.com/finnmglas/Daemon launcher
 [hack-font]: https://sourcefoundry.org/hack/

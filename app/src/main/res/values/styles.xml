@@ -7,7 +7,7 @@
         <!--<item name="colorButtonNormal">?colorAccent</item>-->
     </style>
 
-    <!-- Base theme for Launcher -->
+    <!-- Base theme for Daemon launcher -->
     <style name="launcherBaseTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <item name="colorPrimary">@color/finnmglasTheme_background_color</item>
         <item name="colorPrimaryDark">@color/finnmglasTheme_background_color</item>

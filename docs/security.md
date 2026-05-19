@@ -4,24 +4,24 @@
 
 # Security Considerations
 
-In order to launch apps, &mu;Launcher obtains a list of all apps installed on the device.
+In order to launch apps, &mu;Daemon launcher obtains a list of all apps installed on the device.
 This includes apps from other profiles such as the [private space](/docs/profiles/#private-space)
 and the [work profile](/docs/profiles/#work-profile).
 
-&mu;Launcher aims to be minimal software. Functionality that can be provided
-by other apps[^1] is not integrated into &mu;Launcher itself,
+&mu;Daemon launcher aims to be minimal software. Functionality that can be provided
+by other apps[^1] is not integrated into &mu;Daemon launcher itself,
 thus allowing user to install only what they need.
 
 [^1]: For example [daily wallpapers](/docs/examples/wallpapers/)
 
 {{% hint info %}}
-&mu;Launcher does **not connect to the internet**.[^2]
+&mu;Daemon launcher does **not connect to the internet**.[^2]
 Functionality that would require an internet connection will not be implemented.
-In particular, &mu;Launcher contains no ads and no trackers.
+In particular, &mu;Daemon launcher contains no ads and no trackers.
 {{% /hint %}}
 
 [^2]: Certain functions, such as the buttons in the meta section may prompt the browser
-to open a website, but &mu;Launcher itself does not open internet connections.
+to open a website, but &mu;Daemon launcher itself does not open internet connections.
 
 ## Certificate Fingerprints
 
@@ -51,7 +51,7 @@ SHA256: 7F:F5:7F:B5:BF:03:AD:1E:F7:CC:14:41:B3:1D:49:18:F0:66:DA:71:CE:4B:01:59:
 
 ## Requested Permissions
 
-&mu;Launcher requests several permissions:
+&mu;Daemon launcher requests several permissions:
 
  *  [`android.permission.REQUEST_DELETE_PACKAGES`](https://developer.android.com/reference/android/Manifest.permission#REQUEST_DELETE_PACKAGES)
  *  [`android.permission.QUERY_ALL_PACKAGES`](https://developer.android.com/reference/android/Manifest.permission#QUERY_ALL_PACKAGES)
@@ -64,18 +64,18 @@ SHA256: 7F:F5:7F:B5:BF:03:AD:1E:F7:CC:14:41:B3:1D:49:18:F0:66:DA:71:CE:4B:01:59:
 
 ### Accessibility Service
 
-&mu;Launcher's accessibility service can be used to lock the screen and
+&mu;Daemon launcher's accessibility service can be used to lock the screen and
 to open the list of recent apps.
 
 {{% hint danger %}}
-Enabling &mu;Launcher's accessibility service grants excessive permissions to the app.
+Enabling &mu;Daemon launcher's accessibility service grants excessive permissions to the app.
 Do not enable the accessibility service if you don't need it.
-Before enabling, make sure that you obtained your copy of &mu;Launcher from a source you trust.
-The official sources can be found [here](https://launcher.jrpie.de/).
+Before enabling, make sure that you obtained your copy of &mu;Daemon launcher from a source you trust.
+The official sources can be found [here](https://github.com/catamsp/IDK-launcher/).
 {{% /hint %}}
 
 Due to [Accrescent's policy](https://accrescent.app/docs/guide/publish/requirements.html#androidaccessibilityserviceaccessibilityservice) on accessibility services,
-the version of &mu;Launcher published on Accrescent does not contain an accessibility service.
+the version of &mu;Daemon launcher published on Accrescent does not contain an accessibility service.
 
 
 ### Device Administrator Permissions
@@ -88,16 +88,16 @@ is not possible.
 
 ## Crash Reports
 
-For privacy reasons, &mu;Launcher does not collect crash reports automatically.
+For privacy reasons, &mu;Daemon launcher does not collect crash reports automatically.
 However, crash reports help a lot for debugging issues. Thus when a crash occurs,
-&mu;Launcher shows a notification allowing the user to share the report voluntarily.
+&mu;Daemon launcher shows a notification allowing the user to share the report voluntarily.
 When sharing a crash log, please make sure that it doesn't contain personal information.
 
 ## Reporting Security Issues
 
 For security related issues, please use the contact information
-from the [security.txt](https://jrpie.de/.well-known/security.txt) on my website
-or [report a vulnerability](https://github.com/jrpie/Launcher/security/advisories/new) on github.
+from the [security.txt](https://github.com/catamsp/IDK-launcher/.well-known/security.txt) on my website
+or [report a vulnerability](https://github.com/catamsp/IDK-launcher/security/advisories/new) on github.
 
 {{% hint danger %}}
 Please do not report security issues using github's issue feature!

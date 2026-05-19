@@ -1,6 +1,6 @@
 * New action: Launch other launchers
 * New action: Show recent apps (workaround for an Android bug)
-* Fixed "Set µLauncher as home screen" button
+* Fixed "Set Daemon launcher as home screen" button
 * Size of "choose app" button was limited
 
 * Added Arabic translation (thank you, letterhaven!)

@@ -1,6 +1,6 @@
 * Option to rename apps
 * Option to automatically hide apps that are bound to gestures from app list
-* Hide µLauncher from app list be default
+* Hide Daemon launcher from app list be default
 * Improved selection of default apps
 * Light theme (experimental)
 

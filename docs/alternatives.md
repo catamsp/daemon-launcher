@@ -41,7 +41,7 @@ This is a comparison of open-source home screens for Android.
 
 ## Grid-Based Launchers
 
-### Discreet Launcher
+### Discreet Daemon launcher
 
 **License:** `GPL-3.0`  
 [Website](https://vincent-falzon.com/) | [Repository](https://github.com/falzonv/discreet-launcher) | [F-Droid](https://f-droid.org/en/packages/com.vincent_falzon.discreetlauncher/)
@@ -68,7 +68,7 @@ This is a comparison of open-source home screens for Android.
 ### Fossify
 
 **License:** `GPL-3.0`  
-[Website](https://www.fossify.org/) | [Repository](https://github.com/FossifyOrg/Launcher) | [F-Droid](https://f-droid.org/en/packages/org.fossify.home/)
+[Website](https://www.fossify.org/) | [Repository](https://github.com/FossifyOrg/Daemon launcher) | [F-Droid](https://f-droid.org/en/packages/org.fossify.home/)
 
 **Main mode of interaction:** `app grid`
 
@@ -115,7 +115,7 @@ Seems to be a regular (grid of apps) launcher.
 
 ---
 
-### Rootless Pixel Launcher
+### Rootless Pixel Daemon launcher
 
 > **Abandoned**
 
@@ -143,7 +143,7 @@ Seems to be a regular (grid of apps) launcher.
 
 ## Search-Based
 
-### Aster Launcher
+### Aster Daemon launcher
 
 > **Abandoned**
 > 
@@ -169,7 +169,7 @@ Seems to be a regular (grid of apps) launcher.
 
 ---
 
-### KISS Launcher
+### KISS Daemon launcher
 
 **License:** `GPL-3.0`  
 [Website](https://kisslauncher.com/) | [Repository](https://github.com/Neamar/KISS) | [F-Droid](https://f-droid.org/packages/fr.neamar.kiss/)
@@ -193,7 +193,7 @@ Seems to be a regular (grid of apps) launcher.
 
 ---
 
-### Lunar Launcher
+### Lunar Daemon launcher
 **License:** `GPL-3.0`  
 [Repository](https://github.com/iamrasel/lunar-launcher) | [F-Droid](https://f-droid.org/en/packages/rasel.lunar.launcher/)
 
@@ -251,7 +251,7 @@ Extremely minimal launcher with lots of forks.
 
 ---
   
-### TinyBit Launcher
+### TinyBit Daemon launcher
 
 **License:** `GPL-3.0`  
 [Repository](https://github.com/TBog/TBLauncher) | [F-Droid](https://f-droid.org/en/packages/rocks.tbog.tblauncher/)
@@ -275,7 +275,7 @@ Extremely minimal launcher with lots of forks.
 
 ---
 
-### YAM Launcher
+### YAM Daemon launcher
 
 **License:** `MIT`  
 [Repository](https://codeberg.org/ottoptj/yamlauncher) | [F-Droid](https://f-droid.org/en/packages/eu.ottop.yamlauncher/)
@@ -327,7 +327,7 @@ Similar to OLauncher?
 
 ---
 
-### Ion Launcher
+### Ion Daemon launcher
 
 **License:** `GPL-3.0`  
 [Repository](https://codeberg.org/zagura/ion-launcher) | [F-Droid](https://f-droid.org/en/packages/one.zagura.IonLauncher/)
@@ -353,7 +353,7 @@ Similar to OLauncher?
 
 ## Gesture-Based
 
-### Pie Launcher
+### Pie Daemon launcher
 
 **License:** `MIT`  
 [Repository](https://github.com/markusfisch/PieLauncher)
@@ -377,10 +377,10 @@ Similar to OLauncher?
 
 ---
 
-### µLauncher
+### Daemon launcher
 
 **License:** `MIT`  
-[Repository](https://github.com/jrpie/launcher) | [F-Droid](https://f-droid.org/en/packages/de.jrpie.android.launcher/)
+[Repository](https://github.com/catamsp/launcher) | [F-Droid](https://f-droid.org/en/packages/com.catamsp.Daemon/)
 
 **Main mode of interaction:** `Gestures` `Search`
 
@@ -388,7 +388,7 @@ Similar to OLauncher?
 
 :white_check_mark: Search:  `apps`  
 :x: Search history  
-:white_check_mark: Customizable gestures: `35 avilable` [read the docs](https://github.com/jrpie/launcher/blob/master/docs/actions-and-gestures.md)  
+:white_check_mark: Customizable gestures: `35 avilable` [read the docs](https://github.com/catamsp/launcher/blob/master/docs/actions-and-gestures.md)  
 :x: Folders  
 :x: Tags  
 :white_check_mark: Rename apps  
@@ -409,22 +409,22 @@ Similar to OLauncher?
 :x: = Unsupported
 :warning: = Buggy/Broken; check this launcher's notes above
 
-| Launcher                                             | Search             | Search history     | Customizable gestures | Folders            | Tags               | Rename apps        | Widgets            | Private space      | Work profile       | Pinned shortcuts   | Icon packs         | Material You       |
+| Daemon launcher                                             | Search             | Search history     | Customizable gestures | Folders            | Tags               | Rename apps        | Widgets            | Private space      | Work profile       | Pinned shortcuts   | Icon packs         | Material You       |
 |------------------------------------------------------|--------------------|--------------------|-----------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|--------------------|
-| [µLauncher](#µLauncher)                              | :white_check_mark: | :x:                | :white_check_mark:    | :x:                | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                | :white_check_mark: |
+| [Daemon launcher](#Daemon launcher)                              | :white_check_mark: | :x:                | :white_check_mark:    | :x:                | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                | :white_check_mark: |
 | [Fossify](#Fossify)                                  | :white_check_mark: | :x:                | :x:                   | :white_check_mark: | :x:                | :white_check_mark: | :white_check_mark: | :grey_question:    | :x:                | :white_check_mark: | :x:                | :white_check_mark: |
 | [Lawnchair](#Lawnchair)                              | :white_check_mark: | :white_check_mark: | :white_check_mark:    | :white_check_mark: | :x:                | :white_check_mark: | :white_check_mark: | :grey_question:    | :grey_question:    | :x:                | :white_check_mark: | :white_check_mark: |
-| [Rootless Pixel Launcher](#Rootless-Pixel-Launcher)  | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :warning:          | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
-| [KISS Launcher](#KISS-Launcher)                      | :white_check_mark: | :white_check_mark: | :white_check_mark:    | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    |
-| [Lunar Launcher](#Lunar-Launcher)                    | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :x:                | :white_check_mark: | :x:                | :x:                |
+| [Rootless Pixel Daemon launcher](#Rootless-Pixel-Daemon launcher)  | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :warning:          | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| [KISS Daemon launcher](#KISS-Daemon launcher)                      | :white_check_mark: | :white_check_mark: | :white_check_mark:    | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    |
+| [Lunar Daemon launcher](#Lunar-Daemon launcher)                    | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :x:                | :white_check_mark: | :x:                | :x:                |
 | [OLauncher](#OLauncher)                              | :white_check_mark: | :x:                | :white_check_mark:    | :x:                | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :grey_question:    | :x:                | :grey_question:    |
-| [TinyBit Launcher](#TinyBit-Launcher)                | :white_check_mark: | :white_check_mark: | :white_check_mark:    | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
-| [YAM Launcher](#YAM-Launcher)                        | :white_check_mark: | :x:                | :white_check_mark:    | :x:                | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :white_check_mark: |
-| [Ion Launcher](#Ion-Launcher)                        | :warning:          | :white_check_mark: | :x:                   | :warning:          | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
-| [Pie Launcher](#Pie-Launcher)                        | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :x:                |
+| [TinyBit Daemon launcher](#TinyBit-Daemon launcher)                | :white_check_mark: | :white_check_mark: | :white_check_mark:    | :x:                | :white_check_mark: | :white_check_mark: | :white_check_mark: | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| [YAM Daemon launcher](#YAM-Daemon launcher)                        | :white_check_mark: | :x:                | :white_check_mark:    | :x:                | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :white_check_mark: |
+| [Ion Daemon launcher](#Ion-Daemon launcher)                        | :warning:          | :white_check_mark: | :x:                   | :warning:          | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| [Pie Daemon launcher](#Pie-Daemon launcher)                        | :white_check_mark: | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :x:                |
 | [folder launcher](#folder-launcher)                  | :white_check_mark: | :x:                | :x:                   | :white_check_mark: | :x:                | :white_check_mark: | :white_check_mark: | :grey_question:    | :x:                | :white_check_mark: | :x:                | :x:                |
-| [Discreet Launcher](#Discreet-Launcher)              | :white_check_mark: | :x:                | :x:                   | :white_check_mark: | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
-| [Aster Launcher](#Aster-Launcher)                    | :warning:          | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :x:                |
+| [Discreet Daemon launcher](#Discreet-Daemon launcher)              | :white_check_mark: | :x:                | :x:                   | :white_check_mark: | :x:                | :white_check_mark: | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :white_check_mark: | :x:                |
+| [Aster Daemon launcher](#Aster-Daemon launcher)                    | :warning:          | :x:                | :x:                   | :x:                | :x:                | :x:                | :x:                | :grey_question:    | :white_check_mark: | :white_check_mark: | :x:                | :x:                |
 
 <!-- Automating checkboxes for the table
 
@@ -451,4 +451,4 @@ Feel free to test these and add
 * https://apt.izzysoft.de/fdroid/index/apk/com.saggitt.omega
 * [Even more launchers](https://docs.arcticons.com/faq/supported-launchers) (most of them don't seem to be FOSS)
 
-The code for this page can be found on [GitHub](https://github.com/jrpie/launcher/blob/master/docs/alternatives.md).
+The code for this page can be found on [GitHub](https://github.com/catamsp/launcher/blob/master/docs/alternatives.md).

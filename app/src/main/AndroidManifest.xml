@@ -91,6 +91,9 @@
         <activity
             android:name=".ui.ReportCrashActivity"
             android:exported="false" />
+        <activity
+            android:name=".ui.PauseActivity"
+            android:exported="false" />
 
         <receiver
             android:name=".actions.lock.LauncherDeviceAdmin"
