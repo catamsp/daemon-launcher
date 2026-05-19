@@ -116,21 +116,6 @@ class SettingsFragmentMeta : Fragment(), UIObject {
             }
         }
 
-        // join chat
-        bindURL(binding.settingsMetaButtonJoinChat, R.string.settings_meta_chat_url)
-
-        // contact developer
-        // bindURL(binding.settingsMetaButtonContact, R.string.settings_meta_contact_url)
-
-        // contact fork developer
-        bindURL(binding.settingsMetaButtonForkContact, R.string.settings_meta_fork_contact_url)
-
-        // donate
-        bindURL(binding.settingsMetaButtonDonate, R.string.settings_meta_donate_url)
-
-        // privacy policy
-        bindURL(binding.settingsMetaButtonPrivacy, R.string.settings_meta_privacy_url)
-
         // legal info
         binding.settingsMetaButtonLicenses.setOnClickListener {
             startActivity(Intent(this.context, LegalInfoActivity::class.java))

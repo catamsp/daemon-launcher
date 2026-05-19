@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="finnmglasTheme_background_color">#252827</color>
-    <color name="finnmglasTheme_accent_color">#5555ff</color>
-    <color name="finnmglasTheme_text_color">#fff</color>
+    <color name="daemonTheme_background_color">#252827</color>
+    <color name="daemonTheme_accent_color">#5555ff</color>
+    <color name="daemonTheme_text_color">#fff</color>
 
     <color name="darkTheme_background_color">#000</color>
     <color name="darkTheme_accent_color">#444</color>

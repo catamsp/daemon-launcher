@@ -184,13 +184,8 @@
     <string name="settings_meta_link_github" translatable="false">https://github.com/catamsp/IDK-launcher</string>
     <string name="settings_meta_link_docs" translatable="false">https://github.com/catamsp/IDK-launcher/</string>
     <string name="settings_meta_report_bug_link" translatable="false">https://github.com/catamsp/IDK-launcher/issues/new?template=bug_report.yaml</string>
-    <string name="settings_meta_report_bug_mail" translatable="false">android-launcher-crash@github.com/catamsp/IDK-launcher</string>
+    <string name="settings_meta_report_bug_mail" translatable="false">catamsp@noreply.github.com</string>
     <string name="settings_meta_report_vulnerability_link" translatable="false">https://github.com/catamsp/IDK-launcher/security/policy</string>
-    <string name="settings_meta_fork_contact_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/contact</string>
-    <string name="settings_meta_privacy_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/android-legal</string>
-    <string name="settings_meta_contact_url" translatable="false">https://www.finnmglas.com/contact/</string>
-    <string name="settings_meta_chat_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/launcher-chat</string>
-    <string name="settings_meta_donate_url" translatable="false">https://s.github.com/catamsp/IDK-launcher/launcher-donate</string>
 
     <!--
       -

@@ -183,7 +183,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
 
                 if (event.actionMasked == MotionEvent.ACTION_UP) {
                     val id = selectedWidgetOverlayView?.widgetId ?: return true
-                    val widget = Widget.byId(id) ?: return true
+                    val widget = Widget.byId(id, context) ?: return true
                     widget.position = newPosition
                     endInteraction()
                     updateWidget(widget)

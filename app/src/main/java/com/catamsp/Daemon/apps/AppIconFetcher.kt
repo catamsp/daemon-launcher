@@ -1,16 +1,12 @@
 package com.catamsp.Daemon.apps
 
 import android.content.Context
-import android.graphics.BitmapFactory
-import android.graphics.drawable.BitmapDrawable
 import coil.ImageLoader
 import coil.decode.DataSource
 import coil.fetch.DrawableResult
 import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
-import com.catamsp.Daemon.Application
-import java.io.File
 
 class AppIconFetcher(
     private val data: AbstractDetailedAppInfo,

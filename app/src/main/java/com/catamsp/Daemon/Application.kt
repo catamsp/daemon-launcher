@@ -123,10 +123,16 @@ class Application : android.app.Application(), ImageLoaderFactory {
 
     var torchManager: TorchManager? = null
     private var customAppNames: HashMap<AbstractAppInfo, String>? = null
+    private var distractingApps: Set<AbstractAppInfo>? = null
+    private var widgets: Set<com.catamsp.Daemon.widgets.Widget>? = null
 
     private val listener = SharedPreferences.OnSharedPreferenceChangeListener { _, pref ->
         if (pref == getString(R.string.settings_apps_custom_names_key)) {
             customAppNames = LauncherPreferences.apps().customNames()
+        } else if (pref == getString(R.string.settings_apps_distracting_apps_key)) {
+            distractingApps = LauncherPreferences.apps().distractingApps()
+        } else if (pref == getString(R.string.settings_widgets_widgets_key)) {
+            widgets = LauncherPreferences.widgets().widgets()
         } else if (pref == LauncherPreferences.apps().keys().pinnedShortcuts()) {
             loadApps()
         }
@@ -199,6 +205,16 @@ class Application : android.app.Application(), ImageLoaderFactory {
     fun getCustomAppNames(): HashMap<AbstractAppInfo, String> {
         return (customAppNames ?: LauncherPreferences.apps().customNames() ?: HashMap())
             .also { customAppNames = it }
+    }
+
+    fun getDistractingApps(): Set<AbstractAppInfo> {
+        return (distractingApps ?: LauncherPreferences.apps().distractingApps() ?: HashSet())
+            .also { distractingApps = it }
+    }
+
+    fun getWidgets(): Set<com.catamsp.Daemon.widgets.Widget> {
+        return (widgets ?: LauncherPreferences.widgets().widgets() ?: HashSet())
+            .also { widgets = it }
     }
 
     private fun loadApps() {

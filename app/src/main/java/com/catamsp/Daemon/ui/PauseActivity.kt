@@ -33,7 +33,7 @@ class PauseActivity : UIObjectActivity() {
             finish()
         }
 
-        object : CountDownTimer(5000, 1000) {
+        object : CountDownTimer(15000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
                 val seconds = (millisUntilFinished / 1000) + 1
                 buttonContinue.text = "Wait ${seconds}s..."

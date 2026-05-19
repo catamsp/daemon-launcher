@@ -55,9 +55,9 @@ sealed class Widget {
             return Json.decodeFromString(serialized)
         }
 
-        fun byId(id: Int): Widget? {
-            // TODO: do some caching
-            return LauncherPreferences.widgets().widgets().firstOrNull {
+        fun byId(id: Int, context: Context): Widget? {
+            val app = context.applicationContext as com.catamsp.Daemon.Application
+            return app.getWidgets().firstOrNull {
                 it.id == id
             }
         }

@@ -9,12 +9,12 @@
 
     <!-- Base theme for Daemon launcher -->
     <style name="launcherBaseTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
-        <item name="colorPrimary">@color/finnmglasTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/finnmglasTheme_background_color</item>
-        <item name="colorAccent">@color/finnmglasTheme_accent_color</item>
-        <item name="android:colorBackground">@color/finnmglasTheme_background_color</item>
+        <item name="colorPrimary">@color/daemonTheme_background_color</item>
+        <item name="colorPrimaryDark">@color/daemonTheme_background_color</item>
+        <item name="colorAccent">@color/daemonTheme_accent_color</item>
+        <item name="android:colorBackground">@color/daemonTheme_background_color</item>
 
-        <item name="android:textColor">@color/finnmglasTheme_text_color</item>
+        <item name="android:textColor">@color/daemonTheme_text_color</item>
         <item name="android:textColorSecondary">?android:textColor</item>
         <item name="android:textColorPrimary">?android:textColor</item>
         <item name="android:textColorHint">?android:textColor</item>
@@ -66,12 +66,12 @@
 
 
     <style name="colorThemeDefault">
-        <item name="colorPrimary">@color/finnmglasTheme_background_color</item>
-        <item name="colorPrimaryDark">@color/finnmglasTheme_background_color</item>
-        <item name="colorAccent">@color/finnmglasTheme_accent_color</item>
-        <item name="android:colorBackground">@color/finnmglasTheme_background_color</item>
+        <item name="colorPrimary">@color/daemonTheme_background_color</item>
+        <item name="colorPrimaryDark">@color/daemonTheme_background_color</item>
+        <item name="colorAccent">@color/daemonTheme_accent_color</item>
+        <item name="android:colorBackground">@color/daemonTheme_background_color</item>
         <item name="cardBackgroundColor">@color/cardview_dark_background</item>
-        <item name="android:textColor">@color/finnmglasTheme_text_color</item>
+        <item name="android:textColor">@color/daemonTheme_text_color</item>
     </style>
 
     <style name="colorThemeLight" tools:keep="@style/colorThemeLight">

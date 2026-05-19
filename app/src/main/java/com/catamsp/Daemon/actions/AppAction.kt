@@ -28,10 +28,11 @@ class AppAction(val app: AppInfo) : Action {
 
     fun invoke(context: Context, rect: Rect?, ignoreDistracting: Boolean = false): Boolean {
         if (!ignoreDistracting) {
-            val distractingApps = com.catamsp.Daemon.preferences.LauncherPreferences.apps().distractingApps()
-            if (distractingApps?.contains(app) == true) {
+            val app = context.applicationContext as com.catamsp.Daemon.Application
+            val distractingApps = app.getDistractingApps()
+            if (distractingApps.contains(this.app)) {
                 val intent = Intent(context, com.catamsp.Daemon.ui.PauseActivity::class.java)
-                intent.putExtra("app_info", app.serialize())
+                intent.putExtra("app_info", this.app.serialize())
                 context.startActivity(intent)
                 return true
             }

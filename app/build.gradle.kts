@@ -99,7 +99,7 @@ android {
     buildFeatures {
         buildConfig = true
         compose = false
-        dataBinding = true
+        dataBinding = false
         viewBinding = true
     }
 
@@ -137,7 +137,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.jonahbauer.android.preference.annotations)
-    annotationProcessor(libs.jonahbauer.android.preference.annotations)
+    kapt(libs.jonahbauer.android.preference.annotations)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.ext.junit)

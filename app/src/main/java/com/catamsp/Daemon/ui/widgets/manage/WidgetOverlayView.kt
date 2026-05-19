@@ -55,7 +55,7 @@ class WidgetOverlayView : ViewGroup {
     var widgetId: Int = -1
         set(newId) {
             field = newId
-            preview = Widget.byId(widgetId)?.getPreview(context)
+            preview = Widget.byId(widgetId, context)?.getPreview(context)
         }
 
     constructor(context: Context) : super(context)
@@ -94,13 +94,13 @@ class WidgetOverlayView : ViewGroup {
     }
 
     fun showPopupMenu() {
-        val widget = Widget.byId(widgetId) ?: return
+        val widget = Widget.byId(widgetId, context) ?: return
         val menu = PopupMenu(context, popupAnchor)
         menu.menu.let {
             it.add(
                 context.getString(R.string.widget_menu_remove)
             ).setOnMenuItemClickListener { _ ->
-                Widget.byId(widgetId)?.delete(context)
+                Widget.byId(widgetId, context)?.delete(context)
                 return@setOnMenuItemClickListener true
             }
             it.add(
