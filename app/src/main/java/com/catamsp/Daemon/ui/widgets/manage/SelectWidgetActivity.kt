@@ -16,8 +16,10 @@ import com.catamsp.Daemon.R
 import com.catamsp.Daemon.databinding.ActivitySelectWidgetBinding
 import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.widgets.ClockWidget
+import com.catamsp.Daemon.widgets.GlobeWidget
 import com.catamsp.Daemon.widgets.LauncherAppWidgetProvider
 import com.catamsp.Daemon.widgets.LauncherClockWidgetProvider
+import com.catamsp.Daemon.widgets.LauncherGlobeWidgetProvider
 import com.catamsp.Daemon.widgets.LauncherWidgetProvider
 import com.catamsp.Daemon.widgets.WidgetPanel
 import com.catamsp.Daemon.widgets.WidgetPosition
@@ -66,6 +68,17 @@ class SelectWidgetActivity : UIObjectActivity() {
                     ClockWidget(
                         generateInternalId(),
                         WidgetPosition(0, 4, 12, 3),
+                        widgetPanelId
+                    )
+                )
+                finish()
+            }
+
+            is LauncherGlobeWidgetProvider -> {
+                updateWidget(
+                    GlobeWidget(
+                        generateInternalId(),
+                        WidgetPosition(0, 7, 12, 5),
                         widgetPanelId
                     )
                 )

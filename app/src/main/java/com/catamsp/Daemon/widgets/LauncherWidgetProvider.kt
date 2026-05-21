@@ -42,3 +42,10 @@ class LauncherClockWidgetProvider(context: Context) : LauncherWidgetProvider(
     AppCompatResources.getDrawable(context, R.drawable.baseline_clock_24),
     null
 )
+
+class LauncherGlobeWidgetProvider(context: Context) : LauncherWidgetProvider(
+    context.getString(R.string.widget_globe_label),
+    context.getString(R.string.widget_globe_description),
+    AppCompatResources.getDrawable(context, R.drawable.baseline_apps_24),
+    null
+)

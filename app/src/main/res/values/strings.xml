@@ -427,6 +427,8 @@
 
     <string name="widget_clock_label">Clock</string>
     <string name="widget_clock_description">The default clock of Daemon launcher</string>
+    <string name="widget_globe_label">App Globe</string>
+    <string name="widget_globe_description">A 3D movable holographic globe showing all installed apps</string>
     <string name="manage_widget_panels_delete">Delete</string>
     <string name="manage_widget_panels_rename">Rename</string>
 
