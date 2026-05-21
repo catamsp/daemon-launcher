@@ -209,6 +209,7 @@ class AppsRecyclerAdapter(
     }
 
     fun selectItem(pos: Int, rect: Rect = Rect()) {
+        if (pos < 0 || pos >= currentList.size) return
         val appInfo = getItem(pos) ?: return
         when (intention) {
             AbstractListActivity.Companion.Intention.VIEW -> {
@@ -228,10 +229,15 @@ class AppsRecyclerAdapter(
         val filteredList = apps.value?.let { appFilter(it) } ?: listOf()
         submitList(filteredList)
 
+        // NEW: Double check the query type
+        val currentQuery = appFilter.query
+        val isAppSearch = com.catamsp.Daemon.apps.SearchRouter.getSearchType(currentQuery) == com.catamsp.Daemon.apps.SearchRouter.SearchType.APP
+
         if (triggerAutoLaunch &&
             filteredList.size == 1
             && intention == AbstractListActivity.Companion.Intention.VIEW
             && !disableAutoLaunch
+            && isAppSearch // ONLY allow auto-launch if it's a standard app search
             && LauncherPreferences.functionality().searchAutoLaunch()
         ) {
             val app = filteredList[0]

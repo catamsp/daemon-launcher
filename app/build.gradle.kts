@@ -31,12 +31,13 @@ val gitCommit = gitCommitProvider.get()
 
 android {
     namespace = "com.catamsp.Daemon"
-    compileSdk = 36
+    compileSdk = 35
+    buildToolsVersion = "34.0.0"
 
     defaultConfig {
         applicationId = "com.catamsp.Daemon"
         minSdk = 21
-        targetSdk = 36
+        targetSdk = 35
         versionCode = 56
         versionName = "0.2.11"
 

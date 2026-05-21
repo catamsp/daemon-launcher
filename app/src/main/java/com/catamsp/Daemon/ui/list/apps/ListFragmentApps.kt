@@ -23,6 +23,11 @@ import com.catamsp.Daemon.ui.list.AbstractListActivity
 import com.catamsp.Daemon.ui.list.AppListActivity
 import com.catamsp.Daemon.ui.openSoftKeyboard
 import kotlin.math.absoluteValue
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 
 /**
@@ -33,6 +38,8 @@ import kotlin.math.absoluteValue
 class ListFragmentApps : Fragment(), UIObject {
     private lateinit var binding: ListAppsBinding
     private lateinit var appsRecyclerAdapter: AppsRecyclerAdapter
+    private lateinit var universalResultAdapter: UniversalResultAdapter
+    private var searchJob: Job? = null
 
 
     private var sharedPreferencesListener =
@@ -121,10 +128,24 @@ class ListFragmentApps : Fragment(), UIObject {
             }
         }
 
+        universalResultAdapter = UniversalResultAdapter()
+        binding.listUniversalResults.apply {
+            layoutManager = LinearLayoutManager(context)
+            adapter = universalResultAdapter
+        }
+
         binding.listAppsSearchview.setOnQueryTextListener(object :
             androidx.appcompat.widget.SearchView.OnQueryTextListener {
 
             override fun onQueryTextSubmit(query: String): Boolean {
+                val searchType = com.catamsp.Daemon.apps.SearchRouter.getSearchType(query)
+                if (searchType != com.catamsp.Daemon.apps.SearchRouter.SearchType.APP) {
+                    if (universalResultAdapter.currentList.isNotEmpty()) {
+                        universalResultAdapter.currentList[0].action.invoke()
+                    }
+                    return true
+                }
+
                 appsRecyclerAdapter.setSearchString(query)
 
                 if (LauncherPreferences.functionality().searchWeb()) {
@@ -160,6 +181,46 @@ class ListFragmentApps : Fragment(), UIObject {
                     }
                     return false
                 }
+
+                val searchType = com.catamsp.Daemon.apps.SearchRouter.getSearchType(newText)
+
+                if (searchType != com.catamsp.Daemon.apps.SearchRouter.SearchType.APP) {
+                    // It is a prefix search. Disable auto-launch.
+                    appsRecyclerAdapter.disableAutoLaunch = true
+
+                    val cleanQuery = com.catamsp.Daemon.apps.SearchRouter.getCleanQuery(newText, searchType)
+
+                    binding.listAppsRview.visibility = View.GONE
+                    binding.listUniversalResults.visibility = View.VISIBLE
+
+                    searchJob?.cancel()
+                    searchJob = CoroutineScope(Dispatchers.IO).launch {
+                        val results = when (searchType) {
+                            com.catamsp.Daemon.apps.SearchRouter.SearchType.MATH -> com.catamsp.Daemon.apps.UniversalSearchProvider.getMathResults(cleanQuery)
+                            com.catamsp.Daemon.apps.SearchRouter.SearchType.CONTACT -> activity?.let { com.catamsp.Daemon.apps.UniversalSearchProvider.getContactsResults(it, cleanQuery) } ?: emptyList()
+                            com.catamsp.Daemon.apps.SearchRouter.SearchType.FILE -> activity?.let { com.catamsp.Daemon.apps.UniversalSearchProvider.getFilesResults(it, cleanQuery) } ?: emptyList()
+                            com.catamsp.Daemon.apps.SearchRouter.SearchType.SETTING -> context?.let { com.catamsp.Daemon.apps.UniversalSearchProvider.getSettingsResults(it, cleanQuery) } ?: emptyList()
+                            else -> emptyList()
+                        }
+                        
+                        withContext(Dispatchers.Main) {
+                            universalResultAdapter.submitList(results)
+                        }
+                    }
+
+                    // Pass the raw text to the app adapter so it clears the list (no apps start with "=")
+                    appsRecyclerAdapter.setSearchString(newText)
+                    return true
+                }
+
+                // Normal App Search
+                // Restore auto-launch if it was disabled by a prefix, but do NOT restore if it was a space
+                if (appsRecyclerAdapter.disableAutoLaunch && newText.trim().isNotEmpty() && !newText.startsWith(" ")) {
+                    appsRecyclerAdapter.disableAutoLaunch = false
+                }
+                
+                binding.listAppsRview.visibility = View.VISIBLE
+                binding.listUniversalResults.visibility = View.GONE
 
                 appsRecyclerAdapter.setSearchString(newText)
                 return false
