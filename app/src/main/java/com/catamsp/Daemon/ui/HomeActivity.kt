@@ -12,6 +12,8 @@ import com.catamsp.Daemon.databinding.ActivityHomeBinding
 import com.catamsp.Daemon.openTutorial
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.ui.util.LauncherGestureActivity
+import android.widget.Toast
+import androidx.core.app.NotificationManagerCompat
 
 
 /**
@@ -22,6 +24,10 @@ import com.catamsp.Daemon.ui.util.LauncherGestureActivity
 class HomeActivity : UIObject, LauncherGestureActivity() {
 
     private lateinit var binding: ActivityHomeBinding
+
+    private fun checkNotificationPermission() {
+        // Permission check is now silent as requested
+    }
 
     private var sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
@@ -117,6 +123,7 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
     override fun onResume() {
         super.onResume()
         updateSettingsFallbackButtonVisibility()
+        checkNotificationPermission()
 
         binding.homeWidgetContainer.updateWidgets(
             this@HomeActivity,

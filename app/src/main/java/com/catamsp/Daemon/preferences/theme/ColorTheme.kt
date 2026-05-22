@@ -3,6 +3,7 @@ package com.catamsp.Daemon.preferences.theme
 import android.content.Context
 import android.content.res.Resources
 import android.graphics.ColorMatrix
+import android.graphics.ColorMatrixColorFilter
 import com.google.android.material.color.DynamicColors
 import com.catamsp.Daemon.R
 
@@ -81,6 +82,10 @@ enum class ColorTheme(
         grayscaleMatrix
     ),
     ;
+
+    val colorFilter: ColorMatrixColorFilter by lazy {
+        ColorMatrixColorFilter(monochromeMatrix)
+    }
 
     fun applyToTheme(theme: Resources.Theme, shadow: Boolean) {
         val colorTheme = if (this.isAvailable()) this else DEFAULT

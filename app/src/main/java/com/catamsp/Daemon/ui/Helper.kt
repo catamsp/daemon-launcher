@@ -30,7 +30,7 @@ fun View.blink(
 // Taken from: https://stackoverflow.com/a/30340794/12787264
 fun ImageView.transformMonochrome(grayscale: Boolean, theme: ColorTheme) {
     this.colorFilter = if (grayscale) {
-        ColorMatrixColorFilter(theme.monochromeMatrix)
+        theme.colorFilter
     } else {
         null
     }

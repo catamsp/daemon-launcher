@@ -38,6 +38,12 @@ const val APP_WIDGET_HOST_ID = 42
 class Application : android.app.Application(), ImageLoaderFactory {
     val apps = MutableLiveData<List<AbstractDetailedAppInfo>>()
     val privateSpaceLocked = MutableLiveData<Boolean>()
+    val activeNotifications = object : MutableLiveData<Set<String>>(emptySet()) {
+        override fun postValue(value: Set<String>?) {
+            android.util.Log.d("Application", "DEBUG: Posting active notifications: $value")
+            super.postValue(value)
+        }
+    }
     lateinit var appWidgetHost: AppWidgetHost
     lateinit var appWidgetManager: AppWidgetManager
 

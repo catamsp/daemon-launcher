@@ -18,19 +18,20 @@ class AppFilter(
     var hiddenVisibility: AppSetVisibility = AppSetVisibility.HIDDEN,
     var privateSpaceVisibility: AppSetVisibility = AppSetVisibility.VISIBLE
 ) {
+    // Optimization Cache
+    private var lastQuery: String? = null
+    private var normalizedQueryCache: String? = null
+    private var disallowedCharsRegex: Regex? = null
 
     operator fun invoke(apps: List<AbstractDetailedAppInfo>): List<AbstractDetailedAppInfo> {
-        var filteredApps = apps
+        val hidden = LauncherPreferences.apps().hidden() ?: emptySet()
+        val favorites = LauncherPreferences.apps().favorites() ?: emptySet()
 
-        val hidden = LauncherPreferences.apps().hidden() ?: setOf()
-        val favorites = LauncherPreferences.apps().favorites() ?: setOf()
-        val private = apps.filter { it.isPrivate() }
-            .map { it.getRawInfo() }.toSet()
-
-        filteredApps = filteredApps.filter { info ->
+        // Optimize: Early filter by visibility before expensive normalization
+        var filteredApps = apps.filter { info ->
             favoritesVisibility.predicate(favorites, info)
                     && hiddenVisibility.predicate(hidden, info)
-                    && privateSpaceVisibility.predicate(private, info)
+                    && (!info.isPrivate() || privateSpaceVisibility == AppSetVisibility.VISIBLE)
         }
 
         if (LauncherPreferences.apps().hideBoundApps()) {
@@ -49,36 +50,41 @@ class AppFilter(
             return filteredApps
         }
 
-        // normalize text for search
-        val normalizedQuery = unicodeNormalize(query)
-        val allowedSpecialCharacters = normalizedQuery
-            .toCharArray()
-            .distinct()
-            .filter { c -> !c.isLetter() }
-            .map { c -> escape(c.toString()) }
-            .fold("") { x, y -> x + y }
-        val disallowedCharsRegex = "[^\\p{L}$allowedSpecialCharacters]".toRegex()
-
-        fun normalize(text: String): String {
-            return text.replace(disallowedCharsRegex, "")
+        // Performance: Re-use compiled Regex and normalized string if query didn't change
+        if (query != lastQuery) {
+            lastQuery = query
+            val rawNormalized = unicodeNormalize(query)
+            val allowedSpecialCharacters = rawNormalized
+                .toCharArray()
+                .distinct()
+                .filter { c -> !c.isLetter() }
+                .map { c -> kotlin.text.Regex.Companion.escape(c.toString()) }
+                .fold("") { x, y -> x + y }
+            
+            disallowedCharsRegex = "[^\\p{L}$allowedSpecialCharacters]".toRegex()
+            normalizedQueryCache = rawNormalized.replace(disallowedCharsRegex!!, "")
         }
 
-        val r: MutableList<AbstractDetailedAppInfo> = ArrayList()
-        val appsSecondary: MutableList<AbstractDetailedAppInfo> = ArrayList()
-        val finalNormalizedQuery: String = normalize(normalizedQuery)
+        val q = normalizedQueryCache ?: ""
+        if (q.isEmpty()) return filteredApps
+
+        val primary: MutableList<AbstractDetailedAppInfo> = ArrayList()
+        val secondary: MutableList<AbstractDetailedAppInfo> = ArrayList()
+        val regex = disallowedCharsRegex!!
         
         for (item in filteredApps) {
-            val itemLabel: String = normalize(item.getNormalizedLabel(context))
+            // item.getNormalizedLabel(context) should be fast (already normalized in AbstractDetailedAppInfo)
+            val itemLabel = item.getNormalizedLabel(context).replace(regex, "")
 
-            if (itemLabel.startsWith(finalNormalizedQuery)) {
-                r.add(item)
-            } else if (itemLabel.contains(finalNormalizedQuery)) {
-                appsSecondary.add(item)
+            if (itemLabel.startsWith(q)) {
+                primary.add(item)
+            } else if (itemLabel.contains(q)) {
+                secondary.add(item)
             }
         }
-        r.addAll(appsSecondary)
+        primary.addAll(secondary)
 
-        return r
+        return primary
     }
 
     companion object {
