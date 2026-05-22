@@ -12,7 +12,7 @@
         android:layout_height="35sp"
         android:contentDescription="@null"
         android:gravity="center"
-        android:textSize="30sp"
+        android:textSize="@dimen/font_size_header"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -25,7 +25,7 @@
         android:layout_marginEnd="5dp"
         android:gravity="start"
         android:text=""
-        android:textSize="20sp"
+        android:textSize="@dimen/font_size_medium"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

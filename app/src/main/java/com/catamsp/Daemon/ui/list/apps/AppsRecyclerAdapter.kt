@@ -28,6 +28,7 @@ import com.catamsp.Daemon.preferences.list.AppNameFormat
 import com.catamsp.Daemon.preferences.list.ListLayout
 import com.catamsp.Daemon.ui.list.AbstractListActivity
 import com.catamsp.Daemon.ui.transformMonochrome
+import kotlinx.coroutines.*
 
 /**
  * A [RecyclerView] (efficient scrollable list) containing all apps on the users device.
@@ -57,6 +58,9 @@ class AppsRecyclerAdapter(
 
     // temporarily disable auto launch
     var disableAutoLaunch: Boolean = false
+    
+    private var searchJob: Job? = null
+    private val searchScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
         apps.observe(this.activity as AppCompatActivity) {
@@ -226,27 +230,42 @@ class AppsRecyclerAdapter(
     }
 
     fun updateAppsList(triggerAutoLaunch: Boolean = false) {
-        val filteredList = apps.value?.let { appFilter(it) } ?: listOf()
-        submitList(filteredList)
+        searchJob?.cancel()
+        searchJob = searchScope.launch {
+            if (triggerAutoLaunch) {
+                delay(150) // Debounce rapid typing
+            }
+            
+            val filteredList = withContext(Dispatchers.Default) {
+                apps.value?.let { appFilter(it) } ?: listOf()
+            }
+            
+            submitList(filteredList)
 
-        // NEW: Double check the query type
-        val currentQuery = appFilter.query
-        val isAppSearch = com.catamsp.Daemon.apps.SearchRouter.getSearchType(currentQuery) == com.catamsp.Daemon.apps.SearchRouter.SearchType.APP
+            // NEW: Double check the query type
+            val currentQuery = appFilter.query
+            val isAppSearch = com.catamsp.Daemon.apps.SearchRouter.getSearchType(currentQuery) == com.catamsp.Daemon.apps.SearchRouter.SearchType.APP
 
-        if (triggerAutoLaunch &&
-            filteredList.size == 1
-            && intention == AbstractListActivity.Companion.Intention.VIEW
-            && !disableAutoLaunch
-            && isAppSearch // ONLY allow auto-launch if it's a standard app search
-            && LauncherPreferences.functionality().searchAutoLaunch()
-        ) {
-            val app = filteredList[0]
-            app.getAction().invoke(activity)
+            if (triggerAutoLaunch &&
+                filteredList.size == 1
+                && intention == AbstractListActivity.Companion.Intention.VIEW
+                && !disableAutoLaunch
+                && isAppSearch // ONLY allow auto-launch if it's a standard app search
+                && LauncherPreferences.functionality().searchAutoLaunch()
+            ) {
+                val app = filteredList[0]
+                app.getAction().invoke(activity)
 
-            val inputMethodManager =
-                activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputMethodManager.hideSoftInputFromWindow(View(activity).windowToken, 0)
+                val inputMethodManager =
+                    activity.getSystemService(Activity.INPUT_METHOD_SERVICE) as InputMethodManager
+                inputMethodManager.hideSoftInputFromWindow(View(activity).windowToken, 0)
+            }
         }
+    }
+
+    override fun onDetachedFromRecyclerView(recyclerView: RecyclerView) {
+        super.onDetachedFromRecyclerView(recyclerView)
+        searchScope.cancel()
     }
 
     /**

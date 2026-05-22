@@ -29,7 +29,7 @@
                 android:padding="@dimen/appbar_padding"
                 android:text="@string/widget_panels_title"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
-                android:textSize="30sp"
+                android:textSize="@dimen/font_size_header"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"

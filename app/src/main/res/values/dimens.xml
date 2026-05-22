@@ -2,4 +2,10 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="appbar_padding">16dp</dimen>
     <dimen name="app_icon_side">40dip</dimen>
+
+    <!-- Unified Typography System -->
+    <dimen name="font_size_header">24sp</dimen>
+    <dimen name="font_size_medium">16sp</dimen>
+    <dimen name="font_size_small">13sp</dimen>
+    <dimen name="spacing_standard">16dp</dimen>
 </resources>

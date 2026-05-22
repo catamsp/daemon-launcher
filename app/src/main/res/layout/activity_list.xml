@@ -50,7 +50,7 @@
                 android:padding="@dimen/appbar_padding"
                 android:text="@string/activity_select_action_title"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
-                android:textSize="30sp"
+                android:textSize="@dimen/font_size_header"
                 app:layout_constraintEnd_toStartOf="@id/list_lock"
                 app:layout_constraintStart_toEndOf="@id/list_settings"
                 app:layout_constraintTop_toTopOf="parent" />

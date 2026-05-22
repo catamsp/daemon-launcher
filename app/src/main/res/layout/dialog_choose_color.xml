@@ -17,7 +17,7 @@
         android:layout_height="wrap_content"
         android:gravity="center|center_horizontal"
         android:padding="5dp"
-        android:textSize="20sp"
+        android:textSize="@dimen/font_size_medium"
         tools:text="#ffbb00" />
 
     <Space

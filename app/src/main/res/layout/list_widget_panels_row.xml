@@ -16,7 +16,7 @@
         android:gravity="start"
         android:text=""
         tools:text="Panel #1"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_medium"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,7 +29,7 @@
         android:gravity="start"
         android:text=""
         tools:text="Contains 5 widgets"
-        android:textSize="11sp"
+        android:textSize="@dimen/font_size_small"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/list_widget_panels_label" />

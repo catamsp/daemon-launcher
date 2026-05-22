@@ -34,7 +34,7 @@
                 android:padding="@dimen/appbar_padding"
                 android:text="@string/select_widget_title"
                 android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
-                android:textSize="30sp"
+                android:textSize="@dimen/font_size_header"
                 app:layout_constraintEnd_toStartOf="@id/select_widget_close"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
@@ -65,9 +65,42 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:scrollbars="vertical"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/select_widget_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/select_widget_appbar" />
+
+    <LinearLayout
+        android:id="@+id/select_widget_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_margin="8dp"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <EditText
+            android:id="@+id/select_widget_search"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8dp"
+            android:background="@null"
+            android:hint="@string/list_apps_search_hint"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:textColor="?android:textColorPrimary"
+            android:textSize="@dimen/font_size_medium" />
+
+        <androidx.appcompat.widget.SwitchCompat
+            android:id="@+id/select_widget_group_toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:checked="true"
+            android:text="Group"
+            android:textSize="@dimen/font_size_small" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

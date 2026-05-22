@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Take a deep breath.\nDo you really need to open this app right now?"
-        android:textSize="18sp"
+        android:textSize="@dimen/font_size_medium"
         android:gravity="center"
         android:layout_marginBottom="48dp" />
 
