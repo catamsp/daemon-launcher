@@ -11,8 +11,10 @@ import android.widget.Button
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.catamsp.Daemon.Application
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.actions.Action
 import com.catamsp.Daemon.actions.Gesture
@@ -21,6 +23,7 @@ import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.list.SelectActionActivity
 import com.catamsp.Daemon.ui.transformMonochrome
+import kotlinx.coroutines.*
 
 /**
  *  The [SettingsFragmentActionsRecycler] is a fragment containing the [ActionsRecyclerAdapter],
@@ -51,11 +54,12 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
 
         // set up the list / recycler
         val actionViewManager = LinearLayoutManager(context)
-        actionViewAdapter = ActionsRecyclerAdapter(requireActivity())
+        actionViewAdapter = ActionsRecyclerAdapter(requireActivity(), this)
 
         binding.settingsActionsRview.apply {
             // improve performance (since content changes don't change the layout size)
-            setHasFixedSize(true)
+            setHasFixedSize(false) // Fix: item heights vary based on descriptions
+            setItemViewCacheSize(10)
             layoutManager = actionViewManager
             adapter = actionViewAdapter
 
@@ -88,68 +92,71 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
     }
 }
 
-class ActionsRecyclerAdapter(val activity: Activity) :
+class ActionsRecyclerAdapter(val activity: Activity, private val fragment: SettingsFragmentActionsRecycler) :
     RecyclerView.Adapter<ActionsRecyclerAdapter.ViewHolder>() {
 
     private val colorTheme = LauncherPreferences.theme().colorTheme()
     private val monochromeIcons = LauncherPreferences.theme().monochromeIcons()
 
-    private val gesturesList: ArrayList<Gesture> =
-        Gesture.entries.filter(Gesture::isEnabled) as ArrayList<Gesture>
+    private var gesturesList: List<Gesture> = Gesture.entries.filter(Gesture::isEnabled)
+    private val dataCache = mutableMapOf<String, Pair<android.graphics.drawable.Drawable?, String>>()
 
-    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView),
-        View.OnClickListener {
+    inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         var textView: TextView = itemView.findViewById(R.id.settings_actions_row_name)
         var descriptionTextView: TextView =
             itemView.findViewById(R.id.settings_actions_row_description)
         var img: ImageView = itemView.findViewById(R.id.settings_actions_row_icon_img)
         var chooseButton: Button = itemView.findViewById(R.id.settings_actions_row_button_choose)
         var removeAction: ImageView = itemView.findViewById(R.id.settings_actions_row_remove)
-
-        override fun onClick(v: View) {}
-
-        init {
-            itemView.setOnClickListener(this)
-        }
+        var iconContainer: View = itemView.findViewById(R.id.settings_actions_row_icon_container)
     }
 
     private fun updateViewHolder(gesture: Gesture, viewHolder: ViewHolder) {
         val action = Action.forGesture(gesture)
 
         if (action == null) {
-            viewHolder.img.visibility = View.INVISIBLE
-            viewHolder.removeAction.visibility = View.GONE
+            viewHolder.iconContainer.visibility = View.GONE
             viewHolder.chooseButton.visibility = View.VISIBLE
             return
         }
 
-        val (icon, label) = action.getIconAndContentDescription(activity)
+        viewHolder.iconContainer.visibility = View.VISIBLE
+        viewHolder.chooseButton.visibility = View.GONE
 
-        viewHolder.img.visibility = View.VISIBLE
-        viewHolder.removeAction.visibility = View.VISIBLE
-        viewHolder.chooseButton.visibility = View.INVISIBLE
-        viewHolder.img.setImageDrawable(icon)
-        viewHolder.img.contentDescription = label
+        // Check cache first
+        val cached = dataCache[gesture.id]
+        if (cached != null) {
+            viewHolder.img.setImageDrawable(cached.first)
+            viewHolder.img.contentDescription = cached.second
+        } else {
+            // Load asynchronously to avoid UI lag
+            viewHolder.img.setImageDrawable(null)
+            fragment.lifecycleScope.launch {
+                val data = withContext(Dispatchers.Default) {
+                    action.getIconAndContentDescription(activity)
+                }
+                dataCache[gesture.id] = data
+                viewHolder.img.setImageDrawable(data.first)
+                viewHolder.img.contentDescription = data.second
+            }
+        }
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
         val gesture = gesturesList[i]
         viewHolder.textView.text = gesture.getLabel(activity)
-
-        val description = gesture.getDescription(activity)
-        viewHolder.descriptionTextView.text = description
+        viewHolder.descriptionTextView.text = gesture.getDescription(activity)
 
         viewHolder.img.transformMonochrome(monochromeIcons, colorTheme)
 
         updateViewHolder(gesture, viewHolder)
-        viewHolder.img.setOnClickListener { SelectActionActivity.selectAction(activity, gesture) }
-        viewHolder.chooseButton.setOnClickListener {
-            SelectActionActivity.selectAction(
-                activity,
-                gesture
-            )
+        
+        viewHolder.itemView.setOnClickListener { SelectActionActivity.selectAction(activity, gesture) }
+        viewHolder.removeAction.setOnClickListener { 
+            Action.clearActionForGesture(gesture)
+            // Local update for immediate feedback
+            updateActions()
         }
-        viewHolder.removeAction.setOnClickListener { Action.clearActionForGesture(gesture) }
     }
 
     override fun getItemCount(): Int {
@@ -164,8 +171,8 @@ class ActionsRecyclerAdapter(val activity: Activity) :
 
     @SuppressLint("NotifyDataSetChanged")
     fun updateActions() {
-        this.gesturesList.clear()
-        gesturesList.addAll(Gesture.entries.filter(Gesture::isEnabled))
+        dataCache.clear()
+        this.gesturesList = Gesture.entries.filter(Gesture::isEnabled)
         notifyDataSetChanged()
     }
 }

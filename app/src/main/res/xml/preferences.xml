@@ -4,6 +4,7 @@
     <PreferenceCategory app:allowDividerAbove="false"> <!-- general -->
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_general_choose_home_screen_key"
             android:title="@string/settings_general_choose_home_screen" />
     </PreferenceCategory>
@@ -11,9 +12,11 @@
         app:allowDividerAbove="false"
         android:title="@string/settings_launcher_section_appearance">
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_wallpaper_key"
             android:title="@string/settings_theme_wallpaper" />
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:entries="@array/settings_theme_color_theme_items"
             android:entryValues="@array/settings_theme_color_theme_values"
             android:defaultValue="DEFAULT"
@@ -22,6 +25,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_font_key"
             android:title="@string/settings_theme_font"
             android:entryValues="@array/settings_theme_font_values"
@@ -30,11 +34,13 @@
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_text_shadow_key"
             android:title="@string/settings_theme_text_shadow"
             android:defaultValue="false" />
 
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_background_key"
             android:title="@string/settings_theme_background"
             android:entries="@array/settings_theme_background_items"
@@ -42,10 +48,12 @@
             android:defaultValue="DIM"
             app:useSimpleSummaryProvider="true" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_monochrome_icons_key"
             android:title="@string/settings_theme_monochrome_icons"
             android:defaultValue="false" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_theme_animations_key"
             android:title="@string/settings_theme_animations"
             android:defaultValue="true" />
@@ -56,6 +64,7 @@
         android:title="@string/settings_launcher_section_date_time"
         app:allowDividerAbove="false">
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_font_key"
             android:title="@string/settings_clock_font"
             android:entryValues="@array/settings_theme_font_values"
@@ -63,25 +72,31 @@
             android:defaultValue="HACK"
             app:useSimpleSummaryProvider="true" />
         <com.catamsp.Daemon.preferences.ColorPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_color_key"
             android:title="@string/settings_clock_color" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_localized_key"
             android:defaultValue="false"
             android:title="@string/settings_clock_localized" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_time_visible_key"
             android:defaultValue="true"
             android:title="@string/settings_clock_time_visible" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_show_seconds_key"
             android:defaultValue="true"
             android:title="@string/settings_clock_show_seconds" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_date_visible_key"
             android:defaultValue="true"
             android:title="@string/settings_clock_date_visible" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_clock_flip_date_time_key"
             android:defaultValue="false"
             android:title="@string/settings_clock_flip_date_time" />
@@ -92,24 +107,29 @@
         app:allowDividerAbove="false">
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_functionality_search_auto_launch_key"
             android:defaultValue="true"
             android:title="@string/settings_functionality_auto_launch"
             android:summary="@string/settings_functionality_auto_launch_summary" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_functionality_search_web_key"
             android:title="@string/settings_functionality_search_web"
             android:defaultValue="false"
             android:summary="@string/settings_functionality_search_web_summary" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_functionality_search_auto_open_keyboard_key"
             android:defaultValue="true"
             android:title="@string/settings_functionality_auto_keyboard" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_functionality_search_auto_close_keyboard_key"
             android:defaultValue="false"
             android:title="@string/settings_functionality_auto_close_keyboard" />
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_actions_lock_method_key"
             android:title="@string/settings_actions_lock_method" />
     </PreferenceCategory>
@@ -117,11 +137,13 @@
         app:allowDividerAbove="false"
         android:title="@string/settings_launcher_section_gestures">
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_enabled_gestures_double_swipe_key"
             android:summary="@string/settings_enabled_gestures_double_swipe_summary"
             android:defaultValue="true"
             android:title="@string/settings_enabled_gestures_double_swipe" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_enabled_gestures_edge_swipe_key"
             android:defaultValue="true"
             android:summary="@string/settings_enabled_gestures_edge_swipe_summary"
@@ -130,12 +152,14 @@
             android:dependency="@string/settings_enabled_gestures_edge_swipe_key"
             app:allowDividerAbove="false">
             <SeekBarPreference
+                app:iconSpaceReserved="false"
                 android:key="@string/settings_enabled_gestures_edge_swipe_edge_width_key"
                 android:defaultValue="15"
                 android:max="33"
                 android:title="@string/settings_enabled_gestures_edge_swipe_edge_width" />
         </PreferenceCategory>
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_enabled_gestures_diagonal_swipe_key"
             android:defaultValue="false"
             android:title="@string/settings_enabled_gestures_diagonal_swipe" />
@@ -147,25 +171,30 @@
         app:allowDividerAbove="false">
 
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_apps_hidden_key"
             android:title="@string/settings_apps_hidden" />
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_apps_hide_bound_apps_key"
             android:title="@string/settings_apps_hide_bound_apps"
             android:defaultValue="false" />
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_apps_hide_paused_apps_key"
             android:title="@string/settings_apps_hide_paused_apps"
             android:defaultValue="false" />
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_apps_hide_private_space_apps_key"
             android:title="@string/settings_apps_hide_private_space_apps"
             android:defaultValue="false" />
 
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_list_layout_key"
             android:title="@string/settings_list_layout"
             android:entries="@array/settings_list_layout_items"
@@ -173,6 +202,7 @@
             android:defaultValue="DEFAULT"
             app:useSimpleSummaryProvider="true" />
         <DropDownPreference
+            app:iconSpaceReserved="false"
             android:key="list.app_name_format"
             android:title="@string/settings_list_app_name_format"
             android:entries="@array/settings_list_app_name_format_items"
@@ -181,6 +211,7 @@
             app:useSimpleSummaryProvider="true" />
 
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_list_reverse_layout_key"
             android:title="@string/settings_list_reverse_layout"
             android:defaultValue="false" />
@@ -191,9 +222,11 @@
         android:title="@string/settings_launcher_section_widgets"
         app:allowDividerAbove="false">
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_widgets_widgets_key"
             android:title="@string/settings_widgets_widgets" />
         <Preference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_widgets_custom_panels_key"
             android:title="@string/settings_widgets_custom_panels" />
     </PreferenceCategory>
@@ -201,18 +234,22 @@
         android:title="@string/settings_launcher_section_display"
         app:allowDividerAbove="false">
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_display_rotate_screen_key"
             android:defaultValue="true"
             android:title="@string/settings_display_rotate_screen" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_display_screen_timeout_disabled_key"
             android:defaultValue="false"
             android:title="@string/settings_display_screen_timeout_disabled" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_display_hide_status_bar_key"
             android:defaultValue="true"
             android:title="@string/settings_display_hide_status_bar" />
         <SwitchPreference
+            app:iconSpaceReserved="false"
             android:key="@string/settings_display_hide_navigation_bar_key"
             android:defaultValue="false"
             android:title="@string/settings_display_hide_navigation_bar" />

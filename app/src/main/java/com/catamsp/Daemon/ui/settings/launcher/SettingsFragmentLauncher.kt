@@ -61,6 +61,18 @@ class SettingsFragmentLauncher : PreferenceFragmentCompat() {
         super.onPause()
     }
 
+    override fun onViewCreated(view: android.view.View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        // Optimize the internal RecyclerView and restore matching padding
+        val padding = resources.getDimensionPixelSize(R.dimen.spacing_standard)
+        listView.apply {
+            setHasFixedSize(false)
+            setItemViewCacheSize(10)
+            setPadding(padding, 0, padding, 0)
+            clipToPadding = false
+        }
+    }
+
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
 

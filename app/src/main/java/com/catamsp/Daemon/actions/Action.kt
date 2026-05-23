@@ -40,16 +40,27 @@ sealed interface Action {
     }
 
     companion object {
+        private val actionCache = mutableMapOf<String, Action>()
 
         fun forGesture(gesture: Gesture): Action? {
             val id = gesture.id
+            
+            // Optimization: Return from memory if already parsed
+            actionCache[id]?.let { return it }
 
             val preferences = LauncherPreferences.getSharedPreferences()
             val json = preferences.getString(id, "null")!!
-            return Json.decodeFromString(json)
+            return try {
+                val action = Json.decodeFromString<Action>(json)
+                actionCache[id] = action
+                action
+            } catch (e: Exception) {
+                null
+            }
         }
 
         fun resetToDefaultActions(context: Context) {
+            actionCache.clear()
             LauncherPreferences.getSharedPreferences().edit {
                 val boundActions = HashSet<String>()
                 Gesture.entries.forEach { gesture ->
@@ -74,12 +85,14 @@ sealed interface Action {
                 clearActionForGesture(gesture)
                 return
             }
+            actionCache[gesture.id] = action // Update cache
             LauncherPreferences.getSharedPreferences().edit {
                 action.bindToGesture(this, gesture.id)
             }
         }
 
         fun clearActionForGesture(gesture: Gesture) {
+            actionCache.remove(gesture.id) // Clear cache
             LauncherPreferences.getSharedPreferences().edit {
                 remove(gesture.id)
             }

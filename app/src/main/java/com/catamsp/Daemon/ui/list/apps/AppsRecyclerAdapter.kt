@@ -15,6 +15,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
+import coil.request.CachePolicy
 import com.catamsp.Daemon.Application
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.actions.Action
@@ -66,7 +67,7 @@ class AppsRecyclerAdapter(
         apps.observe(this.activity as AppCompatActivity) {
             updateAppsList()
         }
-        updateAppsList()
+        // updateAppsList() is removed here as it will be triggered by the observer immediately if apps.value is not null
     }
 
     object DiffCallback : DiffUtil.ItemCallback<AbstractDetailedAppInfo>() {
@@ -109,7 +110,12 @@ class AppsRecyclerAdapter(
         var appLabel = app.getCustomLabel(activity)
 
         viewHolder.img.transformMonochrome(grayscale, colorTheme)
-        viewHolder.img.load(app)
+        viewHolder.img.load(app) {
+            crossfade(true)
+            placeholder(R.drawable.baseline_apps_24)
+            diskCachePolicy(CachePolicy.ENABLED)
+            memoryCachePolicy(CachePolicy.ENABLED)
+        }
 
         if (layout.useBadgedText) {
             appLabel = activity.packageManager.getUserBadgedLabel(

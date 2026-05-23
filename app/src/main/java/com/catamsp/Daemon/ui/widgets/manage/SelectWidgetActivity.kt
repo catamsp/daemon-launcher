@@ -138,8 +138,8 @@ class SelectWidgetActivity : UIObjectActivity() {
         viewAdapter = SelectWidgetListAdapter()
 
         binding.selectWidgetRecycler.apply {
-            setHasFixedSize(true)
-            setItemViewCacheSize(20)
+            setHasFixedSize(false)
+            setItemViewCacheSize(10)
             layoutManager = LinearLayoutManager(this@SelectWidgetActivity)
             adapter = viewAdapter
         }

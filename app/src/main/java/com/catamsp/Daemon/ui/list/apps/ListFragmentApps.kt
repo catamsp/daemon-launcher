@@ -103,8 +103,8 @@ class ListFragmentApps : Fragment(), UIObject {
 
         // set up the list / recycler
         binding.listAppsRview.apply {
-            // improve performance (since content changes don't change the layout size)
-            setHasFixedSize(true)
+            setHasFixedSize(false) // Fix: item heights vary based on app name length
+            setItemViewCacheSize(10)
             layoutManager = LauncherPreferences.list().layout().layoutManager(context)
                 .also {
                     if (LauncherPreferences.list().reverseLayout()) {

@@ -3,17 +3,16 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/settings_meta_container"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
+    android:layout_height="match_parent"
+    android:padding="@dimen/spacing_standard"
+    android:clipToPadding="false"
     tools:context=".ui.settings.meta.SettingsFragmentMeta">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:gravity="center|top"
-        android:orientation="vertical"
-        android:paddingLeft="32sp"
-        android:paddingTop="16sp"
-        android:paddingRight="32sp">
+        android:orientation="vertical">
 
 
         <Button
@@ -32,7 +31,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="64sp" />
+            android:layout_height="24dp" />
 
         <Button
             android:id="@+id/settings_meta_button_view_code"
@@ -57,7 +56,7 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="64sp" />
+            android:layout_height="24dp" />
 
         <Button
             android:id="@+id/settings_meta_button_licenses"
@@ -68,13 +67,14 @@
 
         <Space
             android:layout_width="match_parent"
-            android:layout_height="32sp" />
+            android:layout_height="16dp" />
 
         <TextView
             android:id="@+id/settings_meta_text_version"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAlignment="textEnd"
+            android:textSize="@dimen/font_size_small"
             tools:text="v1.2.3" />
 
     </LinearLayout>
