@@ -22,26 +22,97 @@ object UniversalSearchProvider {
             results.add(UniversalSearchResult(id = "math_empty", title = "Enter a math expression") {})
         } else {
             try {
-                val parts = query.split("+", "-", "*", "/")
-                if (parts.size >= 2 && parts[1].isNotBlank()) {
-                    val a = parts[0].trim().toDouble()
-                    val b = parts[1].trim().toDouble()
-                    val res = when {
-                        query.contains("+") -> a + b
-                        query.contains("-") -> a - b
-                        query.contains("*") -> a * b
-                        query.contains("/") -> a / b
-                        else -> 0.0
-                    }
-                    results.add(UniversalSearchResult(id = "math_res", title = res.toString()) {})
+                val res = eval(query)
+                // Format the output: drop .0 for whole numbers
+                val formatted = if (res == res.toLong().toDouble()) {
+                    res.toLong().toString()
                 } else {
-                    results.add(UniversalSearchResult(id = "math_partial", title = "= $query") {})
+                    res.toString()
                 }
+                results.add(UniversalSearchResult(id = "math_res", title = formatted) {})
             } catch (e: Exception) {
-                results.add(UniversalSearchResult(id = "math_err", title = "Invalid expression") {})
+                // If it's incomplete or invalid, just show the query being typed
+                results.add(UniversalSearchResult(id = "math_partial", title = "= $query") {})
             }
         }
         return results
+    }
+
+    // A robust, lightweight recursive descent parser for math expressions
+    private fun eval(str: String): Double {
+        return object : Any() {
+            var pos = -1
+            var ch = 0
+            fun nextChar() {
+                ch = if (++pos < str.length) str[pos].code else -1
+            }
+
+            fun eat(charToEat: Int): Boolean {
+                while (ch == ' '.code) nextChar()
+                if (ch == charToEat) {
+                    nextChar()
+                    return true
+                }
+                return false
+            }
+
+            fun parse(): Double {
+                nextChar()
+                val x = parseExpression()
+                if (pos < str.length) throw RuntimeException("Unexpected: " + ch.toChar())
+                return x
+            }
+
+            fun parseExpression(): Double {
+                var x = parseTerm()
+                while (true) {
+                    if (eat('+'.code)) x += parseTerm() // addition
+                    else if (eat('-'.code)) x -= parseTerm() // subtraction
+                    else return x
+                }
+            }
+
+            fun parseTerm(): Double {
+                var x = parseFactor()
+                while (true) {
+                    if (eat('*'.code)) x *= parseFactor() // multiplication
+                    else if (eat('/'.code)) x /= parseFactor() // division
+                    else if (eat('%'.code)) x %= parseFactor() // modulo
+                    else return x
+                }
+            }
+
+            fun parseFactor(): Double {
+                if (eat('+'.code)) return parseFactor() // unary plus
+                if (eat('-'.code)) return -parseFactor() // unary minus
+                var x: Double
+                val startPos = pos
+                if (eat('('.code)) { // parentheses
+                    x = parseExpression()
+                    eat(')'.code)
+                } else if (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) { // numbers
+                    while (ch >= '0'.code && ch <= '9'.code || ch == '.'.code) nextChar()
+                    x = str.substring(startPos, pos).toDouble()
+                } else if (ch >= 'a'.code && ch <= 'z'.code) { // functions
+                    while (ch >= 'a'.code && ch <= 'z'.code) nextChar()
+                    val func = str.substring(startPos, pos)
+                    x = parseFactor()
+                    x = when (func) {
+                        "sqrt" -> Math.sqrt(x)
+                        "sin" -> Math.sin(Math.toRadians(x))
+                        "cos" -> Math.cos(Math.toRadians(x))
+                        "tan" -> Math.tan(Math.toRadians(x))
+                        "log" -> Math.log10(x)
+                        "ln" -> Math.log(x)
+                        else -> throw RuntimeException("Unknown function: $func")
+                    }
+                } else {
+                    throw RuntimeException("Unexpected: " + ch.toChar())
+                }
+                if (eat('^'.code)) x = Math.pow(x, parseFactor()) // exponentiation
+                return x
+            }
+        }.parse()
     }
 
     fun getSettingsResults(context: Context, query: String): List<UniversalSearchResult> {
