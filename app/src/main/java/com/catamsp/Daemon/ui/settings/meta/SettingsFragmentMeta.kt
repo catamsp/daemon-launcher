@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.catamsp.Daemon.BuildConfig
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.copyToClipboard
@@ -19,18 +20,20 @@ import com.catamsp.Daemon.openTutorial
 import com.catamsp.Daemon.preferences.resetPreferences
 import com.catamsp.Daemon.ui.LegalInfoActivity
 import com.catamsp.Daemon.ui.UIObject
+import com.catamsp.Daemon.ui.settings.SettingsItem
+import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 
 /**
  * The [SettingsFragmentMeta] is a used as a tab in the SettingsActivity.
  *
  * It is used to change settings and access resources about Launcher,
  * that are not directly related to the behaviour of the app itself.
- *
- * (greek `meta` = above, next level)
  */
 class SettingsFragmentMeta : Fragment(), UIObject {
 
     private lateinit var binding: SettingsMetaBinding
+    private val adapter = SettingsRecyclerAdapter()
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -40,93 +43,91 @@ class SettingsFragmentMeta : Fragment(), UIObject {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        
+        binding.metaRecyclerView.layoutManager = LinearLayoutManager(context)
+        binding.metaRecyclerView.adapter = adapter
+        
+        refreshList()
+    }
+
     override fun onStart() {
         super<Fragment>.onStart()
         super<UIObject>.onStart()
     }
 
-    override fun setOnClicks() {
+    private fun refreshList() {
+        val context = requireContext()
+        val items = mutableListOf<SettingsItem>()
 
-        fun bindURL(view: View, urlRes: Int) {
-            view.setOnClickListener {
-                openInBrowser(
-                    getString(urlRes),
-                    requireContext()
-                )
-            }
-        }
+        items.add(SettingsItem.Header("hdr_help", "Support & Help"))
+        
+        items.add(SettingsItem.Clickable("btn_tutorial", getString(R.string.settings_meta_show_tutorial), "Learn how to use Daemon Launcher") {
+            openTutorial(context)
+        })
 
-        binding.settingsMetaButtonViewTutorial.setOnClickListener {
-            openTutorial(requireContext())
-        }
-
-        // prompting for settings-reset confirmation
-        binding.settingsMetaButtonResetSettings.setOnClickListener {
-            AlertDialog.Builder(this.requireContext(), R.style.AlertDialogCustom)
+        items.add(SettingsItem.Clickable("btn_reset", getString(R.string.settings_meta_reset), "Wipe all settings and restart") {
+            AlertDialog.Builder(context, R.style.AlertDialogCustom)
                 .setTitle(getString(R.string.settings_meta_reset))
                 .setMessage(getString(R.string.settings_meta_reset_confirm))
-                .setPositiveButton(
-                    android.R.string.ok
-                ) { _, _ ->
-                    resetPreferences(this.requireContext())
+                .setPositiveButton(android.R.string.ok) { _, _ ->
+                    resetPreferences(context)
                     requireActivity().finish()
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
                 .show()
-        }
+        })
 
+        items.add(SettingsItem.Header("hdr_dev", "Development"))
 
-        // view code
-        bindURL(binding.settingsMetaButtonViewCode, R.string.settings_meta_link_github)
+        items.add(SettingsItem.Clickable("btn_code", getString(R.string.settings_meta_view_code), "View source on GitHub") {
+            openInBrowser(getString(R.string.settings_meta_link_github), context)
+        })
 
-        // view documentation
-        bindURL(binding.settingsMetaButtonViewDocs, R.string.settings_meta_link_docs)
+        items.add(SettingsItem.Clickable("btn_docs", getString(R.string.settings_meta_view_docs), "Read the official documentation") {
+            openInBrowser(getString(R.string.settings_meta_link_docs), context)
+        })
 
-        // report a bug
-        binding.settingsMetaButtonReportBug.setOnClickListener {
+        items.add(SettingsItem.Clickable("btn_bug", getString(R.string.settings_meta_report_bug), "Report issues or suggest features") {
+            showReportBugDialog()
+        })
+
+        items.add(SettingsItem.Header("hdr_legal", "Legal"))
+
+        items.add(SettingsItem.Clickable("btn_licenses", getString(R.string.settings_meta_licenses), "Open source credits") {
+            startActivity(Intent(context, LegalInfoActivity::class.java))
+        })
+
+        items.add(SettingsItem.Clickable("btn_version", "Version: ${BuildConfig.VERSION_NAME}", "Tap to copy debug info") {
             val deviceInfo = getDeviceInfo()
-            AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
-                setView(R.layout.dialog_report_bug)
-                setTitle(R.string.dialog_report_bug_title)
-                setPositiveButton(R.string.dialog_report_bug_create_report) { _, _ ->
-                    openInBrowser(
-                        getString(R.string.settings_meta_report_bug_link),
-                        requireContext()
-                    )
-                }
-                setNegativeButton(R.string.dialog_cancel) { _, _ -> }
-            }.create().also { it.show() }.apply {
-                val info = findViewById<TextView>(R.id.dialog_report_bug_device_info)
-                val buttonClipboard = findViewById<Button>(R.id.dialog_report_bug_button_clipboard)
-                val buttonSecurity = findViewById<Button>(R.id.dialog_report_bug_button_security)
-                info.text = deviceInfo
-                buttonClipboard.setOnClickListener {
-                    copyToClipboard(requireContext(), deviceInfo)
-                }
-                info.setOnClickListener {
-                    copyToClipboard(requireContext(), deviceInfo)
-                }
-                buttonSecurity.setOnClickListener {
-                    openInBrowser(
-                        getString(R.string.settings_meta_report_vulnerability_link),
-                        requireContext()
-                    )
-                }
+            copyToClipboard(context, deviceInfo)
+        })
+
+        adapter.submitList(items)
+    }
+
+    private fun showReportBugDialog() {
+        val deviceInfo = getDeviceInfo()
+        val context = requireContext()
+        AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
+            setView(R.layout.dialog_report_bug)
+            setTitle(R.string.dialog_report_bug_title)
+            setPositiveButton(R.string.dialog_report_bug_create_report) { _, _ ->
+                openInBrowser(getString(R.string.settings_meta_report_bug_link), context)
+            }
+            setNegativeButton(R.string.dialog_cancel) { _, _ -> }
+        }.create().also { it.show() }.apply {
+            val info = findViewById<TextView>(R.id.dialog_report_bug_device_info)
+            val buttonClipboard = findViewById<Button>(R.id.dialog_report_bug_button_clipboard)
+            val buttonSecurity = findViewById<Button>(R.id.dialog_report_bug_button_security)
+            info?.text = deviceInfo
+            buttonClipboard?.setOnClickListener { copyToClipboard(context, deviceInfo) }
+            info?.setOnClickListener { copyToClipboard(context, deviceInfo) }
+            buttonSecurity?.setOnClickListener {
+                openInBrowser(getString(R.string.settings_meta_report_vulnerability_link), context)
             }
         }
-
-        // legal info
-        binding.settingsMetaButtonLicenses.setOnClickListener {
-            startActivity(Intent(this.context, LegalInfoActivity::class.java))
-        }
-
-        // version
-        binding.settingsMetaTextVersion.text = BuildConfig.VERSION_NAME
-        binding.settingsMetaTextVersion.setOnClickListener {
-            val deviceInfo = getDeviceInfo()
-            copyToClipboard(requireContext(), deviceInfo)
-        }
-
     }
 }

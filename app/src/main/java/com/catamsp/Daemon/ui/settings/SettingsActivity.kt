@@ -14,14 +14,14 @@ import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
 import com.catamsp.Daemon.ui.UIObjectActivity
-import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActions
+import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActionsRecycler
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
 
 /**
  * The [SettingsActivity] is a tabbed activity:
  *
- * | Actions    |   Choose apps or intents to be launched   | [SettingsFragmentActions] |
+ * | Actions    |   Choose apps or intents to be launched   | [SettingsFragmentActionsRecycler] |
  * | Theme      |   Select a theme / Customize              | [SettingsFragmentLauncher]   |
  * | Meta       |   About Launcher / Contact etc.           | [SettingsFragmentMeta]    |
  *
@@ -110,7 +110,7 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
 
     override fun createFragment(position: Int): Fragment {
         return when (position) {
-            0 -> SettingsFragmentActions()
+            0 -> SettingsFragmentActionsRecycler()
             1 -> SettingsFragmentLauncher()
             2 -> SettingsFragmentMeta()
             else -> Fragment()
