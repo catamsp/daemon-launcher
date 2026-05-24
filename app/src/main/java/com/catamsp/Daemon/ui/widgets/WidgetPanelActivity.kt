@@ -1,5 +1,6 @@
 package com.catamsp.Daemon.ui.widgets
 
+import android.content.Intent
 import android.content.res.Resources
 import android.os.Bundle
 import android.view.View
@@ -8,6 +9,7 @@ import com.catamsp.Daemon.Application
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.databinding.ActivityWidgetPanelBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
+import com.catamsp.Daemon.ui.HomeActivity
 import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.util.LauncherGestureActivity
 import com.catamsp.Daemon.ui.widgets.manage.EXTRA_PANEL_ID
@@ -18,22 +20,45 @@ class WidgetPanelActivity : LauncherGestureActivity(), UIObject {
 
     var widgetPanelId: Int = WidgetPanel.HOME.id
 
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        setIntent(intent)
+        val newId = intent.getIntExtra(EXTRA_PANEL_ID, WidgetPanel.HOME.id)
+        if (newId == WidgetPanel.HOME.id) {
+            finish()
+            return
+        }
+        widgetPanelId = newId
+        binding?.widgetPanelWidgetContainer?.widgetPanelId = widgetPanelId
+        binding?.widgetPanelWidgetContainer?.updateWidgets(
+            this,
+            LauncherPreferences.widgets().widgets()
+        )
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super<LauncherGestureActivity>.onCreate(savedInstanceState)
         super<UIObject>.onCreate()
-        val binding = ActivityWidgetPanelBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+        
+        val id = intent.getIntExtra(EXTRA_PANEL_ID, WidgetPanel.HOME.id)
+        if (id == WidgetPanel.HOME.id) {
+            finish()
+            return
+        }
+        widgetPanelId = id
 
-        widgetPanelId = intent.getIntExtra(EXTRA_PANEL_ID, WidgetPanel.HOME.id)
+        val b = ActivityWidgetPanelBinding.inflate(layoutInflater)
+        this.binding = b
+        setContentView(b.root)
 
         // The widget container should extend below the status and navigation bars,
         // so let's set an empty WindowInsetsListener to prevent it from being moved.
-        ViewCompat.setOnApplyWindowInsetsListener(binding.root) { _, windowInsets ->
+        ViewCompat.setOnApplyWindowInsetsListener(b.root) { _, windowInsets ->
             windowInsets
         }
 
-        binding.widgetPanelWidgetContainer.widgetPanelId = widgetPanelId
-        binding.widgetPanelWidgetContainer.updateWidgets(
+        b.widgetPanelWidgetContainer.widgetPanelId = widgetPanelId
+        b.widgetPanelWidgetContainer.updateWidgets(
             this,
             LauncherPreferences.widgets().widgets()
         )
@@ -84,6 +109,9 @@ class WidgetPanelActivity : LauncherGestureActivity(), UIObject {
     }
 
     override fun handleBack() {
+        val intent = Intent(this, HomeActivity::class.java)
+        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(intent)
         finish()
     }
 

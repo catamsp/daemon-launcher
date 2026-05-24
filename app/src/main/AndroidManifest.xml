@@ -32,7 +32,8 @@
             android:exported="false" />
         <activity
             android:name=".ui.widgets.WidgetPanelActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:launchMode="singleTop" />
         <activity
             android:name=".ui.widgets.manage.ManageWidgetsActivity"
             android:configChanges="orientation|screenSize"

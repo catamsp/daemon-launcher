@@ -26,10 +26,8 @@ class WidgetPanelAction(val widgetPanelId: Int) : Action {
     override fun invoke(context: Context, rect: Rect?): Boolean {
 
         if (context is WidgetPanelActivity) {
-            if (context.widgetPanelId == widgetPanelId) {
-                context.finish()
-                return true
-            }
+            context.finish()
+            return true
         }
 
         if (WidgetPanel.byId(this.widgetPanelId) == null) {
@@ -37,6 +35,7 @@ class WidgetPanelAction(val widgetPanelId: Int) : Action {
         } else {
             context.startActivity(Intent(context, WidgetPanelActivity::class.java).also {
                 it.putExtra(EXTRA_PANEL_ID, this.widgetPanelId)
+                it.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
             })
         }
         return true
