@@ -48,19 +48,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <com.google.android.material.tabs.TabLayout
+        <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/settings_tabs"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:background="@android:color/transparent"
+            android:orientation="horizontal"
+            android:clipToPadding="false"
+            android:overScrollMode="never"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/settings_close"
             app:layout_constraintStart_toEndOf="@+id/settings_system"
-            app:layout_constraintTop_toTopOf="parent"
-            app:tabGravity="fill"
-            app:tabIndicatorHeight="2dp"
-            app:tabMode="fixed"
-            app:tabTextColor="?attr/android:textColor" />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/settings_close"

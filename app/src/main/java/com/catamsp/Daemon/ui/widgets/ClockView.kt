@@ -6,6 +6,7 @@ import android.util.AttributeSet
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
+import androidx.core.widget.TextViewCompat
 import com.catamsp.Daemon.actions.Gesture
 import com.catamsp.Daemon.databinding.WidgetClockBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
@@ -83,6 +84,10 @@ class ClockView(
         binding.clockUpperView.format24Hour = upperFormat
         binding.clockLowerView.format12Hour = lowerFormat
         binding.clockUpperView.format12Hour = upperFormat
+
+        val fontId = LauncherPreferences.clock().font().id
+        TextViewCompat.setTextAppearance(binding.clockUpperView, fontId)
+        TextViewCompat.setTextAppearance(binding.clockLowerView, fontId)
     }
 
     private fun setOnClicks() {

@@ -306,6 +306,5 @@ class SelectWidgetActivity : UIObjectActivity() {
     }
 
     companion object {
-        private const val EXTRA_PANEL_ID = "panelId"
     }
 }

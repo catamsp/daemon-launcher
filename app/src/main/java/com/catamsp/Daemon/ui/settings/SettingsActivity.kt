@@ -4,10 +4,18 @@ import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
+import android.util.TypedValue
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.LinearSnapHelper
+import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import com.google.android.material.tabs.TabLayoutMediator
+import androidx.viewpager2.widget.ViewPager2
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.databinding.SettingsBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
@@ -64,13 +72,67 @@ class SettingsActivity : UIObjectActivity() {
 
         // set up tabs and swiping in settings
         val sectionsPagerAdapter = SettingsSectionsPagerAdapter(this)
+        val tabAdapter = SettingsTabAdapter(TAB_TITLES) { position ->
+            binding.settingsViewpager.currentItem = position
+        }
+
         binding.settingsViewpager.apply {
             adapter = sectionsPagerAdapter
             setCurrentItem(intent.getIntExtra(EXTRA_TAB, 0), false)
         }
-        TabLayoutMediator(binding.settingsTabs, binding.settingsViewpager) { tab, position ->
-            tab.text = sectionsPagerAdapter.getPageTitle(position)
-        }.attach()
+
+        val layoutManager = LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+        binding.settingsTabs.apply {
+            this.layoutManager = layoutManager
+            this.adapter = tabAdapter
+
+            // Center padding to allow first and last items to be anchored in the center
+            post {
+                val padding = (width / 2) - (TypedValue.applyDimension(
+                    TypedValue.COMPLEX_UNIT_DIP,
+                    40f,
+                    resources.displayMetrics
+                ).toInt())
+                setPadding(padding, 0, padding, 0)
+                scrollToPosition(binding.settingsViewpager.currentItem)
+            }
+
+            val snapHelper = LinearSnapHelper()
+            snapHelper.attachToRecyclerView(this)
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    val centerX = recyclerView.width / 2
+                    for (i in 0 until recyclerView.childCount) {
+                        val child = recyclerView.getChildAt(i)
+                        val childCenterX = (child.left + child.right) / 2
+                        val distanceFromCenter = Math.abs(centerX - childCenterX)
+                        val scale = 1f - (distanceFromCenter.toFloat() / centerX).coerceIn(0f, 0.4f)
+                        child.scaleX = scale
+                        child.scaleY = scale
+                        child.alpha = 1f - (distanceFromCenter.toFloat() / centerX).coerceIn(0f, 0.6f)
+                    }
+                }
+
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                        val centerView = snapHelper.findSnapView(layoutManager)
+                        if (centerView != null) {
+                            val pos = layoutManager.getPosition(centerView)
+                            if (binding.settingsViewpager.currentItem != pos) {
+                                binding.settingsViewpager.setCurrentItem(pos, true)
+                            }
+                        }
+                    }
+                }
+            })
+        }
+
+        binding.settingsViewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+            override fun onPageSelected(position: Int) {
+                binding.settingsTabs.smoothScrollToPosition(position)
+            }
+        })
     }
 
     override fun onStart() {
@@ -124,4 +186,43 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
     override fun getItemCount(): Int {
         return 3
     }
+}
+
+/**
+ * A custom adapter for the bottom tab carousel.
+ */
+class SettingsTabAdapter(
+    private val titles: Array<Int>,
+    private val onClick: (Int) -> Unit
+) : RecyclerView.Adapter<SettingsTabAdapter.ViewHolder>() {
+
+    class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val textView = TextView(parent.context).apply {
+            layoutParams = ViewGroup.LayoutParams(
+                ViewGroup.LayoutParams.WRAP_CONTENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+            )
+            setPadding(
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics).toInt(),
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt(),
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 16f, resources.displayMetrics).toInt(),
+                TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8f, resources.displayMetrics).toInt()
+            )
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+            gravity = android.view.Gravity.CENTER
+            setTextColor(parent.context.getColor(android.R.color.white))
+            isAllCaps = true
+            setTypeface(null, android.graphics.Typeface.BOLD)
+        }
+        return ViewHolder(textView)
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        holder.textView.setText(titles[position])
+        holder.textView.setOnClickListener { onClick(position) }
+    }
+
+    override fun getItemCount(): Int = titles.size
 }
