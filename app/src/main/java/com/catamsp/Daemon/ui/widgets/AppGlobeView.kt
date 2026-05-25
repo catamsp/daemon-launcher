@@ -23,6 +23,7 @@ import com.catamsp.Daemon.apps.PinnedShortcutInfo
 import com.catamsp.Daemon.widgets.WidgetPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.*
@@ -67,6 +68,7 @@ class AppGlobeView(
 
     private val sphereRadius = 0.8f 
     private var baseIconSizePx = 0f
+    private var loadIconsJob: kotlinx.coroutines.Job? = null
 
     data class Point3D(var x: Float, var y: Float, var z: Float, val app: AbstractDetailedAppInfo)
 
@@ -85,33 +87,43 @@ class AppGlobeView(
     private val appsObserver = Observer<List<AbstractDetailedAppInfo>> {
         apps = it
         updateRelevantNotifications()
-        // Pre-cache bitmaps and colors on background thread
-        CoroutineScope(Dispatchers.Default).launch {
+        
+        // Step 1: Generate geometry immediately on the Main Thread
+        generatePoints()
+        invalidate() // Draw fallbacks instantly
+
+        // Step 2: Lazy load icons in the background progressively
+        loadIconsJob?.cancel()
+        loadIconsJob = CoroutineScope(Dispatchers.Default).launch {
             val size = (40f * resources.displayMetrics.density).toInt()
-            val newCache = mutableMapOf<String, Bitmap>()
-            val newColors = mutableMapOf<String, Int>()
+            
             for (app in it) {
+                if (!isActive) break
                 val key = app.getRawInfo().toString()
-                val drawable = app.getIcon(context)
-                val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
-                val canvas = Canvas(bitmap)
-                drawable.setBounds(0, 0, size, size)
-                drawable.draw(canvas)
-                newCache[key] = bitmap
                 
-                // Extract dominant color for the holographic glow
-                val palette = Palette.from(bitmap).generate()
-                val dominantColor = palette.getDominantColor(0xFF00FFFF.toInt())
-                newColors[key] = dominantColor
-            }
-            withContext(Dispatchers.Main) {
-                iconBitmaps.values.forEach { it.recycle() }
-                iconBitmaps.clear()
-                iconBitmaps.putAll(newCache)
-                iconColors.clear()
-                iconColors.putAll(newColors)
-                generatePoints()
-                invalidate()
+                // Skip if already loaded
+                if (iconBitmaps.containsKey(key)) continue
+                
+                try {
+                    val drawable = app.getIcon(context)
+                    val bitmap = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888)
+                    val canvas = Canvas(bitmap)
+                    drawable.setBounds(0, 0, size, size)
+                    drawable.draw(canvas)
+                    
+                    // Extract dominant color for the holographic glow
+                    val palette = Palette.from(bitmap).generate()
+                    val dominantColor = palette.getDominantColor(0xFF00FFFF.toInt())
+                    
+                    withContext(Dispatchers.Main) {
+                        iconBitmaps[key] = bitmap
+                        iconColors[key] = dominantColor
+                        // Redraw as each icon arrives for a "pop-in" effect
+                        invalidate()
+                    }
+                } catch (e: Exception) {
+                    Log.e("AppGlobeView", "Lazy load failed for $key", e)
+                }
             }
         }
     }
@@ -138,8 +150,10 @@ class AppGlobeView(
         val app = context.applicationContext as? Application
         app?.apps?.removeObserver(appsObserver)
         app?.activeNotifications?.removeObserver(notificationsObserver)
+        loadIconsJob?.cancel()
         iconBitmaps.values.forEach { it.recycle() }
         iconBitmaps.clear()
+        iconColors.clear()
     }
 
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
@@ -331,19 +345,27 @@ class AppGlobeView(
                 pulsePaint.shader = null // Clear shader for next draws
             }
             
-            val bitmap = iconBitmaps[appKey] ?: continue
+            val bitmap = iconBitmaps[appKey]
             drawRect.set(x2d - currentSize / 2, y2d - currentSize / 2, x2d + currentSize / 2, y2d + currentSize / 2)
             
-            // Dynamic Focus: Dim and desaturate non-notified apps
-            if (hasAnyNotification && !hasNotification) {
-                iconPaint.colorFilter = grayscaleFilter
-                alpha = (alpha * 0.5f).toInt()
+            if (bitmap == null) {
+                // Fallback: Draw a stylish placeholder dot while the icon loads
+                pulsePaint.shader = null
+                pulsePaint.color = iconColors[appKey] ?: 0x44FFFFFF.toInt()
+                pulsePaint.alpha = (alpha * 0.8f).toInt()
+                canvas.drawCircle(x2d, y2d, currentSize / 8f, pulsePaint)
             } else {
-                iconPaint.colorFilter = null
+                // Dynamic Focus: Dim and desaturate non-notified apps
+                if (hasAnyNotification && !hasNotification) {
+                    iconPaint.colorFilter = grayscaleFilter
+                    alpha = (alpha * 0.5f).toInt()
+                } else {
+                    iconPaint.colorFilter = null
+                }
+                
+                iconPaint.alpha = alpha
+                canvas.drawBitmap(bitmap, null, drawRect, iconPaint)
             }
-            
-            iconPaint.alpha = alpha
-            canvas.drawBitmap(bitmap, null, drawRect, iconPaint)
         }
     }
 
