@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<set xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Blinding Strobe / Flicker effect -->
+    <alpha
+        android:duration="40"
+        android:fromAlpha="0.0"
+        android:toAlpha="1.0" />
+    <alpha
+        android:duration="40"
+        android:fromAlpha="1.0"
+        android:startOffset="40"
+        android:toAlpha="0.2" />
+    <alpha
+        android:duration="40"
+        android:fromAlpha="0.2"
+        android:startOffset="80"
+        android:toAlpha="1.0" />
+    <alpha
+        android:duration="40"
+        android:fromAlpha="1.0"
+        android:startOffset="120"
+        android:toAlpha="0.3" />
+    <alpha
+        android:duration="60"
+        android:fromAlpha="0.3"
+        android:startOffset="160"
+        android:toAlpha="1.0" />
+</set>

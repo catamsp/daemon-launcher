@@ -11,6 +11,7 @@ import androidx.core.content.edit
 import com.google.android.material.snackbar.Snackbar
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.preferences.LauncherPreferences
+import com.catamsp.Daemon.preferences.theme.TransitionAnimation
 import com.catamsp.Daemon.ui.list.SelectActionActivity
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
@@ -106,11 +107,20 @@ sealed interface Action {
             if (action != null && action.invoke(context)) {
                 if (context is Activity) {
                     val (animationIn, animationOut) =
-                        if (LauncherPreferences.theme().animations()) {
-                            Pair(
-                                gesture?.animationIn ?: android.R.anim.fade_in,
-                                gesture?.animationOut ?: android.R.anim.fade_out
-                            )
+                        if (LauncherPreferences.animations().masterToggle()) {
+                            val animPref = try {
+                                when (gesture) {
+                                    Gesture.SWIPE_UP, Gesture.SWIPE_UP_LEFT_EDGE, Gesture.SWIPE_UP_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_UP, Gesture.SWIPE_UP_DOUBLE -> LauncherPreferences.animations().swipeUp()
+                                    Gesture.SWIPE_DOWN, Gesture.SWIPE_DOWN_LEFT_EDGE, Gesture.SWIPE_DOWN_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_DOWN, Gesture.SWIPE_DOWN_DOUBLE -> LauncherPreferences.animations().swipeDown()
+                                    Gesture.SWIPE_LEFT, Gesture.SWIPE_LEFT_TOP_EDGE, Gesture.SWIPE_LEFT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_LEFT, Gesture.SWIPE_LEFT_DOUBLE -> LauncherPreferences.animations().swipeLeft()
+                                    Gesture.SWIPE_RIGHT, Gesture.SWIPE_RIGHT_TOP_EDGE, Gesture.SWIPE_RIGHT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_RIGHT, Gesture.SWIPE_RIGHT_DOUBLE -> LauncherPreferences.animations().swipeRight()
+                                    else -> LauncherPreferences.animations().other()
+                                }
+                            } catch (e: Exception) {
+                                // Fallback for invalid/renamed enum constants
+                                TransitionAnimation.FADE
+                            }
+                            Pair(animPref.animIn, animPref.animOut)
                         } else {
                             Pair(0, 0)
                         }

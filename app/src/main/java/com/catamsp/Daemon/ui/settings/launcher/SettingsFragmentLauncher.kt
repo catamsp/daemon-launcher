@@ -138,10 +138,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().monochromeIcons(), it).apply()
         })
 
-        items.add(SettingsItem.Toggle("tgl_anim", getString(R.string.settings_theme_animations), null, null, LauncherPreferences.theme().animations()) {
-            prefs.edit().putBoolean(LauncherPreferences.theme().keys().animations(), it).apply()
-        })
-
         // --- FUNCTIONALITY ---
         items.add(SettingsItem.Header("hdr_func", getString(R.string.settings_launcher_section_functionality)))
         items.add(SettingsItem.Toggle("tgl_auto_launch", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {

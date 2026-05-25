@@ -27,7 +27,7 @@ import com.catamsp.Daemon.widgets.getAppWidgetHost
  * Increase when breaking changes are introduced and write an appropriate case in
  * `migratePreferencesToNewVersion`
  */
-const val PREFERENCE_VERSION = 101
+const val PREFERENCE_VERSION = 102
 const val UNKNOWN_PREFERENCE_VERSION = -1
 private const val TAG = "Launcher - Preferences"
 
@@ -75,6 +75,21 @@ fun migratePreferencesToNewVersion(context: Context) {
             100 -> {
                 migratePreferencesFromVersion100(context)
                 Log.i(TAG, "migration of preferences  complete (100 -> ${PREFERENCE_VERSION}).")
+            }
+
+            101 -> {
+                // Fix for renamed/deleted animation enums causing crashes (e.g. LIQUID)
+                val prefs = LauncherPreferences.getSharedPreferences()
+                prefs.edit().apply {
+                    remove(LauncherPreferences.animations().keys().swipeUp())
+                    remove(LauncherPreferences.animations().keys().swipeDown())
+                    remove(LauncherPreferences.animations().keys().swipeLeft())
+                    remove(LauncherPreferences.animations().keys().swipeRight())
+                    remove(LauncherPreferences.animations().keys().other())
+                    apply()
+                }
+                LauncherPreferences.internal().versionCode(PREFERENCE_VERSION)
+                Log.i(TAG, "migration of preferences complete (101 -> $PREFERENCE_VERSION).")
             }
 
             else -> {

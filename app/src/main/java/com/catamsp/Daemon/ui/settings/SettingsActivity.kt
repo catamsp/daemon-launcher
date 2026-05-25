@@ -23,6 +23,7 @@ import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
 import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActionsRecycler
+import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentAnimations
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentWidgets
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
@@ -176,6 +177,7 @@ class SettingsActivity : UIObjectActivity() {
 private val TAB_TITLES = arrayOf(
     R.string.settings_tab_actions,
     R.string.settings_tab_launcher,
+    R.string.settings_tab_animations,
     R.string.settings_tab_widgets,
     R.string.settings_tab_meta
 )
@@ -187,8 +189,9 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
         return when (position) {
             0 -> SettingsFragmentActionsRecycler()
             1 -> SettingsFragmentLauncher()
-            2 -> SettingsFragmentWidgets()
-            3 -> SettingsFragmentMeta()
+            2 -> SettingsFragmentAnimations()
+            3 -> SettingsFragmentWidgets()
+            4 -> SettingsFragmentMeta()
             else -> Fragment()
         }
     }
@@ -198,7 +201,7 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
     }
 
     override fun getItemCount(): Int {
-        return 4
+        return 5
     }
 }
 

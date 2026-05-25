@@ -141,6 +141,18 @@
 
     <!--
       -
+      - Settings : Animations
+      -
+      -->
+    <string name="settings_anim_master_toggle_key" translatable="false">animations.master_toggle</string>
+    <string name="settings_anim_swipe_up_key" translatable="false">animations.swipe_up</string>
+    <string name="settings_anim_swipe_down_key" translatable="false">animations.swipe_down</string>
+    <string name="settings_anim_swipe_left_key" translatable="false">animations.swipe_left</string>
+    <string name="settings_anim_swipe_right_key" translatable="false">animations.swipe_right</string>
+    <string name="settings_anim_other_key" translatable="false">animations.other</string>
+
+    <!--
+      -
       - Settings : Clock
     ...
       -->

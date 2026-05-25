@@ -15,6 +15,7 @@ import com.catamsp.Daemon.preferences.serialization.SetWidgetSerializer;
 import com.catamsp.Daemon.preferences.theme.Background;
 import com.catamsp.Daemon.preferences.theme.ColorTheme;
 import com.catamsp.Daemon.preferences.theme.Font;
+import com.catamsp.Daemon.preferences.theme.TransitionAnimation;
 import eu.jonahbauer.android.preference.annotations.Preference;
 import eu.jonahbauer.android.preference.annotations.PreferenceGroup;
 import eu.jonahbauer.android.preference.annotations.Preferences;
@@ -64,7 +65,14 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "font", type = Font.class, defaultValue = "HACK"),
                         @Preference(name = "text_shadow", type = boolean.class, defaultValue = "false"),
                         @Preference(name = "monochrome_icons", type = boolean.class, defaultValue = "false"),
-                        @Preference(name = "animations", type = boolean.class, defaultValue = "true"),
+                }),
+                @PreferenceGroup(name = "animations", prefix = "settings_anim_", suffix = "_key", value = {
+                        @Preference(name = "master_toggle", type = boolean.class, defaultValue = "true"),
+                        @Preference(name = "swipe_up", type = TransitionAnimation.class, defaultValue = "BOTTOM_UP"),
+                        @Preference(name = "swipe_down", type = TransitionAnimation.class, defaultValue = "TOP_DOWN"),
+                        @Preference(name = "swipe_left", type = TransitionAnimation.class, defaultValue = "RIGHT_LEFT"),
+                        @Preference(name = "swipe_right", type = TransitionAnimation.class, defaultValue = "LEFT_RIGHT"),
+                        @Preference(name = "other", type = TransitionAnimation.class, defaultValue = "FADE")
                 }),
                 @PreferenceGroup(name = "clock", prefix = "settings_clock_", suffix = "_key", value = {
                         @Preference(name = "font", type = Font.class, defaultValue = "HACK"),

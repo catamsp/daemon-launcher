@@ -21,6 +21,7 @@
     <string name="settings_tab_actions">Actions</string>
     <string name="settings_tab_launcher">Daemon launcher</string>
     <string name="settings_tab_widgets">Widgets</string>
+    <string name="settings_tab_animations">Animations</string>
     <string name="settings_tab_meta">Meta</string>
 
     <string name="settings_general">General</string>
@@ -156,6 +157,40 @@
     <string name="settings_theme_font_item_serif_monospace">Serif monospace</string>
     <string name="settings_theme_monochrome_icons">Monochrome app icons</string>
     <string name="settings_theme_animations">Animations</string>
+    <string name="settings_animations_master_toggle">Enable animations</string>
+    <string name="settings_animations_section_directional">Directional Animations</string>
+    <string name="settings_animations_swipe_up">Swipe up animation</string>
+    <string name="settings_animations_swipe_down">Swipe down animation</string>
+    <string name="settings_animations_swipe_left">Swipe left animation</string>
+    <string name="settings_animations_swipe_right">Swipe right animation</string>
+    <string name="settings_animations_other">Other gestures animation</string>
+
+    <string name="settings_anim_item_bottom_up">Slide Up</string>
+    <string name="settings_anim_item_top_down">Slide Down</string>
+    <string name="settings_anim_item_left_right">Slide Right</string>
+    <string name="settings_anim_item_right_left">Slide Left</string>
+    <string name="settings_anim_item_fade">Fade</string>
+    <string name="settings_anim_item_none">Instant (None)</string>
+    <string name="settings_anim_item_tunnel">Z-Axis Warp (Tunnel)</string>
+    <string name="settings_anim_item_cube">3D Cube Rotation</string>
+    <string name="settings_anim_item_flip">3D Card Flip</string>
+    <string name="settings_anim_item_unfold">Origami Unfold</string>
+    <string name="settings_anim_item_settle">Depth Settle</string>
+    <string name="settings_anim_item_crt">CRT Boot Sequence</string>
+    <string name="settings_anim_item_flicker">Holo-Flicker</string>
+    <string name="settings_anim_item_matrix">Matrix Squeeze</string>
+    <string name="settings_anim_item_diagonal">Diagonal Whip</string>
+    <string name="settings_anim_item_elevator">Elevator Doors</string>
+    <string name="settings_anim_item_flash">Flashbang (Strobe)</string>
+    <string name="settings_anim_item_bloom">Soft Bloom (Breathe)</string>
+    <string name="settings_anim_item_parallax">Parallax Drift</string>
+    <string name="settings_anim_item_spiral">Spiral Reveal</string>
+    <string name="settings_anim_item_ghost">Ghost Crossfade (Static)</string>
+    <string name="settings_anim_item_snap">Elastic Snap</string>
+    <string name="settings_anim_item_slam">Magnetic Slam</string>
+    <string name="settings_anim_item_pendulum">Pendulum Swing</string>
+    <string name="settings_anim_item_spring">Spring-Loaded Slide</string>
+    <string name="settings_anim_item_whip">The Whip</string>
 
     <string name="settings_launcher_section_date_time"><![CDATA[Date & time]]></string>
     <string name="settings_clock_font">Home Screen Font (Clock, Date)</string>
