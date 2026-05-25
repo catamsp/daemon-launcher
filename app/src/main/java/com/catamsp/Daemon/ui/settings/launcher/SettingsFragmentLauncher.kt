@@ -142,40 +142,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().animations(), it).apply()
         })
 
-        // --- DATE & TIME ---
-        items.add(SettingsItem.Header("hdr_clock", getString(R.string.settings_launcher_section_date_time)))
-        
-        items.add(SettingsItem.Clickable("btn_clock_font", getString(R.string.settings_clock_font), "Current: ${LauncherPreferences.clock().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            showSingleChoiceDialog(getString(R.string.settings_clock_font),
-                fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                fonts.indexOf(LauncherPreferences.clock().font())
-            ) { index ->
-                prefs.edit().putString(LauncherPreferences.clock().keys().font(), fonts[index].name).apply()
-            }
-        })
-
-        items.add(SettingsItem.Clickable("btn_clock_color", getString(R.string.settings_clock_color), "Hex: #%08X".format(LauncherPreferences.clock().color())) {
-            showColorPickerDialog(LauncherPreferences.clock().color()) { color ->
-                prefs.edit().putInt(LauncherPreferences.clock().keys().color(), color).apply()
-            }
-        })
-
-        items.add(SettingsItem.Toggle("tgl_clock_loc", getString(R.string.settings_clock_localized), null, null, LauncherPreferences.clock().localized()) {
-            prefs.edit().putBoolean(LauncherPreferences.clock().keys().localized(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_time", getString(R.string.settings_clock_time_visible), null, null, LauncherPreferences.clock().timeVisible()) {
-            prefs.edit().putBoolean(LauncherPreferences.clock().keys().timeVisible(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_seconds", getString(R.string.settings_clock_show_seconds), null, null, LauncherPreferences.clock().showSeconds()) {
-            prefs.edit().putBoolean(LauncherPreferences.clock().keys().showSeconds(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_date", getString(R.string.settings_clock_date_visible), null, null, LauncherPreferences.clock().dateVisible()) {
-            prefs.edit().putBoolean(LauncherPreferences.clock().keys().dateVisible(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_flip", getString(R.string.settings_clock_flip_date_time), null, null, LauncherPreferences.clock().flipDateTime()) {
-            prefs.edit().putBoolean(LauncherPreferences.clock().keys().flipDateTime(), it).apply()
-        })
-
         // --- FUNCTIONALITY ---
         items.add(SettingsItem.Header("hdr_func", getString(R.string.settings_launcher_section_functionality)))
         items.add(SettingsItem.Toggle("tgl_auto_launch", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {
@@ -192,21 +158,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         })
         items.add(SettingsItem.Clickable("btn_lock", getString(R.string.settings_actions_lock_method), null) {
             LockMethod.chooseMethod(context)
-        })
-
-        // --- GESTURES ---
-        items.add(SettingsItem.Header("hdr_gestures", getString(R.string.settings_launcher_section_gestures)))
-        items.add(SettingsItem.Toggle("tgl_double_swipe", getString(R.string.settings_enabled_gestures_double_swipe), getString(R.string.settings_enabled_gestures_double_swipe_summary), null, LauncherPreferences.enabled_gestures().doubleSwipe()) {
-            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().doubleSwipe(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_edge_swipe", getString(R.string.settings_enabled_gestures_edge_swipe), getString(R.string.settings_enabled_gestures_edge_swipe_summary), null, LauncherPreferences.enabled_gestures().edgeSwipe()) {
-            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().edgeSwipe(), it).apply()
-        })
-        items.add(SettingsItem.Slider("sld_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), null, LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth(), 0, 33) {
-            prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_diag_swipe", getString(R.string.settings_enabled_gestures_diagonal_swipe), null, null, LauncherPreferences.enabled_gestures().diagonalSwipe()) {
-            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().diagonalSwipe(), it).apply()
         })
 
         // --- APPS ---
@@ -246,15 +197,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
 
         items.add(SettingsItem.Toggle("tgl_rev_layout", getString(R.string.settings_list_reverse_layout), null, null, LauncherPreferences.list().reverseLayout()) {
             prefs.edit().putBoolean(LauncherPreferences.list().keys().reverseLayout(), it).apply()
-        })
-
-        // --- WIDGETS ---
-        items.add(SettingsItem.Header("hdr_widgets", getString(R.string.settings_launcher_section_widgets)))
-        items.add(SettingsItem.Clickable("btn_widgets", getString(R.string.settings_widgets_widgets), null) {
-            startActivity(Intent(activity, ManageWidgetsActivity::class.java))
-        })
-        items.add(SettingsItem.Clickable("btn_panels", getString(R.string.settings_widgets_custom_panels), null) {
-            startActivity(Intent(activity, ManageWidgetPanelsActivity::class.java))
         })
 
         // --- DISPLAY ---

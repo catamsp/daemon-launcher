@@ -23,8 +23,10 @@ import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
 import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActionsRecycler
+import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentWidgets
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
+import com.catamsp.Daemon.widgets.ClockWidget
 
 /**
  * The [SettingsActivity] is a tabbed activity:
@@ -130,7 +132,17 @@ class SettingsActivity : UIObjectActivity() {
 
         binding.settingsViewpager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
             override fun onPageSelected(position: Int) {
-                binding.settingsTabs.smoothScrollToPosition(position)
+                val scroller = object : androidx.recyclerview.widget.LinearSmoothScroller(this@SettingsActivity) {
+                    override fun calculateDtToFit(viewStart: Int, viewEnd: Int, boxStart: Int, boxEnd: Int, snapPreference: Int): Int {
+                        val childCenter = viewStart + (viewEnd - viewStart) / 2
+                        val containerCenter = boxStart + (boxEnd - boxStart) / 2
+                        val baseDist = containerCenter - childCenter
+                        // Intentionally undershoot by 60px to force the SnapHelper to perform its mechanical "jerk"
+                        return if (baseDist > 0) baseDist - 60 else baseDist + 60
+                    }
+                }
+                scroller.targetPosition = position
+                layoutManager.startSmoothScroll(scroller)
             }
         })
     }
@@ -164,6 +176,7 @@ class SettingsActivity : UIObjectActivity() {
 private val TAB_TITLES = arrayOf(
     R.string.settings_tab_actions,
     R.string.settings_tab_launcher,
+    R.string.settings_tab_widgets,
     R.string.settings_tab_meta
 )
 
@@ -174,7 +187,8 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
         return when (position) {
             0 -> SettingsFragmentActionsRecycler()
             1 -> SettingsFragmentLauncher()
-            2 -> SettingsFragmentMeta()
+            2 -> SettingsFragmentWidgets()
+            3 -> SettingsFragmentMeta()
             else -> Fragment()
         }
     }
@@ -184,7 +198,7 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
     }
 
     override fun getItemCount(): Int {
-        return 3
+        return 4
     }
 }
 

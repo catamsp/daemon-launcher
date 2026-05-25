@@ -20,6 +20,7 @@ import com.catamsp.Daemon.apps.AppInfo
 import com.catamsp.Daemon.apps.PinnedShortcutInfo
 import com.catamsp.Daemon.getUserFromId
 import com.catamsp.Daemon.preferences.LauncherPreferences
+import com.catamsp.Daemon.ui.list.AbstractListActivity
 
 private const val LOG_TAG = "AppContextMenu"
 
@@ -45,6 +46,9 @@ fun AbstractAppInfo.uninstall(activity: Activity) {
         intent.data = "package:$packageName".toUri()
         getUserFromId(userId, activity).let { user ->
             intent.putExtra(Intent.EXTRA_USER, user)
+        }
+        if (activity is AbstractListActivity) {
+            activity.ignoreAutoClose = true
         }
         activity.startActivity(intent)
 

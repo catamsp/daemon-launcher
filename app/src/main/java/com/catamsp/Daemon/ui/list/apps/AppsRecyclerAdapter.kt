@@ -112,7 +112,6 @@ class AppsRecyclerAdapter(
         viewHolder.img.transformMonochrome(grayscale, colorTheme)
         viewHolder.img.load(app) {
             crossfade(true)
-            placeholder(R.drawable.baseline_apps_24)
             diskCachePolicy(CachePolicy.ENABLED)
             memoryCachePolicy(CachePolicy.ENABLED)
         }

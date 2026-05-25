@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.catamsp.Daemon.R
 import com.catamsp.Daemon.actions.Action
 import com.catamsp.Daemon.actions.Gesture
 import com.catamsp.Daemon.databinding.SettingsActionsRecyclerBinding
@@ -75,10 +76,27 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
 
     private fun refreshList() {
         val activity = requireActivity()
+        val prefs = LauncherPreferences.getSharedPreferences()
         val gestures = Gesture.entries.filter(Gesture::isEnabled)
         val items = mutableListOf<SettingsItem>()
 
-        items.add(SettingsItem.Header("hdr_gestures", "Gesture Shortcuts"))
+        // --- GESTURES CONFIGURATION ---
+        items.add(SettingsItem.Header("hdr_gest_cfg", getString(R.string.settings_launcher_section_gestures)))
+        items.add(SettingsItem.Toggle("tgl_double_swipe", getString(R.string.settings_enabled_gestures_double_swipe), getString(R.string.settings_enabled_gestures_double_swipe_summary), null, LauncherPreferences.enabled_gestures().doubleSwipe()) {
+            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().doubleSwipe(), it).apply()
+        })
+        items.add(SettingsItem.Toggle("tgl_edge_swipe", getString(R.string.settings_enabled_gestures_edge_swipe), getString(R.string.settings_enabled_gestures_edge_swipe_summary), null, LauncherPreferences.enabled_gestures().edgeSwipe()) {
+            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().edgeSwipe(), it).apply()
+        })
+        items.add(SettingsItem.Slider("sld_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), null, LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth(), 0, 33) {
+            prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), it).apply()
+        })
+        items.add(SettingsItem.Toggle("tgl_diag_swipe", getString(R.string.settings_enabled_gestures_diagonal_swipe), null, null, LauncherPreferences.enabled_gestures().diagonalSwipe()) {
+            prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().diagonalSwipe(), it).apply()
+        })
+
+        // --- SHORTCUT BINDINGS ---
+        items.add(SettingsItem.Header("hdr_gestures", "Action Bindings"))
 
         lifecycleScope.launch {
             val settingsItems = withContext(Dispatchers.Default) {

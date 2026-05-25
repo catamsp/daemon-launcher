@@ -20,6 +20,7 @@
 
     <string name="settings_tab_actions">Actions</string>
     <string name="settings_tab_launcher">Daemon launcher</string>
+    <string name="settings_tab_widgets">Widgets</string>
     <string name="settings_tab_meta">Meta</string>
 
     <string name="settings_general">General</string>
