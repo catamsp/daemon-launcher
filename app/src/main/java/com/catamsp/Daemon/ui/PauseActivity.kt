@@ -25,7 +25,7 @@ class PauseActivity : UIObjectActivity() {
             if (appInfoStr != null) {
                 try {
                     val appInfo = com.catamsp.Daemon.apps.AbstractAppInfo.deserialize(appInfoStr) as com.catamsp.Daemon.apps.AppInfo
-                    com.catamsp.Daemon.actions.AppAction(appInfo).invoke(this, null, ignoreDistracting = true)
+                    com.catamsp.Daemon.actions.AppAction(appInfo).invoke(this, null, null, ignoreDistracting = true)
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }

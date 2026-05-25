@@ -8,6 +8,7 @@ import android.content.Intent
 import android.content.pm.LauncherApps
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.catamsp.Daemon.R
@@ -22,18 +23,18 @@ import kotlinx.serialization.Serializable
 @SerialName("action:app")
 class AppAction(val app: AppInfo) : Action {
 
-    override fun invoke(context: Context, rect: Rect?): Boolean {
-        return invoke(context, rect, false)
+    override fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?): Boolean {
+        return invoke(context, rect, opts, false)
     }
 
-    fun invoke(context: Context, rect: Rect?, ignoreDistracting: Boolean = false): Boolean {
+    fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?, ignoreDistracting: Boolean): Boolean {
         if (!ignoreDistracting) {
             val app = context.applicationContext as com.catamsp.Daemon.Application
             val distractingApps = app.getDistractingApps()
             if (distractingApps.contains(this.app)) {
                 val intent = Intent(context, com.catamsp.Daemon.ui.PauseActivity::class.java)
                 intent.putExtra("app_info", this.app.serialize())
-                context.startActivity(intent)
+                context.startActivity(intent, opts)
                 return true
             }
         }
@@ -45,7 +46,7 @@ class AppAction(val app: AppInfo) : Action {
             app.getLauncherActivityInfo(context)?.let { app ->
                 Log.i("Launcher", "Starting ${this.app}")
                 try {
-                    launcherApps.startMainActivity(app.componentName, app.user, rect, null)
+                    launcherApps.startMainActivity(app.componentName, app.user, rect, opts)
                 } catch (e: SecurityException) {
                     Log.i("Launcher", "Unable to start ${this.app}: ${e.message}")
                     Toast.makeText(
@@ -62,7 +63,7 @@ class AppAction(val app: AppInfo) : Action {
         context.packageManager.getLaunchIntentForPackage(packageName)?.let {
             it.addCategory(Intent.CATEGORY_LAUNCHER)
             try {
-                context.startActivity(it)
+                context.startActivity(it, opts)
             } catch (_: ActivityNotFoundException) {
                 return false
             }

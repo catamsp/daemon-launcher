@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.view.View
 import android.widget.TextView
 import android.widget.Toast
@@ -23,7 +24,7 @@ import kotlinx.serialization.Serializable
 @SerialName("action:panel")
 class WidgetPanelAction(val widgetPanelId: Int) : Action {
 
-    override fun invoke(context: Context, rect: Rect?): Boolean {
+    override fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?): Boolean {
 
         if (context is WidgetPanelActivity) {
             context.finish()
@@ -36,7 +37,7 @@ class WidgetPanelAction(val widgetPanelId: Int) : Action {
             context.startActivity(Intent(context, WidgetPanelActivity::class.java).also {
                 it.putExtra(EXTRA_PANEL_ID, this.widgetPanelId)
                 it.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-            })
+            }, opts)
         }
         return true
     }

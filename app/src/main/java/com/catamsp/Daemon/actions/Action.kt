@@ -1,10 +1,12 @@
 package com.catamsp.Daemon.actions
 
 import android.app.Activity
+import android.app.ActivityOptions
 import android.content.Context
 import android.content.SharedPreferences.Editor
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
+import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.content.edit
@@ -23,7 +25,7 @@ import kotlinx.serialization.json.Json
  */
 @Serializable
 sealed interface Action {
-    fun invoke(context: Context, rect: Rect? = null): Boolean
+    fun invoke(context: Context, rect: Rect? = null, opts: android.os.Bundle? = null): Boolean
     fun label(context: Context): String
     fun getIcon(context: Context): Drawable?
     fun isAvailable(context: Context): Boolean
@@ -104,30 +106,38 @@ sealed interface Action {
             context: Context,
             gesture: Gesture?
         ) {
-            if (action != null && action.invoke(context)) {
-                if (context is Activity) {
-                    val (animationIn, animationOut) =
-                        if (LauncherPreferences.animations().masterToggle()) {
-                            val animPref = try {
-                                when (gesture) {
-                                    Gesture.SWIPE_UP, Gesture.SWIPE_UP_LEFT_EDGE, Gesture.SWIPE_UP_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_UP, Gesture.SWIPE_UP_DOUBLE -> LauncherPreferences.animations().swipeUp()
-                                    Gesture.SWIPE_DOWN, Gesture.SWIPE_DOWN_LEFT_EDGE, Gesture.SWIPE_DOWN_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_DOWN, Gesture.SWIPE_DOWN_DOUBLE -> LauncherPreferences.animations().swipeDown()
-                                    Gesture.SWIPE_LEFT, Gesture.SWIPE_LEFT_TOP_EDGE, Gesture.SWIPE_LEFT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_LEFT, Gesture.SWIPE_LEFT_DOUBLE -> LauncherPreferences.animations().swipeLeft()
-                                    Gesture.SWIPE_RIGHT, Gesture.SWIPE_RIGHT_TOP_EDGE, Gesture.SWIPE_RIGHT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_RIGHT, Gesture.SWIPE_RIGHT_DOUBLE -> LauncherPreferences.animations().swipeRight()
-                                    else -> LauncherPreferences.animations().other()
-                                }
-                            } catch (e: Exception) {
-                                // Fallback for invalid/renamed enum constants
-                                TransitionAnimation.FADE
-                            }
-                            Pair(animPref.animIn, animPref.animOut)
-                        } else {
-                            Pair(0, 0)
+            var opts: android.os.Bundle? = null
+            var animIn = 0
+            var animOut = 0
+
+            if (context is Activity) {
+                if (LauncherPreferences.animations().masterToggle()) {
+                    val animPref = try {
+                        when (gesture) {
+                            Gesture.SWIPE_UP, Gesture.SWIPE_UP_LEFT_EDGE, Gesture.SWIPE_UP_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_UP, Gesture.SWIPE_UP_DOUBLE -> LauncherPreferences.animations().swipeUp()
+                            Gesture.SWIPE_DOWN, Gesture.SWIPE_DOWN_LEFT_EDGE, Gesture.SWIPE_DOWN_RIGHT_EDGE, Gesture.TAP_AND_SWIPE_DOWN, Gesture.SWIPE_DOWN_DOUBLE -> LauncherPreferences.animations().swipeDown()
+                            Gesture.SWIPE_LEFT, Gesture.SWIPE_LEFT_TOP_EDGE, Gesture.SWIPE_LEFT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_LEFT, Gesture.SWIPE_LEFT_DOUBLE -> LauncherPreferences.animations().swipeLeft()
+                            Gesture.SWIPE_RIGHT, Gesture.SWIPE_RIGHT_TOP_EDGE, Gesture.SWIPE_RIGHT_BOTTOM_EDGE, Gesture.TAP_AND_SWIPE_RIGHT, Gesture.SWIPE_RIGHT_DOUBLE -> LauncherPreferences.animations().swipeRight()
+                            else -> LauncherPreferences.animations().other()
                         }
-                    // There does not seem to be a good alternative to overridePendingTransition.
-                    // Note that we can't use overrideActivityTransition here.
+                    } catch (e: Exception) {
+                        // Fallback for invalid/renamed enum constants
+                        TransitionAnimation.FADE
+                    }
+                    animIn = animPref.animIn
+                    animOut = animPref.animOut
+                }
+
+                if (animIn != 0 || animOut != 0) {
+                    opts = android.app.ActivityOptions.makeCustomAnimation(context, animIn, animOut).toBundle()
+                }
+            }
+
+            if (action != null && action.invoke(context, null, opts)) {
+                if (context is Activity) {
+                    // Fallback overridePendingTransition for older APIs or non-intent actions
                     @Suppress("deprecation")
-                    context.overridePendingTransition(animationIn, animationOut)
+                    context.overridePendingTransition(animIn, animOut)
                 }
             } else {
                 if (context is Activity && gesture != null) {

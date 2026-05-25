@@ -6,6 +6,7 @@ import android.content.pm.LauncherApps
 import android.graphics.Rect
 import android.graphics.drawable.Drawable
 import android.os.Build
+import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.catamsp.Daemon.R
@@ -18,7 +19,7 @@ import kotlinx.serialization.Serializable
 @SerialName("action:shortcut")
 class ShortcutAction(val shortcut: PinnedShortcutInfo) : Action {
 
-    override fun invoke(context: Context, rect: Rect?): Boolean {
+    override fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?): Boolean {
         val launcherApps = context.getSystemService(Service.LAUNCHER_APPS_SERVICE) as LauncherApps
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             // TODO
@@ -26,7 +27,7 @@ class ShortcutAction(val shortcut: PinnedShortcutInfo) : Action {
         }
         try {
             shortcut.getShortcutInfo(context)?.let {
-                launcherApps.startShortcut(it, rect, null)
+                launcherApps.startShortcut(it, rect, opts)
             }
             // TODO: handle null
         } catch (e: Exception) {
