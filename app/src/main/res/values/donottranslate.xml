@@ -153,6 +153,15 @@
 
     <!--
       -
+      - Settings : Globe
+      -
+      -->
+    <string name="settings_globe_perspective_key" translatable="false">globe.perspective</string>
+    <string name="settings_globe_show_glow_key" translatable="false">globe.show_glow</string>
+    <string name="settings_globe_glow_opacity_key" translatable="false">globe.glow_opacity</string>
+
+    <!--
+      -
       - Settings : Clock
     ...
       -->

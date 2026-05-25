@@ -98,6 +98,11 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                 @PreferenceGroup(name = "actions", prefix = "settings_actions_", suffix = "_key", value = {
                         @Preference(name = "lock_method", type = LockMethod.class, defaultValue = "DEVICE_ADMIN"),
                 }),
+                @PreferenceGroup(name = "globe", prefix = "settings_globe_", suffix = "_key", value = {
+                        @Preference(name = "perspective", type = boolean.class, defaultValue = "false"),
+                        @Preference(name = "show_glow", type = boolean.class, defaultValue = "true"),
+                        @Preference(name = "glow_opacity", type = int.class, defaultValue = "204")
+                }),
                 @PreferenceGroup(name = "widgets", prefix = "settings_widgets_", suffix = "_key", value = {
                         @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class),
                         @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class)

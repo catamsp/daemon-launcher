@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
+import android.graphics.Matrix
 import android.graphics.Paint
 import android.graphics.RadialGradient
 import android.graphics.RectF
@@ -20,6 +21,7 @@ import com.catamsp.Daemon.Application
 import com.catamsp.Daemon.apps.AbstractDetailedAppInfo
 import com.catamsp.Daemon.apps.AppInfo
 import com.catamsp.Daemon.apps.PinnedShortcutInfo
+import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.widgets.WidgetPanel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -55,6 +57,9 @@ class AppGlobeView(
     private val pulsePaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         style = Paint.Style.FILL
     }
+
+    private val cam = android.graphics.Camera()
+    private val mMatrix = Matrix()
 
     private var lastX = 0f
     private var lastY = 0f
@@ -179,7 +184,8 @@ class AppGlobeView(
         if (apps.isEmpty()) return
 
         val n = apps.size
-        val scaleFactor = 10f / max(3.16f, sqrt(n.toFloat())) 
+        // Tweak: Further lower the scale factor (from 9f to 7.5f) to ensure no overlaps
+        val scaleFactor = 7.5f / max(3.16f, sqrt(n.toFloat())) 
         baseIconSizePx = (40f * resources.displayMetrics.density * scaleFactor).coerceIn(
             16f * resources.displayMetrics.density, 
             64f * resources.displayMetrics.density
@@ -189,7 +195,8 @@ class AppGlobeView(
         val angleIncrement = 2 * PI * goldenRatio
 
         for (i in 0 until n) {
-            val t = i.toFloat() / n
+            // Use (i + 0.5) for more uniform distribution at the poles
+            val t = (i + 0.5f) / n
             val phi = acos(1 - 2 * t)
             val theta = angleIncrement * i
             points.add(Point3D(
@@ -261,15 +268,28 @@ class AppGlobeView(
         val centerX = width / 2f
         val centerY = height / 2f
         val radius = min(width, height) / 2f * sphereRadius
+        val usePerspective = LauncherPreferences.globe().perspective()
+        val cameraDistance = 4.8f
 
         var closestApp: AbstractDetailedAppInfo? = null
         var maxZ = -2f
 
         for (p in points) {
             if (p.z < 0) continue 
-            val x2d = centerX + p.x * radius
-            val y2d = centerY + p.y * radius
-            val scale = (p.z + 1) / 2f + 0.3f
+            
+            // Match the projection from onDraw
+            val x2d: Float
+            val y2d: Float
+            if (usePerspective) {
+                val perspective = cameraDistance / (cameraDistance - p.z)
+                x2d = centerX + (p.x * radius * perspective)
+                y2d = centerY + (p.y * radius * perspective)
+            } else {
+                x2d = centerX + (p.x * radius)
+                y2d = centerY + (p.y * radius)
+            }
+            
+            val scale = (p.z + 1) / 2f * 0.8f + 0.2f
             val currentSize = baseIconSizePx * scale
             val rect = RectF(x2d - currentSize / 2, y2d - currentSize / 2, x2d + currentSize / 2, y2d + currentSize / 2)
             if (rect.contains(tx, ty) && p.z > maxZ) {
@@ -298,6 +318,12 @@ class AppGlobeView(
         val centerX = width / 2f
         val centerY = height / 2f
         val radius = min(width, height) / 2f * sphereRadius
+        
+        // Globe Customization Preferences
+        val usePerspective = LauncherPreferences.globe().perspective()
+        val showGlow = LauncherPreferences.globe().showGlow()
+        val glowOpacity = LauncherPreferences.globe().glowOpacity()
+        val cameraDistance = 4.8f 
 
         // Performance: Back-to-front drawing
         val sortedPoints = points.sortedBy { it.z }
@@ -310,53 +336,65 @@ class AppGlobeView(
         for (p in sortedPoints) {
             if (p.z < -0.85f) continue 
 
-            val x2d = centerX + p.x * radius
-            val y2d = centerY + p.y * radius
-            val scale = (p.z + 1) / 2f * 0.7f + 0.3f
+            // Coordinate Projection
+            val x2d: Float
+            val y2d: Float
+            if (usePerspective) {
+                val perspective = cameraDistance / (cameraDistance - p.z)
+                x2d = centerX + (p.x * radius * perspective)
+                y2d = centerY + (p.y * radius * perspective)
+            } else {
+                x2d = centerX + (p.x * radius)
+                y2d = centerY + (p.y * radius)
+            }
+            
+            val scale = (p.z + 1) / 2f * 0.8f + 0.2f
             var alpha = ((p.z + 1) / 2f * 200 + 55).toInt()
             val currentSize = baseIconSizePx * scale
             
             val info = p.app.getRawInfo()
             val appKey = info.toString()
-            val packageName = when (info) {
-                is AppInfo -> info.packageName
-                is PinnedShortcutInfo -> info.packageName
+            // 1. Correct Package Name Extraction
+            val packageName = when (val raw = p.app.getRawInfo()) {
+                is AppInfo -> raw.packageName
+                is PinnedShortcutInfo -> raw.packageName
+                else -> ""
             }
             
-            // Draw holographic glow if app has notification
-            val hasNotification = (packageName.isNotEmpty() && relevantNotifiedPackages.contains(packageName)) || (forcePulse && p == sortedPoints.last())
-            
-            if (hasNotification && p.z > -0.6f) {
-                // Holographic "Moon Glow" Effect: True Radial Gradient Halo
-                val visibilityFactor = ((p.z + 0.6f) / 1.6f).coerceIn(0f, 1f)
-                val iconColor = iconColors[appKey] ?: 0xFF00FFFF.toInt()
-                
-                val glowRadius = currentSize * 1.1f
-                val colors = intArrayOf(
-                    iconColor, // Center
-                    (iconColor and 0x00FFFFFF) or ((180 * visibilityFactor).toInt() shl 24), // Edge of icon
-                    (iconColor and 0x00FFFFFF) or ((80 * visibilityFactor).toInt() shl 24),  // Mid glow
-                    0x00000000 // Invisible outer edge
-                )
-                val stops = floatArrayOf(0f, 0.45f, 0.7f, 1f)
-                
-                pulsePaint.shader = RadialGradient(x2d, y2d, glowRadius, colors, stops, Shader.TileMode.CLAMP)
-                canvas.drawCircle(x2d, y2d, glowRadius, pulsePaint)
-                pulsePaint.shader = null // Clear shader for next draws
-            }
-            
+            // 2. Notification Detection
+            val hasNotification = showGlow && ((packageName.isNotEmpty() && relevantNotifiedPackages.contains(packageName)) || (forcePulse && p == sortedPoints.last()))
             val bitmap = iconBitmaps[appKey]
-            drawRect.set(x2d - currentSize / 2, y2d - currentSize / 2, x2d + currentSize / 2, y2d + currentSize / 2)
             
+            // Reset pulse paint for each loop to prevent alpha leaking
+            pulsePaint.shader = null
+            pulsePaint.alpha = 255
+
             if (bitmap == null) {
                 // Fallback: Draw a stylish placeholder dot while the icon loads
-                pulsePaint.shader = null
-                pulsePaint.color = iconColors[appKey] ?: 0x44FFFFFF.toInt()
-                pulsePaint.alpha = (alpha * 0.8f).toInt()
-                canvas.drawCircle(x2d, y2d, currentSize / 8f, pulsePaint)
+                val baseColor = iconColors[appKey] ?: 0x44FFFFFF.toInt()
+                pulsePaint.color = baseColor
+                
+                if (hasNotification) {
+                    // 3D-Aware Aura for Placeholder Dots
+                    val glowRadius = (currentSize / 4f) * 2.2f 
+                    val iconColor = (iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt()
+                    val colors = intArrayOf(iconColor, (iconColor and 0x00FFFFFF.toInt()) or (glowOpacity shl 24), 0)
+                    val stops = floatArrayOf(0f, 0.4f, 1f)
+                    
+                    pulsePaint.shader = RadialGradient(x2d, y2d, glowRadius, colors, stops, Shader.TileMode.CLAMP)
+                    canvas.drawCircle(x2d, y2d, glowRadius, pulsePaint)
+                    pulsePaint.shader = null
+                    
+                    pulsePaint.alpha = 255
+                    pulsePaint.color = iconColor
+                    canvas.drawCircle(x2d, y2d, currentSize / 4f, pulsePaint)
+                } else {
+                    pulsePaint.alpha = (alpha * 0.8f).toInt()
+                    canvas.drawCircle(x2d, y2d, currentSize / 8f, pulsePaint)
+                }
             } else {
-                // Dynamic Focus: Dim and desaturate non-notified apps
-                if (hasAnyNotification && !hasNotification) {
+                // Dynamic Focus: Dim non-notified apps (only if glow is enabled)
+                if (showGlow && hasAnyNotification && !hasNotification) {
                     iconPaint.colorFilter = grayscaleFilter
                     alpha = (alpha * 0.5f).toInt()
                 } else {
@@ -364,7 +402,47 @@ class AppGlobeView(
                 }
                 
                 iconPaint.alpha = alpha
+
+                // Apply 3D Rotation Matrix for tangent foreshortening
+                cam.save()
+                val rotX = Math.toDegrees(asin(p.y.toDouble())).toFloat()
+                val rotY = Math.toDegrees(asin(-p.x.toDouble())).toFloat()
+                cam.rotateX(rotX)
+                cam.rotateY(rotY)
+                cam.getMatrix(mMatrix)
+                cam.restore()
+
+                mMatrix.preTranslate(-currentSize / 2, -currentSize / 2)
+                mMatrix.postTranslate(x2d, y2d)
+
+                canvas.save()
+                canvas.concat(mMatrix)
+
+                // 3. Draw holographic glow INSIDE the matrix (Visible Aura Fix)
+                if (hasNotification && p.z > -0.6f) {
+                    val visibilityFactor = ((p.z + 0.6f) / 1.6f).coerceIn(0f, 1f)
+                    val iconColor = (iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt() // Force opaque
+                    
+                    val glowRadius = currentSize * 1.3f // Medium expansion
+                    val baseGlowAlpha = (glowOpacity * visibilityFactor).toInt()
+                    val outerGlowAlpha = (glowOpacity * 0.3f * visibilityFactor).toInt()
+                    
+                    val colors = intArrayOf(
+                        iconColor, // Opaque center
+                        (iconColor and 0x00FFFFFF.toInt()) or (baseGlowAlpha shl 24), // Edge
+                        (iconColor and 0x00FFFFFF.toInt()) or (outerGlowAlpha shl 24),  // Outer bleed
+                        0 // Fade out
+                    )
+                    val stops = floatArrayOf(0f, 0.45f, 0.7f, 1f) 
+                    
+                    pulsePaint.shader = RadialGradient(currentSize/2, currentSize/2, glowRadius, colors, stops, Shader.TileMode.CLAMP)
+                    canvas.drawCircle(currentSize/2, currentSize/2, glowRadius, pulsePaint)
+                    pulsePaint.shader = null
+                }
+
+                drawRect.set(0f, 0f, currentSize, currentSize)
                 canvas.drawBitmap(bitmap, null, drawRect, iconPaint)
+                canvas.restore()
             }
         }
     }

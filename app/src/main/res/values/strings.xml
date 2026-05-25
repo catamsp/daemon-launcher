@@ -116,6 +116,12 @@
     <string name="settings_widgets_widgets">Manage widgets</string>
     <string name="settings_widgets_custom_panels">Manage widget panels</string>
 
+    <string name="settings_launcher_section_globe">App Globe</string>
+    <string name="settings_globe_perspective">3D Perspective (Fisheye)</string>
+    <string name="settings_globe_perspective_summary">Adds depth distortion to the globe</string>
+    <string name="settings_globe_show_glow">Notification Glow</string>
+    <string name="settings_globe_glow_opacity">Glow Opacity</string>
+
 
     <string name="settings_apps_choose">Choose App</string>
 

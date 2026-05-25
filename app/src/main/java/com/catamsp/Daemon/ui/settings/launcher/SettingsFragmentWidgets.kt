@@ -25,6 +25,7 @@ import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetsActivity
 import com.catamsp.Daemon.widgets.ClockWidget
+import com.catamsp.Daemon.widgets.GlobeWidget
 
 class SettingsFragmentWidgets : Fragment(), UIObject {
 
@@ -116,6 +117,23 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             })
             items.add(SettingsItem.Toggle("tgl_flip", getString(R.string.settings_clock_flip_date_time), null, null, LauncherPreferences.clock().flipDateTime()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().flipDateTime(), it).apply()
+            })
+        }
+
+        // 2. Globe Widget Settings
+        if (activeWidgets.any { it is GlobeWidget }) {
+            items.add(SettingsItem.Header("hdr_globe", getString(R.string.settings_launcher_section_globe)))
+            
+            items.add(SettingsItem.Toggle("tgl_globe_persp", getString(R.string.settings_globe_perspective), getString(R.string.settings_globe_perspective_summary), null, LauncherPreferences.globe().perspective()) {
+                prefs.edit().putBoolean(LauncherPreferences.globe().keys().perspective(), it).apply()
+            })
+
+            items.add(SettingsItem.Toggle("tgl_globe_glow", getString(R.string.settings_globe_show_glow), null, null, LauncherPreferences.globe().showGlow()) {
+                prefs.edit().putBoolean(LauncherPreferences.globe().keys().showGlow(), it).apply()
+            })
+
+            items.add(SettingsItem.Slider("sld_globe_opacity", getString(R.string.settings_globe_glow_opacity), null, LauncherPreferences.globe().glowOpacity(), 0, 255) {
+                prefs.edit().putInt(LauncherPreferences.globe().keys().glowOpacity(), it).apply()
             })
         }
 
