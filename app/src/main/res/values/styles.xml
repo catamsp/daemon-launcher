@@ -143,6 +143,14 @@
         <item name="android:fontFamily">serif</item>
     </style>
 
+    <style name="fontSpaceGrotesk">
+        <item name="android:fontFamily">@font/space_grotesk</item>
+    </style>
+
+    <style name="fontMichroma">
+        <item name="android:fontFamily">@font/michroma</item>
+    </style>
+
     <style name="PopupMenuCustom" parent="@android:style/Widget.PopupMenu" tools:keep="@style/PopupMenuCustom">
         <item name="android:popupBackground">#252827</item>
     </style>

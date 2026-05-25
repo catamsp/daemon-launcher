@@ -15,6 +15,8 @@ enum class Font(val id: Int) {
     SERIF(R.style.fontSerif),
     MONOSPACE(R.style.fontMonospace),
     SERIF_MONOSPACE(R.style.fontSerifMonospace),
+    SPACE_GROTESK(R.style.fontSpaceGrotesk),
+    MICHROMA(R.style.fontMichroma),
     ;
 
     fun applyToTheme(theme: Resources.Theme) {
