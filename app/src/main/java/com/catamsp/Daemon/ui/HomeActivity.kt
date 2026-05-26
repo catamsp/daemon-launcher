@@ -9,7 +9,6 @@ import com.catamsp.Daemon.actions.Action
 import com.catamsp.Daemon.actions.Gesture
 import com.catamsp.Daemon.actions.LauncherAction
 import com.catamsp.Daemon.databinding.ActivityHomeBinding
-import com.catamsp.Daemon.openTutorial
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.ui.util.LauncherGestureActivity
 import android.widget.Toast
@@ -73,11 +72,6 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
     override fun onStart() {
         super<LauncherGestureActivity>.onStart()
         super<UIObject>.onStart()
-
-        // If the tutorial was not finished, start it
-        if (!LauncherPreferences.internal().started()) {
-            openTutorial(this)
-        }
 
         LauncherPreferences.getSharedPreferences()
             .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)

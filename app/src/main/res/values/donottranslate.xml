@@ -212,13 +212,6 @@
     <string name="settings_meta_report_bug_mail" translatable="false">catamsp@noreply.github.com</string>
     <string name="settings_meta_report_vulnerability_link" translatable="false">https://github.com/catamsp/IDK-launcher/security/policy</string>
 
-    <!--
-      -
-      - Tutorial
-      -
-      -->
-    <string name="swipe" translatable="false"><![CDATA[>>>>>>]]></string>
-
 
     <!-- Legal -->
     <string name="legal_info_text"><![CDATA[

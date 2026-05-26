@@ -34,7 +34,6 @@ import com.catamsp.Daemon.apps.PinnedShortcutInfo
 import com.catamsp.Daemon.apps.getPrivateSpaceUser
 import com.catamsp.Daemon.apps.isPrivateSpaceSupported
 import com.catamsp.Daemon.preferences.LauncherPreferences
-import com.catamsp.Daemon.ui.tutorial.TutorialActivity
 
 
 const val LOG_TAG = "Launcher"
@@ -135,10 +134,6 @@ fun openInBrowser(url: String, context: Context) {
     } catch (_: ActivityNotFoundException) {
         Toast.makeText(context, R.string.toast_activity_not_found_browser, Toast.LENGTH_LONG).show()
     }
-}
-
-fun openTutorial(context: Context) {
-    context.startActivity(Intent(context, TutorialActivity::class.java))
 }
 
 

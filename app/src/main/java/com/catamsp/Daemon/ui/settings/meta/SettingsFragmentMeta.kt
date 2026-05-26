@@ -16,7 +16,6 @@ import com.catamsp.Daemon.copyToClipboard
 import com.catamsp.Daemon.databinding.SettingsMetaBinding
 import com.catamsp.Daemon.getDeviceInfo
 import com.catamsp.Daemon.openInBrowser
-import com.catamsp.Daemon.openTutorial
 import com.catamsp.Daemon.preferences.resetPreferences
 import com.catamsp.Daemon.ui.LegalInfoActivity
 import com.catamsp.Daemon.ui.UIObject
@@ -63,10 +62,6 @@ class SettingsFragmentMeta : Fragment(), UIObject {
 
         items.add(SettingsItem.Header("hdr_help", "Support & Help"))
         
-        items.add(SettingsItem.Clickable("btn_tutorial", getString(R.string.settings_meta_show_tutorial), "Learn how to use Daemon Launcher") {
-            openTutorial(context)
-        })
-
         items.add(SettingsItem.Clickable("btn_reset", getString(R.string.settings_meta_reset), "Wipe all settings and restart") {
             AlertDialog.Builder(context, R.style.AlertDialogCustom)
                 .setTitle(getString(R.string.settings_meta_reset))

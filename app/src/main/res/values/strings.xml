@@ -263,8 +263,6 @@
     <string name="settings_general_choose_home_screen">Set Daemon launcher as home screen</string>
     <string name="settings_meta_cant_select_launcher">App Info</string>
 
-    <string name="settings_meta_show_tutorial">View Daemon launcher Tutorial</string>
-
     <string name="settings_meta_reset">Reset Settings</string>
     <string name="settings_meta_reset_confirm">You are going to discard all your preferences. Continue?</string>
 
@@ -338,37 +336,6 @@
     <string name="pin_shortcut_title">Add Shortcut</string>
     <string name="pin_shortcut_button_bind">Bind to gesture</string>
     <string name="pin_shortcut_switch_visible">Show in app list</string>
-
-    <!--
-      -
-      - Tutorial
-      -
-      -->
-    <string name="tutorial_title">Tutorial</string>
-    <string name="tutorial_start_text">👋\n\nTake a few seconds to learn how to use this Daemon launcher!</string>
-
-    <string name="tutorial_concept_title">Concept</string>
-    <string name="tutorial_concept_text">Daemon launcher is designed to be minimal, efficient and free of distraction.
-        \n\nIt contains no ads and collects no data.</string>
-    <string name="tutorial_concept_text_2">It is free software (MIT license)!\nMake sure to check out the repository!</string>
-    <string name="tutorial_concept_label_version">Version</string>
-
-    <string name="tutorial_usage_title">Usage</string>
-    <string name="tutorial_usage_text">Your home screen contains the local date and time. No distraction.</string>
-    <string name="tutorial_usage_text_2">You can launch your most important apps with touch gestures or button presses.</string>
-
-    <string name="tutorial_app_list_title">All Apps</string>
-    <string name="tutorial_app_list_text">You can quickly search through all apps in the app list.\n\nSwipe up to open it, or bind it to a different gesture.</string>
-    <string name="tutorial_app_list_text_2">Once only one app matches, it launches automatically.\nThis can be disabled by prefixing the query with a space.</string>
-
-
-    <string name="tutorial_setup_title">Setup</string>
-    <string name="tutorial_setup_text">We chose some default apps for you. You can change them now if you want to:</string>
-    <string name="tutorial_setup_text_2">You can also change your selection later.</string>
-
-    <string name="tutorial_finish_title">Let\'s go!</string>
-    <string name="tutorial_finish_text">You are ready to get started!\n\nI hope this is of great value to you!\n\n- Finn (who made Daemon launcher) and catamsp (who made some improvements and maintains the fork Daemon launcher)</string>
-    <string name="tutorial_finish_button">Start</string>
 
 
     <string name="settings">Settings</string>

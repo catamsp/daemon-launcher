@@ -26,7 +26,7 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
         r = R.class,
         value = {
                 @PreferenceGroup(name = "internal", prefix = "settings_internal_", suffix = "_key", value = {
-                        // set after the user finished the tutorial
+                        // set after the app was started for the first time
                         @Preference(name = "started", type = boolean.class, defaultValue = "false"),
                         @Preference(name = "started_time", type = long.class),
                         // see PREFERENCE_VERSION in com.catamsp.Daemon.preferences.Preferences.kt

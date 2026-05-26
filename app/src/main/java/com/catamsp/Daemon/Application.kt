@@ -188,7 +188,6 @@ class Application : android.app.Application(), ImageLoaderFactory {
         migratePreferencesToNewVersion(this)
 
         // First time opening the app: set defaults
-        // The tutorial is started from HomeActivity#onStart, as starting it here is blocked by android
         if (!LauncherPreferences.internal().started()) {
             resetPreferences(this)
         }
