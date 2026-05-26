@@ -1,6 +1,7 @@
 package com.catamsp.Daemon.ui.settings.launcher
 
 import android.graphics.Typeface
+import android.util.TypedValue
 import androidx.core.content.ContextCompat
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -24,6 +25,16 @@ class AnimationSelectionBottomSheet(
 
     private var selectedAnimation: TransitionAnimation = currentAnimation
     private lateinit var currentTypeface: Typeface
+
+    private fun getThemeColor(attrId: Int): Int {
+        val typedValue = TypedValue()
+        requireContext().theme.resolveAttribute(attrId, typedValue, true)
+        return if (typedValue.resourceId != 0) {
+            ContextCompat.getColor(requireContext(), typedValue.resourceId)
+        } else {
+            typedValue.data
+        }
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -140,10 +151,10 @@ class AnimationSelectionBottomSheet(
             
             // Highlight the centered/selected item with accent color
             if (item == selectedAnimation) {
-                holder.name.setTextColor(ContextCompat.getColor(requireContext(), R.color.daemonTheme_accent_color))
+                holder.name.setTextColor(getThemeColor(androidx.appcompat.R.attr.colorAccent))
                 holder.name.alpha = 1.0f
             } else {
-                holder.name.setTextColor(ContextCompat.getColor(requireContext(), R.color.daemonTheme_text_color))
+                holder.name.setTextColor(getThemeColor(android.R.attr.textColor))
                 holder.name.alpha = 0.4f
             }
             

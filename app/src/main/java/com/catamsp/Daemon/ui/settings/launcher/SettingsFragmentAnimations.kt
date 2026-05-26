@@ -61,10 +61,11 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
         
         val items = mutableListOf<SettingsItem>()
         val prefs = LauncherPreferences.getSharedPreferences()
+        val fontSuffix = LauncherPreferences.theme().font().name
 
         // --- MASTER TOGGLE ---
-        items.add(SettingsItem.Header("hdr_anim_master", getString(R.string.settings_theme_animations)))
-        items.add(SettingsItem.Toggle("tgl_anim_master", getString(R.string.settings_animations_master_toggle), null, null, LauncherPreferences.animations().masterToggle()) {
+        items.add(SettingsItem.Header("hdr_anim_master_$fontSuffix", getString(R.string.settings_theme_animations)))
+        items.add(SettingsItem.Toggle("tgl_anim_master_$fontSuffix", getString(R.string.settings_animations_master_toggle), null, null, LauncherPreferences.animations().masterToggle()) {
             prefs.edit().putBoolean(LauncherPreferences.animations().keys().masterToggle(), it).apply()
         })
 
@@ -75,7 +76,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
             
             // Swipe Up
             val currentUp = try { LauncherPreferences.animations().swipeUp() } catch (e: Exception) { TransitionAnimation.FADE }
-            items.add(SettingsItem.Clickable("btn_anim_up", getString(R.string.settings_animations_swipe_up), "Current: ${currentUp.getLabel(context)}") {
+            items.add(SettingsItem.Clickable("btn_anim_up_$fontSuffix", getString(R.string.settings_animations_swipe_up), "Current: ${currentUp.getLabel(context)}") {
                 activity?.showSelectionCarousel("btn_anim_up", anims.indexOf(currentUp), labels) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeUp(), anims[index].name).apply()
                 }
@@ -83,7 +84,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
 
             // Swipe Down
             val currentDown = try { LauncherPreferences.animations().swipeDown() } catch (e: Exception) { TransitionAnimation.FADE }
-            items.add(SettingsItem.Clickable("btn_anim_down", getString(R.string.settings_animations_swipe_down), "Current: ${currentDown.getLabel(context)}") {
+            items.add(SettingsItem.Clickable("btn_anim_down_$fontSuffix", getString(R.string.settings_animations_swipe_down), "Current: ${currentDown.getLabel(context)}") {
                 activity?.showSelectionCarousel("btn_anim_down", anims.indexOf(currentDown), labels) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeDown(), anims[index].name).apply()
                 }
@@ -91,7 +92,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
 
             // Swipe Left
             val currentLeft = try { LauncherPreferences.animations().swipeLeft() } catch (e: Exception) { TransitionAnimation.FADE }
-            items.add(SettingsItem.Clickable("btn_anim_left", getString(R.string.settings_animations_swipe_left), "Current: ${currentLeft.getLabel(context)}") {
+            items.add(SettingsItem.Clickable("btn_anim_left_$fontSuffix", getString(R.string.settings_animations_swipe_left), "Current: ${currentLeft.getLabel(context)}") {
                 activity?.showSelectionCarousel("btn_anim_left", anims.indexOf(currentLeft), labels) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeLeft(), anims[index].name).apply()
                 }
@@ -99,7 +100,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
 
             // Swipe Right
             val currentRight = try { LauncherPreferences.animations().swipeRight() } catch (e: Exception) { TransitionAnimation.FADE }
-            items.add(SettingsItem.Clickable("btn_anim_right", getString(R.string.settings_animations_swipe_right), "Current: ${currentRight.getLabel(context)}") {
+            items.add(SettingsItem.Clickable("btn_anim_right_$fontSuffix", getString(R.string.settings_animations_swipe_right), "Current: ${currentRight.getLabel(context)}") {
                 activity?.showSelectionCarousel("btn_anim_right", anims.indexOf(currentRight), labels) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeRight(), anims[index].name).apply()
                 }
@@ -107,7 +108,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
 
             // Other
             val currentOther = try { LauncherPreferences.animations().other() } catch (e: Exception) { TransitionAnimation.FADE }
-            items.add(SettingsItem.Clickable("btn_anim_other", getString(R.string.settings_animations_other), "Current: ${currentOther.getLabel(context)}") {
+            items.add(SettingsItem.Clickable("btn_anim_other_$fontSuffix", getString(R.string.settings_animations_other), "Current: ${currentOther.getLabel(context)}") {
                 activity?.showSelectionCarousel("btn_anim_other", anims.indexOf(currentOther), labels) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().other(), anims[index].name).apply()
                 }

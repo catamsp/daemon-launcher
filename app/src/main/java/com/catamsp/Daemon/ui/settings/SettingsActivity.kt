@@ -45,13 +45,47 @@ class SettingsActivity : UIObjectActivity() {
 
     private var selectionCarouselListener: ((Int) -> Unit)? = null
     private var currentSelectionItems: List<String> = emptyList()
+    private var activeCarouselKey: String? = null
 
     private val solidBackground = LauncherPreferences.theme().background() == Background.SOLID
             || LauncherPreferences.theme().colorTheme() == ColorTheme.LIGHT
 
     private val sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> }
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
+            if (prefKey == LauncherPreferences.theme().keys().font()) {
+                val tabAdapter = binding.settingsTabs.adapter as? SettingsTabAdapter
+                tabAdapter?.updateFont(LauncherPreferences.theme().font())
+                centerTabs()
+            }
+        }
     private lateinit var binding: SettingsBinding
+
+    private fun centerTabs() {
+        binding.settingsTabs.post {
+            val currentTab = binding.settingsViewpager.currentItem
+            val layoutManager = binding.settingsTabs.layoutManager as? LinearLayoutManager ?: return@post
+            
+            // Re-calculate padding to ensure centering is possible for any width
+            val totalWidth = binding.settingsTabs.width
+            val padding = totalWidth / 2
+            binding.settingsTabs.setPadding(padding, 0, padding, 0)
+
+            // Attempt to find the view to calculate precise center
+            val view = layoutManager.findViewByPosition(currentTab)
+            if (view != null) {
+                val viewCenter = (view.left + view.right) / 2
+                val screenCenter = totalWidth / 2
+                binding.settingsTabs.scrollBy(viewCenter - screenCenter, 0)
+            } else {
+                // Fallback: align start of item to center of screen
+                layoutManager.scrollToPositionWithOffset(currentTab, 0)
+            }
+            
+            // Force redrawing of scale/alpha
+            binding.settingsTabs.scrollBy(1, 0)
+            binding.settingsTabs.scrollBy(-1, 0)
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,7 +96,7 @@ class SettingsActivity : UIObjectActivity() {
 
         // set up tabs and swiping in settings
         val sectionsPagerAdapter = SettingsSectionsPagerAdapter(this)
-        val tabAdapter = SettingsTabAdapter(TAB_TITLES) { position ->
+        val tabAdapter = SettingsTabAdapter(TAB_TITLES, LauncherPreferences.theme().font()) { position ->
             binding.settingsViewpager.currentItem = position
         }
 
@@ -76,16 +110,8 @@ class SettingsActivity : UIObjectActivity() {
             this.layoutManager = layoutManager
             this.adapter = tabAdapter
 
-            // Center padding to allow first and last items to be anchored in the center
-            post {
-                val padding = (width / 2) - (TypedValue.applyDimension(
-                    TypedValue.COMPLEX_UNIT_DIP,
-                    40f,
-                    resources.displayMetrics
-                ).toInt())
-                setPadding(padding, 0, padding, 0)
-                scrollToPosition(binding.settingsViewpager.currentItem)
-            }
+            // Initial centering
+            centerTabs()
 
             val snapHelper = LinearSnapHelper()
             snapHelper.attachToRecyclerView(this)
@@ -131,10 +157,22 @@ class SettingsActivity : UIObjectActivity() {
                 }
                 scroller.targetPosition = position
                 layoutManager.startSmoothScroll(scroller)
+                hideSelectionCarousel()
             }
         })
 
         setupAnimationCarousel()
+    }
+
+    fun getThemeColor(attrId: Int): Int {
+        val typedValue = TypedValue()
+        val currentTheme = getTheme() ?: return 0
+        currentTheme.resolveAttribute(attrId, typedValue, true)
+        return if (typedValue.resourceId != 0) {
+            ContextCompat.getColor(this, typedValue.resourceId)
+        } else {
+            typedValue.data
+        }
     }
 
     private fun setupAnimationCarousel() {
@@ -144,6 +182,8 @@ class SettingsActivity : UIObjectActivity() {
         binding.settingsAnimationCarousel.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
                 val centerX = rv.width / 2f
+                val accentColor = getThemeColor(androidx.appcompat.R.attr.colorAccent)
+                val textColor = getThemeColor(android.R.attr.textColor)
                 for (i in 0 until rv.childCount) {
                     val child = rv.getChildAt(i)
                     val childCenterX = (child.left + child.right) / 2f
@@ -157,9 +197,9 @@ class SettingsActivity : UIObjectActivity() {
                     
                     val text = child.findViewById<TextView>(R.id.animation_name)
                     if (dist < 50f) {
-                        text?.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.daemonTheme_accent_color))
+                        text?.setTextColor(accentColor)
                     } else {
-                        text?.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.daemonTheme_text_color))
+                        text?.setTextColor(textColor)
                     }
                 }
             }
@@ -179,6 +219,12 @@ class SettingsActivity : UIObjectActivity() {
     }
 
     fun showSelectionCarousel(key: String, currentValueIndex: Int, items: List<String>, onSelected: (Int) -> Unit) {
+        if (activeCarouselKey == key) {
+            hideSelectionCarousel()
+            return
+        }
+        
+        activeCarouselKey = key
         selectionCarouselListener = onSelected
         currentSelectionItems = items
         
@@ -192,6 +238,7 @@ class SettingsActivity : UIObjectActivity() {
                 val tv = holder.itemView.findViewById<TextView>(R.id.animation_name)
                 tv.text = items[position]
                 tv.typeface = font.getTypeface(this@SettingsActivity)
+                tv.setTextColor(getThemeColor(android.R.attr.textColor))
                 holder.itemView.setOnClickListener {
                     binding.settingsAnimationCarousel.smoothScrollToPosition(position)
                 }
@@ -217,6 +264,7 @@ class SettingsActivity : UIObjectActivity() {
     fun hideSelectionCarousel() {
         binding.settingsAnimationCarousel.visibility = View.GONE
         selectionCarouselListener = null
+        activeCarouselKey = null
     }
 
     override fun onStart() {
@@ -281,10 +329,16 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
  */
 class SettingsTabAdapter(
     private val titles: Array<Int>,
+    private var font: com.catamsp.Daemon.preferences.theme.Font,
     private val onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SettingsTabAdapter.ViewHolder>() {
 
     class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
+
+    fun updateFont(newFont: com.catamsp.Daemon.preferences.theme.Font) {
+        this.font = newFont
+        notifyDataSetChanged()
+    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         val textView = TextView(parent.context).apply {
@@ -300,15 +354,17 @@ class SettingsTabAdapter(
             )
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
             gravity = android.view.Gravity.CENTER
-            setTextColor(parent.context.getColor(android.R.color.white))
             isAllCaps = true
-            setTypeface(null, android.graphics.Typeface.BOLD)
         }
         return ViewHolder(textView)
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        val textColor = (holder.itemView.context as? SettingsActivity)?.getThemeColor(android.R.attr.textColor) 
+            ?: holder.itemView.context.getColor(android.R.color.white)
         holder.textView.setText(titles[position])
+        holder.textView.typeface = font.getTypeface(holder.itemView.context)
+        holder.textView.setTextColor(textColor)
         holder.textView.setOnClickListener { onClick(position) }
     }
 

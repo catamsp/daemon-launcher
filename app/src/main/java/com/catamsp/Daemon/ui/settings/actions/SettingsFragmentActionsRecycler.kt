@@ -103,12 +103,13 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
         items.add(SettingsItem.Header("hdr_gestures", "Action Bindings"))
 
         lifecycleScope.launch {
+            val fontSuffix = LauncherPreferences.theme().font().name
             val settingsItems = withContext(Dispatchers.Default) {
-                gestures.map { gesture ->
+                Gesture.entries.map { gesture ->
                     val action = Action.forGesture(gesture)
                     if (action == null) {
                         SettingsItem.Clickable(
-                            itemKey = gesture.id,
+                            itemKey = gesture.id + "_" + fontSuffix,
                             title = gesture.getLabel(activity),
                             description = "Tap to bind an app or action",
                             icon = null
@@ -119,7 +120,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
                         // Get icon/label info (could be heavy, so we do it in Default dispatcher)
                         val data = action.getIconAndContentDescription(activity)
                         SettingsItem.Clickable(
-                            itemKey = gesture.id,
+                            itemKey = gesture.id + "_" + fontSuffix,
                             title = gesture.getLabel(activity),
                             description = data.second,
                             icon = data.first,
