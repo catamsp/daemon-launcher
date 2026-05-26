@@ -29,6 +29,16 @@
         app:layout_constraintBottom_toTopOf="@+id/settings_bottom_bar"
         app:layout_constraintTop_toBottomOf="@id/settings_heading" />
 
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/settings_animation_carousel"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@android:color/transparent"
+        android:clipToPadding="false"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/settings_bottom_bar" />
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/settings_bottom_bar"
         android:layout_width="match_parent"

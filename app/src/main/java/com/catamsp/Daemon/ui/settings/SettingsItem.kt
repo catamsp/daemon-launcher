@@ -1,38 +1,35 @@
 package com.catamsp.Daemon.ui.settings
 
-sealed class SettingsItem {
-    abstract val key: String
+import android.graphics.drawable.Drawable
 
-    data class Header(
-        override val key: String,
-        val title: String
-    ) : SettingsItem()
-
+sealed class SettingsItem(val key: String) {
+    data class Header(val itemKey: String, val title: String) : SettingsItem(itemKey)
+    
     data class Toggle(
-        override val key: String,
+        val itemKey: String,
         val title: String,
-        val description: String? = null,
-        val icon: android.graphics.drawable.Drawable? = null,
+        val description: String?,
+        val icon: Drawable?,
         val isChecked: Boolean,
         val onToggle: (Boolean) -> Unit
-    ) : SettingsItem()
+    ) : SettingsItem(itemKey)
 
     data class Slider(
-        override val key: String,
+        val itemKey: String,
         val title: String,
-        val description: String? = null,
-        val value: Int,
+        val description: String?,
         val min: Int,
         val max: Int,
+        val value: Int,
         val onValueChange: (Int) -> Unit
-    ) : SettingsItem()
+    ) : SettingsItem(itemKey)
 
     data class Clickable(
-        override val key: String,
+        val itemKey: String,
         val title: String,
-        val description: String? = null,
-        val icon: android.graphics.drawable.Drawable? = null,
+        val description: String?,
+        val icon: Drawable? = null,
         val onRemove: (() -> Unit)? = null,
         val onClick: () -> Unit
-    ) : SettingsItem()
+    ) : SettingsItem(itemKey)
 }

@@ -56,6 +56,8 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
         private val title: TextView = view.findViewById(R.id.settings_item_header_title)
         fun bind(item: SettingsItem.Header) {
             title.text = item.title
+            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            title.typeface = font.getTypeface(itemView.context)
         }
     }
 
@@ -70,6 +72,10 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             desc.text = item.description
             desc.isVisible = item.description != null
             
+            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            title.typeface = font.getTypeface(itemView.context)
+            desc.typeface = font.getTypeface(itemView.context)
+
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
                 icon.isVisible = true
@@ -95,6 +101,11 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             title.text = item.title
             desc.text = item.description
             desc.isVisible = item.description != null
+            
+            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            title.typeface = font.getTypeface(itemView.context)
+            desc.typeface = font.getTypeface(itemView.context)
+            valueText.typeface = font.getTypeface(itemView.context)
 
             valueText.text = item.value.toString()
             seekBar.max = item.max - item.min
@@ -126,6 +137,10 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             desc.text = item.description
             desc.isVisible = item.description != null
             
+            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            title.typeface = font.getTypeface(itemView.context)
+            desc.typeface = font.getTypeface(itemView.context)
+
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
                 icon.isVisible = true

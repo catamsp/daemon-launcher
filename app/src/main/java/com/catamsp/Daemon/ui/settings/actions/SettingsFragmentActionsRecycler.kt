@@ -108,7 +108,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
                     val action = Action.forGesture(gesture)
                     if (action == null) {
                         SettingsItem.Clickable(
-                            key = gesture.id,
+                            itemKey = gesture.id,
                             title = gesture.getLabel(activity),
                             description = "Tap to bind an app or action",
                             icon = null
@@ -119,7 +119,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
                         // Get icon/label info (could be heavy, so we do it in Default dispatcher)
                         val data = action.getIconAndContentDescription(activity)
                         SettingsItem.Clickable(
-                            key = gesture.id,
+                            itemKey = gesture.id,
                             title = gesture.getLabel(activity),
                             description = data.second,
                             icon = data.first,

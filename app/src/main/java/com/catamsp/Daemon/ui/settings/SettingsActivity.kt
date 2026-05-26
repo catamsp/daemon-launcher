@@ -29,6 +29,9 @@ import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
 import com.catamsp.Daemon.widgets.ClockWidget
 
+import androidx.core.content.ContextCompat
+import com.catamsp.Daemon.preferences.theme.TransitionAnimation
+
 /**
  * The [SettingsActivity] is a tabbed activity:
  *
@@ -39,6 +42,9 @@ import com.catamsp.Daemon.widgets.ClockWidget
  * Settings are closed automatically if the activity goes `onPause` unexpectedly.
  */
 class SettingsActivity : UIObjectActivity() {
+
+    private var animationCarouselListener: ((TransitionAnimation) -> Unit)? = null
+    private var currentAnimations: List<TransitionAnimation> = emptyList()
 
     private val solidBackground = LauncherPreferences.theme().background() == Background.SOLID
             || LauncherPreferences.theme().colorTheme() == ColorTheme.LIGHT
@@ -146,6 +152,92 @@ class SettingsActivity : UIObjectActivity() {
                 layoutManager.startSmoothScroll(scroller)
             }
         })
+
+        setupAnimationCarousel()
+    }
+
+    private fun setupAnimationCarousel() {
+        val snapHelper = LinearSnapHelper()
+        snapHelper.attachToRecyclerView(binding.settingsAnimationCarousel)
+        
+        binding.settingsAnimationCarousel.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(rv: RecyclerView, dx: Int, dy: Int) {
+                val centerX = rv.width / 2f
+                for (i in 0 until rv.childCount) {
+                    val child = rv.getChildAt(i)
+                    val childCenterX = (child.left + child.right) / 2f
+                    val dist = Math.abs(childCenterX - centerX)
+                    
+                    // Increased scaling and fading for side items
+                    val scale = 1f - Math.min(dist / centerX * 0.45f, 0.45f)
+                    child.scaleX = scale
+                    child.scaleY = scale
+                    child.alpha = 1f - Math.min(dist / centerX * 0.85f, 0.85f)
+                    
+                    val text = child.findViewById<TextView>(R.id.animation_name)
+                    if (dist < 50f) {
+                        text?.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.daemonTheme_accent_color))
+                    } else {
+                        text?.setTextColor(ContextCompat.getColor(this@SettingsActivity, R.color.daemonTheme_text_color))
+                    }
+                }
+            }
+
+            override fun onScrollStateChanged(rv: RecyclerView, newState: Int) {
+                if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                    val centerView = snapHelper.findSnapView(rv.layoutManager)
+                    centerView?.let {
+                        val pos = rv.layoutManager?.getPosition(it) ?: -1
+                        if (pos != RecyclerView.NO_POSITION && pos < currentAnimations.size) {
+                            animationCarouselListener?.invoke(currentAnimations[pos])
+                        }
+                    }
+                }
+            }
+        })
+    }
+
+    fun showAnimationCarousel(currentValue: TransitionAnimation, onSelected: (TransitionAnimation) -> Unit) {
+        animationCarouselListener = onSelected
+        currentAnimations = TransitionAnimation.entries.filter { it != TransitionAnimation.NONE }
+        val labels = currentAnimations.map { it.getLabel(this) }
+        
+        val font = LauncherPreferences.theme().font()
+        val adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+            override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+                val v = LayoutInflater.from(parent.context).inflate(R.layout.item_animation_3d, parent, false)
+                return object : RecyclerView.ViewHolder(v) {}
+            }
+            override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+                val tv = holder.itemView.findViewById<TextView>(R.id.animation_name)
+                tv.text = labels[position]
+                tv.typeface = font.getTypeface(this@SettingsActivity)
+                holder.itemView.setOnClickListener {
+                    binding.settingsAnimationCarousel.smoothScrollToPosition(position)
+                }
+            }
+            override fun getItemCount(): Int = labels.size
+        }
+        
+        binding.settingsAnimationCarousel.apply {
+            this.layoutManager = LinearLayoutManager(this@SettingsActivity, LinearLayoutManager.HORIZONTAL, false)
+            this.adapter = adapter
+            visibility = View.VISIBLE
+            
+            post {
+                val padding = width / 2 - (resources.displayMetrics.density * 45).toInt()
+                setPadding(padding, 0, padding, 0)
+                val index = currentAnimations.indexOf(currentValue)
+                if (index != -1) {
+                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(index, 0)
+                }
+            }
+        }
+    }
+
+    fun hideAnimationCarousel() {
+        binding.settingsAnimationCarousel.visibility = View.GONE
+        animationCarouselListener = null
     }
 
     override fun onStart() {

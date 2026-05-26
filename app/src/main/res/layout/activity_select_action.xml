@@ -60,6 +60,8 @@
             android:id="@+id/select_action_tabs"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            app:tabBackground="@android:color/transparent"
             app:tabIndicatorColor="?attr/colorAccent"
             custom:tabTextColor="?attr/android:textColor"
             tools:ignore="SpeakableTextPresentCheck" />
