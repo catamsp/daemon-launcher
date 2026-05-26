@@ -43,33 +43,14 @@ import com.catamsp.Daemon.preferences.theme.TransitionAnimation
  */
 class SettingsActivity : UIObjectActivity() {
 
-    private var animationCarouselListener: ((TransitionAnimation) -> Unit)? = null
-    private var currentAnimations: List<TransitionAnimation> = emptyList()
+    private var selectionCarouselListener: ((Int) -> Unit)? = null
+    private var currentSelectionItems: List<String> = emptyList()
 
     private val solidBackground = LauncherPreferences.theme().background() == Background.SOLID
             || LauncherPreferences.theme().colorTheme() == ColorTheme.LIGHT
 
     private val sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            if (solidBackground &&
-                (prefKey == LauncherPreferences.theme().keys().background() ||
-                        prefKey == LauncherPreferences.theme().keys().colorTheme())
-            ) {
-                // Switching from solid background to a transparent background using `recreate()`
-                // causes a very ugly glitch, making the settings unreadable.
-                // This ugly workaround causes a jump to the top of the list, but at least
-                // the text stays readable.
-                val i = Intent(this, SettingsActivity::class.java)
-                    .also { it.putExtra(EXTRA_TAB, 1) }
-                finish()
-                startActivity(i)
-            } else
-                if (prefKey?.startsWith("theme.") == true ||
-                    prefKey?.startsWith("display.") == true
-                ) {
-                    recreate()
-                }
-        }
+        SharedPreferences.OnSharedPreferenceChangeListener { _, _ -> }
     private lateinit var binding: SettingsBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -168,7 +149,7 @@ class SettingsActivity : UIObjectActivity() {
                     val childCenterX = (child.left + child.right) / 2f
                     val dist = Math.abs(childCenterX - centerX)
                     
-                    // Increased scaling and fading for side items
+                    // Unified scaling and fading logic
                     val scale = 1f - Math.min(dist / centerX * 0.45f, 0.45f)
                     child.scaleX = scale
                     child.scaleY = scale
@@ -188,8 +169,8 @@ class SettingsActivity : UIObjectActivity() {
                     val centerView = snapHelper.findSnapView(rv.layoutManager)
                     centerView?.let {
                         val pos = rv.layoutManager?.getPosition(it) ?: -1
-                        if (pos != RecyclerView.NO_POSITION && pos < currentAnimations.size) {
-                            animationCarouselListener?.invoke(currentAnimations[pos])
+                        if (pos != RecyclerView.NO_POSITION && pos < currentSelectionItems.size) {
+                            selectionCarouselListener?.invoke(pos)
                         }
                     }
                 }
@@ -197,10 +178,9 @@ class SettingsActivity : UIObjectActivity() {
         })
     }
 
-    fun showAnimationCarousel(currentValue: TransitionAnimation, onSelected: (TransitionAnimation) -> Unit) {
-        animationCarouselListener = onSelected
-        currentAnimations = TransitionAnimation.entries.filter { it != TransitionAnimation.NONE }
-        val labels = currentAnimations.map { it.getLabel(this) }
+    fun showSelectionCarousel(key: String, currentValueIndex: Int, items: List<String>, onSelected: (Int) -> Unit) {
+        selectionCarouselListener = onSelected
+        currentSelectionItems = items
         
         val font = LauncherPreferences.theme().font()
         val adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -210,13 +190,13 @@ class SettingsActivity : UIObjectActivity() {
             }
             override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                 val tv = holder.itemView.findViewById<TextView>(R.id.animation_name)
-                tv.text = labels[position]
+                tv.text = items[position]
                 tv.typeface = font.getTypeface(this@SettingsActivity)
                 holder.itemView.setOnClickListener {
                     binding.settingsAnimationCarousel.smoothScrollToPosition(position)
                 }
             }
-            override fun getItemCount(): Int = labels.size
+            override fun getItemCount(): Int = items.size
         }
         
         binding.settingsAnimationCarousel.apply {
@@ -227,17 +207,16 @@ class SettingsActivity : UIObjectActivity() {
             post {
                 val padding = width / 2 - (resources.displayMetrics.density * 45).toInt()
                 setPadding(padding, 0, padding, 0)
-                val index = currentAnimations.indexOf(currentValue)
-                if (index != -1) {
-                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(index, 0)
+                if (currentValueIndex != -1) {
+                    (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(currentValueIndex, 0)
                 }
             }
         }
     }
 
-    fun hideAnimationCarousel() {
+    fun hideSelectionCarousel() {
         binding.settingsAnimationCarousel.visibility = View.GONE
-        animationCarouselListener = null
+        selectionCarouselListener = null
     }
 
     override fun onStart() {

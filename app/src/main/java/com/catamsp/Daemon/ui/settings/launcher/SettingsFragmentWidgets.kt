@@ -20,6 +20,7 @@ import com.catamsp.Daemon.databinding.SettingsLauncherBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.ui.UIObject
+import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
@@ -85,16 +86,13 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
 
         // 1. Clock Widget Settings
         if (activeWidgets.any { it is ClockWidget }) {
+            val activity = requireActivity() as? SettingsActivity
             items.add(SettingsItem.Header("hdr_clock", getString(R.string.settings_launcher_section_date_time)))
             
             val fonts = Font.entries
             items.add(SettingsItem.Clickable("btn_clock_font", getString(R.string.settings_clock_font), "Current: ${LauncherPreferences.clock().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-                showSingleChoiceDialog(getString(R.string.settings_clock_font),
-                    fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                    fonts.indexOf(LauncherPreferences.clock().font())
-                ) { index ->
+                activity?.showSelectionCarousel("btn_clock_font", fonts.indexOf(LauncherPreferences.clock().font()), fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                     prefs.edit().putString(LauncherPreferences.clock().keys().font(), fonts[index].name).apply()
-                    refreshList()
                 }
             })
 
@@ -148,17 +146,6 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
         }
 
         adapter.submitList(items)
-    }
-
-    private fun showSingleChoiceDialog(title: String, options: Array<String>, currentIndex: Int, onSelect: (Int) -> Unit) {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
-            .setTitle(title)
-            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                onSelect(which)
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.dialog_cancel, null)
-            .show()
     }
 
     private fun showColorPickerDialog(initialColor: Int, onColorSelected: (Int) -> Unit) {

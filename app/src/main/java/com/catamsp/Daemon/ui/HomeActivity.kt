@@ -23,6 +23,7 @@ import androidx.core.app.NotificationManagerCompat
 class HomeActivity : UIObject, LauncherGestureActivity() {
 
     private lateinit var binding: ActivityHomeBinding
+    private var needsRefresh = false
 
     private fun checkNotificationPermission() {
         // Permission check is now silent as requested
@@ -30,6 +31,9 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
 
     private var sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
+            if (prefKey?.startsWith("theme.") == true || prefKey?.startsWith("display.") == true) {
+                needsRefresh = true
+            }
             if (prefKey?.startsWith("clock.") == true) {
                 binding.homeWidgetContainer.updateWidgets(
                     this@HomeActivity,
@@ -116,6 +120,11 @@ class HomeActivity : UIObject, LauncherGestureActivity() {
 
     override fun onResume() {
         super.onResume()
+        if (needsRefresh) {
+            needsRefresh = false
+            recreate()
+            return
+        }
         updateSettingsFallbackButtonVisibility()
         checkNotificationPermission()
 

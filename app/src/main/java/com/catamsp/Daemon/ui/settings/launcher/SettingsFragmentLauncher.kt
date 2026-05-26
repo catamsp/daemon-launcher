@@ -44,6 +44,7 @@ import com.catamsp.Daemon.preferences.list.AppNameFormat
 import com.catamsp.Daemon.setDefaultHomeScreen
 import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.UIObjectActivity
+import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
@@ -137,41 +138,30 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             pickWallpaperLauncher.launch("image/*")
         })
 
+        val activity = requireActivity() as? SettingsActivity
+
         val themes = ColorTheme.entries.filter { it.isAvailable() }
         items.add(SettingsItem.Clickable("btn_theme", getString(R.string.settings_theme_color_theme), "Current: ${LauncherPreferences.theme().colorTheme().getLabel(context)}") {
-            showSingleChoiceDialog(getString(R.string.settings_theme_color_theme), 
-                themes.map { it.getLabel(context) }.toTypedArray(),
-                themes.indexOf(LauncherPreferences.theme().colorTheme())
-            ) { index ->
+            activity?.showSelectionCarousel("btn_theme", themes.indexOf(LauncherPreferences.theme().colorTheme()), themes.map { it.getLabel(context) }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().colorTheme(), themes[index].name).apply()
-                refreshList()
             }
         })
 
         val fonts = Font.entries
         items.add(SettingsItem.Clickable("btn_font", getString(R.string.settings_theme_font), "Current: ${LauncherPreferences.theme().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            showSingleChoiceDialog(getString(R.string.settings_theme_font),
-                fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                fonts.indexOf(LauncherPreferences.theme().font())
-            ) { index ->
+            activity?.showSelectionCarousel("btn_font", fonts.indexOf(LauncherPreferences.theme().font()), fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().font(), fonts[index].name).apply()
-                refreshList()
             }
         })
 
         items.add(SettingsItem.Toggle("tgl_shadow", getString(R.string.settings_theme_text_shadow), null, null, LauncherPreferences.theme().textShadow()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().textShadow(), it).apply()
-            refreshList()
         })
 
         val bgs = Background.entries
         items.add(SettingsItem.Clickable("btn_bg", getString(R.string.settings_theme_background), "Current: ${LauncherPreferences.theme().background().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            showSingleChoiceDialog(getString(R.string.settings_theme_background),
-                bgs.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                bgs.indexOf(LauncherPreferences.theme().background())
-            ) { index ->
+            activity?.showSelectionCarousel("btn_bg", bgs.indexOf(LauncherPreferences.theme().background()), bgs.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().background(), bgs[index].name).apply()
-                refreshList()
             }
         })
 
@@ -222,23 +212,15 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
 
         val layouts = ListLayout.entries
         items.add(SettingsItem.Clickable("btn_list_layout", getString(R.string.settings_list_layout), "Current: ${LauncherPreferences.list().layout().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            showSingleChoiceDialog(getString(R.string.settings_list_layout),
-                layouts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                layouts.indexOf(LauncherPreferences.list().layout())
-            ) { index ->
+            activity?.showSelectionCarousel("btn_list_layout", layouts.indexOf(LauncherPreferences.list().layout()), layouts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.list().keys().layout(), layouts[index].name).apply()
-                refreshList()
             }
         })
 
         val formats = AppNameFormat.entries
         items.add(SettingsItem.Clickable("btn_name_format", getString(R.string.settings_list_app_name_format), "Current: ${LauncherPreferences.list().appNameFormat().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            showSingleChoiceDialog(getString(R.string.settings_list_app_name_format),
-                formats.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }.toTypedArray(),
-                formats.indexOf(LauncherPreferences.list().appNameFormat())
-            ) { index ->
+            activity?.showSelectionCarousel("btn_name_format", formats.indexOf(LauncherPreferences.list().appNameFormat()), formats.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.list().keys().appNameFormat(), formats[index].name).apply()
-                refreshList()
             }
         })
 
@@ -267,17 +249,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         })
 
         adapter.submitList(items)
-    }
-
-    private fun showSingleChoiceDialog(title: String, options: Array<String>, currentIndex: Int, onSelect: (Int) -> Unit) {
-        AlertDialog.Builder(requireContext(), R.style.AlertDialogCustom)
-            .setTitle(title)
-            .setSingleChoiceItems(options, currentIndex) { dialog, which ->
-                onSelect(which)
-                dialog.dismiss()
-            }
-            .setNegativeButton(R.string.dialog_cancel, null)
-            .show()
     }
 
     private fun showColorPickerDialog(initialColor: Int, onColorSelected: (Int) -> Unit) {
