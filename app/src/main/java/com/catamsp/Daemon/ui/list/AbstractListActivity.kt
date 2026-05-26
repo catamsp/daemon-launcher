@@ -25,8 +25,6 @@ sealed class AbstractListActivity : UIObjectActivity() {
     // TODO: only needed for [SelectActionActivity]
     var forGesture: String? = null
 
-    var ignoreAutoClose = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -41,21 +39,6 @@ sealed class AbstractListActivity : UIObjectActivity() {
             hiddenVisibility = bundle.getSerializable(KEY_HIDDEN_VISIBILITY)
                     as? AppFilter.Companion.AppSetVisibility ?: hiddenVisibility
             forGesture = bundle.getString(KEY_FOR_GESTURE)
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        ignoreAutoClose = false
-    }
-
-    override fun onPause() {
-        super.onPause()
-
-        // ensure that the activity closes then an app is launched
-        // and when the user navigates to recent apps
-        if (!ignoreAutoClose) {
-            finish()
         }
     }
 

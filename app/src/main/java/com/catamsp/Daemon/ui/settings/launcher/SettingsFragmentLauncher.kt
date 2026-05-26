@@ -2,10 +2,13 @@ package com.catamsp.Daemon.ui.settings.launcher
 
 import android.app.Activity
 import android.app.AlertDialog
+import android.app.WallpaperManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.graphics.BitmapFactory
 import android.graphics.Color
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.text.Editable
@@ -16,6 +19,8 @@ import android.view.ViewGroup
 import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.core.graphics.alpha
 import androidx.core.graphics.blue
@@ -24,6 +29,8 @@ import androidx.core.graphics.red
 import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
+import android.util.DisplayMetrics
+import android.view.WindowManager
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.actions.lock.LockMethod
 import com.catamsp.Daemon.actions.openAppsList
@@ -36,6 +43,7 @@ import com.catamsp.Daemon.preferences.list.ListLayout
 import com.catamsp.Daemon.preferences.list.AppNameFormat
 import com.catamsp.Daemon.setDefaultHomeScreen
 import com.catamsp.Daemon.ui.UIObject
+import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
@@ -46,6 +54,37 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
     private lateinit var binding: SettingsLauncherBinding
     private val adapter = SettingsRecyclerAdapter()
 
+    private val pickWallpaperLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
+        uri?.let {
+            val context = requireContext().applicationContext
+            val wallpaperManager = WallpaperManager.getInstance(context)
+            
+            Thread {
+                try {
+                    val inputStream = context.contentResolver.openInputStream(it)
+                    val bitmap = BitmapFactory.decodeStream(inputStream)
+                    inputStream?.close()
+
+                    if (bitmap != null) {
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                            wallpaperManager.setBitmap(bitmap, null, true, WallpaperManager.FLAG_SYSTEM or WallpaperManager.FLAG_LOCK)
+                        } else {
+                            wallpaperManager.setBitmap(bitmap)
+                        }
+                        
+                        requireActivity().runOnUiThread {
+                            Toast.makeText(requireContext(), "Wallpaper set!", Toast.LENGTH_SHORT).show()
+                            activity?.finish()
+                        }
+                    }
+                } catch (e: Exception) {
+                    requireActivity().runOnUiThread {
+                        Toast.makeText(requireContext(), "Failed to set wallpaper: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }.start()
+        }
+    }
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
             refreshList()
@@ -94,10 +133,8 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         // --- APPEARANCE ---
         items.add(SettingsItem.Header("hdr_app", getString(R.string.settings_launcher_section_appearance)))
         items.add(SettingsItem.Clickable("btn_wallpaper", getString(R.string.settings_theme_wallpaper), null) {
-            val intent = Intent(Intent.ACTION_SET_WALLPAPER)
-                .putExtra("com.android.wallpaper.LAUNCH_SOURCE", "app_launched_launcher")
-                .putExtra("com.android.launcher3.WALLPAPER_FLAVOR", "focus_wallpaper")
-            startActivity(intent)
+            (activity as? UIObjectActivity)?.ignoreAutoClose = true
+            pickWallpaperLauncher.launch("image/*")
         })
 
         val themes = ColorTheme.entries.filter { it.isAvailable() }
@@ -107,6 +144,7 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 themes.indexOf(LauncherPreferences.theme().colorTheme())
             ) { index ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().colorTheme(), themes[index].name).apply()
+                refreshList()
             }
         })
 
@@ -117,11 +155,13 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 fonts.indexOf(LauncherPreferences.theme().font())
             ) { index ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().font(), fonts[index].name).apply()
+                refreshList()
             }
         })
 
         items.add(SettingsItem.Toggle("tgl_shadow", getString(R.string.settings_theme_text_shadow), null, null, LauncherPreferences.theme().textShadow()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().textShadow(), it).apply()
+            refreshList()
         })
 
         val bgs = Background.entries
@@ -131,26 +171,32 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 bgs.indexOf(LauncherPreferences.theme().background())
             ) { index ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().background(), bgs[index].name).apply()
+                refreshList()
             }
         })
 
         items.add(SettingsItem.Toggle("tgl_mono", getString(R.string.settings_theme_monochrome_icons), null, null, LauncherPreferences.theme().monochromeIcons()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().monochromeIcons(), it).apply()
+            refreshList()
         })
 
         // --- FUNCTIONALITY ---
         items.add(SettingsItem.Header("hdr_func", getString(R.string.settings_launcher_section_functionality)))
         items.add(SettingsItem.Toggle("tgl_auto_launch", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoLaunch(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_web_search", getString(R.string.settings_functionality_search_web), getString(R.string.settings_functionality_search_web_summary), null, LauncherPreferences.functionality().searchWeb()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchWeb(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_auto_kb", getString(R.string.settings_functionality_auto_keyboard), null, null, LauncherPreferences.functionality().searchAutoOpenKeyboard()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoOpenKeyboard(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_close_kb", getString(R.string.settings_functionality_auto_close_keyboard), null, null, LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoCloseKeyboard(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Clickable("btn_lock", getString(R.string.settings_actions_lock_method), null) {
             LockMethod.chooseMethod(context)
@@ -163,12 +209,15 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         })
         items.add(SettingsItem.Toggle("tgl_hide_bound", getString(R.string.settings_apps_hide_bound_apps), null, null, LauncherPreferences.apps().hideBoundApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hideBoundApps(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_hide_paused", getString(R.string.settings_apps_hide_paused_apps), null, null, LauncherPreferences.apps().hidePausedApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePausedApps(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_hide_private", getString(R.string.settings_apps_hide_private_space_apps), null, null, LauncherPreferences.apps().hidePrivateSpaceApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePrivateSpaceApps(), it).apply()
+            refreshList()
         })
 
         val layouts = ListLayout.entries
@@ -178,6 +227,7 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 layouts.indexOf(LauncherPreferences.list().layout())
             ) { index ->
                 prefs.edit().putString(LauncherPreferences.list().keys().layout(), layouts[index].name).apply()
+                refreshList()
             }
         })
 
@@ -188,26 +238,32 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 formats.indexOf(LauncherPreferences.list().appNameFormat())
             ) { index ->
                 prefs.edit().putString(LauncherPreferences.list().keys().appNameFormat(), formats[index].name).apply()
+                refreshList()
             }
         })
 
         items.add(SettingsItem.Toggle("tgl_rev_layout", getString(R.string.settings_list_reverse_layout), null, null, LauncherPreferences.list().reverseLayout()) {
             prefs.edit().putBoolean(LauncherPreferences.list().keys().reverseLayout(), it).apply()
+            refreshList()
         })
 
         // --- DISPLAY ---
         items.add(SettingsItem.Header("hdr_display", getString(R.string.settings_launcher_section_display)))
         items.add(SettingsItem.Toggle("tgl_rotate", getString(R.string.settings_display_rotate_screen), null, null, LauncherPreferences.display().rotateScreen()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().rotateScreen(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_timeout", getString(R.string.settings_display_screen_timeout_disabled), null, null, LauncherPreferences.display().screenTimeoutDisabled()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().screenTimeoutDisabled(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_status", getString(R.string.settings_display_hide_status_bar), null, null, LauncherPreferences.display().hideStatusBar()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideStatusBar(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_nav", getString(R.string.settings_display_hide_navigation_bar), null, null, LauncherPreferences.display().hideNavigationBar()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideNavigationBar(), it).apply()
+            refreshList()
         })
 
         adapter.submitList(items)

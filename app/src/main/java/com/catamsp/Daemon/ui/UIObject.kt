@@ -48,6 +48,10 @@ fun setWindowFlags(window: Window, homeScreen: Boolean) {
 
 
 interface UIObject {
+    var ignoreAutoClose: Boolean
+        get() = false
+        set(_) {}
+
     fun onCreate() {
         if (this !is Activity) {
             return
@@ -141,6 +145,8 @@ interface UIObject {
 }
 
 abstract class UIObjectActivity : AppCompatActivity(), UIObject {
+    override var ignoreAutoClose: Boolean = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super<AppCompatActivity>.onCreate(savedInstanceState)
         super<UIObject>.onCreate()
@@ -149,6 +155,18 @@ abstract class UIObjectActivity : AppCompatActivity(), UIObject {
     override fun onStart() {
         super<AppCompatActivity>.onStart()
         super<UIObject>.onStart()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        ignoreAutoClose = false
+    }
+
+    override fun onPause() {
+        super.onPause()
+        if (!ignoreAutoClose) {
+            finish()
+        }
     }
 
     override fun getTheme(): Resources.Theme? {

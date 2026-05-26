@@ -64,6 +64,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
         items.add(SettingsItem.Header("hdr_anim_master", getString(R.string.settings_theme_animations)))
         items.add(SettingsItem.Toggle("tgl_anim_master", getString(R.string.settings_animations_master_toggle), null, null, LauncherPreferences.animations().masterToggle()) {
             prefs.edit().putBoolean(LauncherPreferences.animations().keys().masterToggle(), it).apply()
+            refreshList()
         })
 
         if (LauncherPreferences.animations().masterToggle()) {
@@ -80,6 +81,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
                     anims.indexOf(currentUp)
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeUp(), anims[index].name).apply()
+                    refreshList()
                 }
             })
 
@@ -91,6 +93,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
                     anims.indexOf(currentDown)
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeDown(), anims[index].name).apply()
+                    refreshList()
                 }
             })
 
@@ -102,6 +105,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
                     anims.indexOf(currentLeft)
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeLeft(), anims[index].name).apply()
+                    refreshList()
                 }
             })
 
@@ -113,6 +117,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
                     anims.indexOf(currentRight)
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().swipeRight(), anims[index].name).apply()
+                    refreshList()
                 }
             })
 
@@ -124,6 +129,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
                     anims.indexOf(currentOther)
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.animations().keys().other(), anims[index].name).apply()
+                    refreshList()
                 }
             })
         }

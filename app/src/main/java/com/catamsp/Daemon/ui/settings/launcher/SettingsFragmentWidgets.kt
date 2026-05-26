@@ -94,29 +94,36 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
                     fonts.indexOf(LauncherPreferences.clock().font())
                 ) { index ->
                     prefs.edit().putString(LauncherPreferences.clock().keys().font(), fonts[index].name).apply()
+                    refreshList()
                 }
             })
 
             items.add(SettingsItem.Clickable("btn_clock_color", getString(R.string.settings_clock_color), "Hex: #%08X".format(LauncherPreferences.clock().color())) {
                 showColorPickerDialog(LauncherPreferences.clock().color()) { color ->
                     prefs.edit().putInt(LauncherPreferences.clock().keys().color(), color).apply()
+                    refreshList()
                 }
             })
 
             items.add(SettingsItem.Toggle("tgl_clock_loc", getString(R.string.settings_clock_localized), null, null, LauncherPreferences.clock().localized()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().localized(), it).apply()
+                refreshList()
             })
             items.add(SettingsItem.Toggle("tgl_time", getString(R.string.settings_clock_time_visible), null, null, LauncherPreferences.clock().timeVisible()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().timeVisible(), it).apply()
+                refreshList()
             })
             items.add(SettingsItem.Toggle("tgl_seconds", getString(R.string.settings_clock_show_seconds), null, null, LauncherPreferences.clock().showSeconds()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().showSeconds(), it).apply()
+                refreshList()
             })
             items.add(SettingsItem.Toggle("tgl_date", getString(R.string.settings_clock_date_visible), null, null, LauncherPreferences.clock().dateVisible()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().dateVisible(), it).apply()
+                refreshList()
             })
             items.add(SettingsItem.Toggle("tgl_flip", getString(R.string.settings_clock_flip_date_time), null, null, LauncherPreferences.clock().flipDateTime()) {
                 prefs.edit().putBoolean(LauncherPreferences.clock().keys().flipDateTime(), it).apply()
+                refreshList()
             })
         }
 
@@ -126,14 +133,17 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             
             items.add(SettingsItem.Toggle("tgl_globe_persp", getString(R.string.settings_globe_perspective), getString(R.string.settings_globe_perspective_summary), null, LauncherPreferences.globe().perspective()) {
                 prefs.edit().putBoolean(LauncherPreferences.globe().keys().perspective(), it).apply()
+                refreshList()
             })
 
             items.add(SettingsItem.Toggle("tgl_globe_glow", getString(R.string.settings_globe_show_glow), null, null, LauncherPreferences.globe().showGlow()) {
                 prefs.edit().putBoolean(LauncherPreferences.globe().keys().showGlow(), it).apply()
+                refreshList()
             })
 
             items.add(SettingsItem.Slider("sld_globe_opacity", getString(R.string.settings_globe_glow_opacity), null, LauncherPreferences.globe().glowOpacity(), 0, 255) {
                 prefs.edit().putInt(LauncherPreferences.globe().keys().glowOpacity(), it).apply()
+                refreshList()
             })
         }
 

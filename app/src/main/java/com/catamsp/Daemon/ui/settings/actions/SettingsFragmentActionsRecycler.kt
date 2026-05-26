@@ -84,15 +84,19 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
         items.add(SettingsItem.Header("hdr_gest_cfg", getString(R.string.settings_launcher_section_gestures)))
         items.add(SettingsItem.Toggle("tgl_double_swipe", getString(R.string.settings_enabled_gestures_double_swipe), getString(R.string.settings_enabled_gestures_double_swipe_summary), null, LauncherPreferences.enabled_gestures().doubleSwipe()) {
             prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().doubleSwipe(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_edge_swipe", getString(R.string.settings_enabled_gestures_edge_swipe), getString(R.string.settings_enabled_gestures_edge_swipe_summary), null, LauncherPreferences.enabled_gestures().edgeSwipe()) {
             prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().edgeSwipe(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Slider("sld_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), null, LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth(), 0, 33) {
             prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), it).apply()
+            refreshList()
         })
         items.add(SettingsItem.Toggle("tgl_diag_swipe", getString(R.string.settings_enabled_gestures_diagonal_swipe), null, null, LauncherPreferences.enabled_gestures().diagonalSwipe()) {
             prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().diagonalSwipe(), it).apply()
+            refreshList()
         })
 
         // --- SHORTCUT BINDINGS ---

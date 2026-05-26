@@ -30,6 +30,22 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlin.math.*
 
+object GlobeCache {
+    val iconBitmaps: MutableMap<String, Bitmap> = mutableMapOf()
+    val iconColors: MutableMap<String, Int> = mutableMapOf()
+
+    fun clear() {
+        iconBitmaps.values.forEach { it.recycle() }
+        iconBitmaps.clear()
+        iconColors.clear()
+    }
+
+    fun remove(key: String) {
+        iconBitmaps.remove(key)?.recycle()
+        iconColors.remove(key)
+    }
+}
+
 class AppGlobeView(
     context: Context,
     attrs: AttributeSet? = null,
@@ -46,8 +62,6 @@ class AppGlobeView(
 
     private var apps: List<AbstractDetailedAppInfo> = emptyList()
     private var points: MutableList<Point3D> = mutableListOf()
-    private var iconBitmaps: MutableMap<String, Bitmap> = mutableMapOf()
-    private var iconColors: MutableMap<String, Int> = mutableMapOf()
     private var notifiedPackages: Set<String> = emptySet()
     private var relevantNotifiedPackages: Set<String> = emptySet()
 
@@ -107,7 +121,7 @@ class AppGlobeView(
                 val key = app.getRawInfo().toString()
                 
                 // Skip if already loaded
-                if (iconBitmaps.containsKey(key)) continue
+                if (GlobeCache.iconBitmaps.containsKey(key)) continue
                 
                 try {
                     val drawable = app.getIcon(context)
@@ -121,8 +135,8 @@ class AppGlobeView(
                     val dominantColor = palette.getDominantColor(0xFF00FFFF.toInt())
                     
                     withContext(Dispatchers.Main) {
-                        iconBitmaps[key] = bitmap
-                        iconColors[key] = dominantColor
+                        GlobeCache.iconBitmaps[key] = bitmap
+                        GlobeCache.iconColors[key] = dominantColor
                         // Redraw as each icon arrives for a "pop-in" effect
                         invalidate()
                     }
@@ -156,9 +170,6 @@ class AppGlobeView(
         app?.apps?.removeObserver(appsObserver)
         app?.activeNotifications?.removeObserver(notificationsObserver)
         loadIconsJob?.cancel()
-        iconBitmaps.values.forEach { it.recycle() }
-        iconBitmaps.clear()
-        iconColors.clear()
     }
 
     override fun onVisibilityChanged(changedView: View, visibility: Int) {
@@ -363,7 +374,7 @@ class AppGlobeView(
             
             // 2. Notification Detection
             val hasNotification = showGlow && ((packageName.isNotEmpty() && relevantNotifiedPackages.contains(packageName)) || (forcePulse && p == sortedPoints.last()))
-            val bitmap = iconBitmaps[appKey]
+            val bitmap = GlobeCache.iconBitmaps[appKey]
             
             // Reset pulse paint for each loop to prevent alpha leaking
             pulsePaint.shader = null
@@ -371,13 +382,13 @@ class AppGlobeView(
 
             if (bitmap == null) {
                 // Fallback: Draw a stylish placeholder dot while the icon loads
-                val baseColor = iconColors[appKey] ?: 0x44FFFFFF.toInt()
+                val baseColor = GlobeCache.iconColors[appKey] ?: 0x44FFFFFF.toInt()
                 pulsePaint.color = baseColor
                 
                 if (hasNotification) {
                     // 3D-Aware Aura for Placeholder Dots
                     val glowRadius = (currentSize / 4f) * 2.2f 
-                    val iconColor = (iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt()
+                    val iconColor = (GlobeCache.iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt()
                     val colors = intArrayOf(iconColor, (iconColor and 0x00FFFFFF.toInt()) or (glowOpacity shl 24), 0)
                     val stops = floatArrayOf(0f, 0.4f, 1f)
                     
@@ -421,7 +432,7 @@ class AppGlobeView(
                 // 3. Draw holographic glow INSIDE the matrix (Visible Aura Fix)
                 if (hasNotification && p.z > -0.6f) {
                     val visibilityFactor = ((p.z + 0.6f) / 1.6f).coerceIn(0f, 1f)
-                    val iconColor = (iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt() // Force opaque
+                    val iconColor = (GlobeCache.iconColors[appKey] ?: 0xFF00FFFF.toInt()) or 0xFF000000.toInt() // Force opaque
                     
                     val glowRadius = currentSize * 1.3f // Medium expansion
                     val baseGlowAlpha = (glowOpacity * visibilityFactor).toInt()

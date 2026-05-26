@@ -26,6 +26,7 @@ import com.catamsp.Daemon.apps.isPrivateSpaceLocked
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.migratePreferencesToNewVersion
 import com.catamsp.Daemon.preferences.resetPreferences
+import com.catamsp.Daemon.ui.widgets.GlobeCache
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -69,6 +70,14 @@ class Application : android.app.Application(), ImageLoaderFactory {
             val currentApps = apps.value?.toMutableList() ?: return
             currentApps.removeAll { it.getRawInfo().let { info -> info is AppInfo && info.packageName == packageName } && it.getUser(this@Application) == user }
             apps.postValue(currentApps)
+
+            // Clear from cache
+            val userInt = com.catamsp.Daemon.getUserId(user!!, this@Application)
+            val prefix = "AppInfo(packageName=$packageName,"
+            val suffix = "user=$userInt)"
+            GlobeCache.iconBitmaps.keys.filter { it.startsWith(prefix) && it.endsWith(suffix) }.forEach {
+                GlobeCache.remove(it)
+            }
         }
 
         override fun onPackageAdded(packageName: String?, user: UserHandle?) {
@@ -92,10 +101,18 @@ class Application : android.app.Application(), ImageLoaderFactory {
             }
             currentApps.sortBy { it.getCustomLabel(this@Application) }
             apps.postValue(currentApps)
+
+            // Clear from cache to pick up potential icon changes
+            val userInt = com.catamsp.Daemon.getUserId(user!!, this@Application)
+            val prefix = "AppInfo(packageName=$packageName,"
+            val suffix = "user=$userInt)"
+            GlobeCache.iconBitmaps.keys.filter { it.startsWith(prefix) && it.endsWith(suffix) }.forEach {
+                GlobeCache.remove(it)
+            }
         }
 
-        override fun onPackagesAvailable(p0: Array<out String>?, p1: UserHandle?, p2: Boolean) {
-            loadApps()
+        override fun onPackagesAvailable(packageNames: Array<out String>?, user: UserHandle?, p2: Boolean) {
+            packageNames?.forEach { onPackageAdded(it, user) }
         }
 
         override fun onPackagesSuspended(packageNames: Array<out String>?, user: UserHandle?) {
@@ -106,8 +123,8 @@ class Application : android.app.Application(), ImageLoaderFactory {
             loadApps()
         }
 
-        override fun onPackagesUnavailable(p0: Array<out String>?, p1: UserHandle?, p2: Boolean) {
-            loadApps()
+        override fun onPackagesUnavailable(packageNames: Array<out String>?, user: UserHandle?, p2: Boolean) {
+            packageNames?.forEach { onPackageRemoved(it, user) }
         }
 
         override fun onPackageLoadingProgressChanged(
