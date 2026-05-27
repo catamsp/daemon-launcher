@@ -14,6 +14,7 @@ import androidx.recyclerview.widget.LinearSnapHelper
 import androidx.recyclerview.widget.RecyclerView
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.preferences.LauncherPreferences
+import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.preferences.theme.TransitionAnimation
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import kotlin.math.*
@@ -41,7 +42,7 @@ class AnimationSelectionBottomSheet(
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        currentTypeface = LauncherPreferences.theme().font().getTypeface(requireContext())
+        currentTypeface = Font.getTypeface(requireContext(), LauncherPreferences.theme().font())
         return inflater.inflate(R.layout.dialog_animation_selection, container, false)
     }
 

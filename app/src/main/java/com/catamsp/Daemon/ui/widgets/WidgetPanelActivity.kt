@@ -67,7 +67,12 @@ class WidgetPanelActivity : LauncherGestureActivity(), UIObject {
     override fun getTheme(): Resources.Theme {
         val mTheme = modifyTheme(super.getTheme())
         mTheme.applyStyle(R.style.backgroundWallpaper, true)
-        LauncherPreferences.clock().font().applyToTheme(mTheme)
+        
+        val fontName = LauncherPreferences.clock().font()
+        try {
+            com.catamsp.Daemon.preferences.theme.Font.valueOf(fontName).applyToTheme(mTheme)
+        } catch (e: Exception) { }
+
         LauncherPreferences.theme().colorTheme().applyToTheme(
             mTheme,
             LauncherPreferences.theme().textShadow()

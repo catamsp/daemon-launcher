@@ -123,7 +123,10 @@ class AppsRecyclerAdapter(
             ).toString()
         }
         viewHolder.textView.text = nameFormat.format(appLabel)
-
+        
+        // CRITICAL FIX: Manually apply the typeface to the app label
+        val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+        viewHolder.textView.typeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(activity, fontName)
 
         // decide when to show the options popup menu about
         if (intention == AbstractListActivity.Companion.Intention.VIEW) {

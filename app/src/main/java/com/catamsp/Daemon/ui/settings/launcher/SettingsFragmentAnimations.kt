@@ -69,7 +69,6 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
         
         val items = mutableListOf<SettingsItem>()
         val prefs = LauncherPreferences.getSharedPreferences()
-        val fontSuffix = LauncherPreferences.theme().font().name
 
         // --- MASTER TOGGLE ---
         items.add(SettingsItem.Header("hdr_anim_master", getString(R.string.settings_theme_animations)))

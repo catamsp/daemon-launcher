@@ -70,8 +70,8 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
         private val title: TextView = view.findViewById(R.id.settings_item_header_title)
         fun bind(item: SettingsItem.Header) {
             title.text = item.title
-            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            title.typeface = font.getTypeface(itemView.context)
+            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            title.typeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
         }
     }
 
@@ -86,9 +86,10 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            title.typeface = font.getTypeface(itemView.context)
-            desc.typeface = font.getTypeface(itemView.context)
+            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            title.typeface = tf
+            desc.typeface = tf
 
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
@@ -116,10 +117,11 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            title.typeface = font.getTypeface(itemView.context)
-            desc.typeface = font.getTypeface(itemView.context)
-            valueText.typeface = font.getTypeface(itemView.context)
+            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            title.typeface = tf
+            desc.typeface = tf
+            valueText.typeface = tf
 
             valueText.text = item.value.toString()
             seekBar.max = item.max - item.min
@@ -151,9 +153,10 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val font = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            title.typeface = font.getTypeface(itemView.context)
-            desc.typeface = font.getTypeface(itemView.context)
+            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            title.typeface = tf
+            desc.typeface = tf
 
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
@@ -165,6 +168,14 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             if (item.onRemove != null) {
                 removeBtn.isVisible = true
                 removeBtn.setOnClickListener { item.onRemove.invoke() }
+                
+                // If it's a font setting, use an 'add' icon instead of 'close'
+                if (item.key.contains("font")) {
+                    removeBtn.setImageResource(R.drawable.baseline_add_24)
+                } else {
+                    removeBtn.setImageResource(R.drawable.baseline_close_24)
+                }
+                
                 arrow.isVisible = false
             } else {
                 removeBtn.isVisible = false

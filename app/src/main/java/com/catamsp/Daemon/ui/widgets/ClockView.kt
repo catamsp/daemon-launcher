@@ -10,6 +10,7 @@ import androidx.core.widget.TextViewCompat
 import com.catamsp.Daemon.actions.Gesture
 import com.catamsp.Daemon.databinding.WidgetClockBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
+import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.widgets.WidgetPanel
 import java.util.Locale
 
@@ -85,9 +86,20 @@ class ClockView(
         binding.clockLowerView.format12Hour = lowerFormat
         binding.clockUpperView.format12Hour = upperFormat
 
-        val fontId = LauncherPreferences.clock().font().id
-        TextViewCompat.setTextAppearance(binding.clockUpperView, fontId)
-        TextViewCompat.setTextAppearance(binding.clockLowerView, fontId)
+        val fontName = LauncherPreferences.clock().font()
+        try {
+            val builtIn = Font.valueOf(fontName)
+            TextViewCompat.setTextAppearance(binding.clockUpperView, builtIn.id)
+            TextViewCompat.setTextAppearance(binding.clockLowerView, builtIn.id)
+        } catch (e: Exception) {
+            // Custom font
+            binding.clockUpperView.typeface = Font.getTypeface(context, fontName)
+            binding.clockLowerView.typeface = Font.getTypeface(context, fontName)
+        }
+        
+        // Re-apply color because setTextAppearance might have overridden it
+        binding.clockUpperView.setTextColor(LauncherPreferences.clock().color())
+        binding.clockLowerView.setTextColor(LauncherPreferences.clock().color())
     }
 
     private fun setOnClicks() {

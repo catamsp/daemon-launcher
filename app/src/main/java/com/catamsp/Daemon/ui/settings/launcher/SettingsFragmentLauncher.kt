@@ -20,6 +20,7 @@ import android.widget.EditText
 import android.widget.SeekBar
 import android.widget.TextView
 import android.widget.Toast
+import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.ColorInt
 import androidx.core.graphics.alpha
@@ -52,12 +53,48 @@ import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetsActivity
 
 import com.catamsp.Daemon.widgets.wallpaper.WallpaperController
 
+import com.catamsp.Daemon.preferences.theme.FontManager
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+
 class SettingsFragmentLauncher : Fragment(), UIObject {
 
     private lateinit var binding: SettingsLauncherBinding
     private val adapter = SettingsRecyclerAdapter()
     
     private var isPickingVideo = false
+
+private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+        uri?.let {
+            // Check if fragment is still attached before starting coroutine
+            if (!isAdded) return@let
+            
+            CoroutineScope(Dispatchers.IO).launch {
+                try {
+                    val ctx = requireContext()
+                    val fontName = FontManager.importFont(ctx, it)
+                    withContext(Dispatchers.Main) {
+                        // Check if fragment is still attached before updating UI
+                        if (!isAdded) return@withContext
+                        
+                        if (fontName != null) {
+                            Toast.makeText(context, "Font imported!", Toast.LENGTH_SHORT).show()
+                            refreshList()
+                            // Automatically select and trigger the carousel for the new font
+                            val prefs = LauncherPreferences.getSharedPreferences()
+                            prefs.edit().putString(LauncherPreferences.theme().keys().font(), fontName).apply()
+                        } else {
+                            Toast.makeText(context, "Failed to import font. Make sure it is .ttf or .otf", Toast.LENGTH_SHORT).show()
+                        }
+                    }
+                } catch (e: Exception) {
+                    Log.e("SettingsFragmentLauncher", "Font import failed: ${e.message}")
+                }
+            }
+        }
+    }
 
     private val pickWallpaperLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
@@ -122,7 +159,6 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         
         val items = mutableListOf<SettingsItem>()
         val prefs = LauncherPreferences.getSharedPreferences()
-        val fontSuffix = LauncherPreferences.theme().font().name
 
         // --- GENERAL ---
         items.add(SettingsItem.Header("hdr_general", getString(R.string.settings_general)))
@@ -166,13 +202,31 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             }
         })
 
-        val fonts = Font.entries
-        items.add(SettingsItem.Clickable("btn_font", getString(R.string.settings_theme_font), "Current: ${LauncherPreferences.theme().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            activity?.showSelectionCarousel("btn_font", fonts.indexOf(LauncherPreferences.theme().font()), fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
-                prefs.edit().putString(LauncherPreferences.theme().keys().font(), fonts[index].name).apply()
+        // Build Dynamic Font List (Built-in + Custom)
+        val builtInFonts = Font.entries.map { it.name }
+        val customFonts = FontManager.getCustomFontNames(context)
+        val allFonts = builtInFonts + customFonts
+
+        val currentFontName = LauncherPreferences.theme().font()
+        val currentFontLabel = try { FontManager.getDisplayName(currentFontName) } catch (e: Exception) { currentFontName }
+
+        items.add(SettingsItem.Clickable(
+            "btn_font", 
+            getString(R.string.settings_theme_font), 
+            "Current: $currentFontLabel",
+            onRemove = { 
+                // CRITICAL: Set ignoreAutoClose BEFORE launching to prevent immediate finish()
+                (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                pickFontLauncher.launch(arrayOf("*/*")) 
+            }
+        ) {
+            val displayNames = allFonts.map { FontManager.getDisplayName(it) }
+            activity?.showSelectionCarousel("btn_font", allFonts.indexOf(currentFontName), displayNames, allFonts) { index: Int ->
+                // CRITICAL: Refresh the lock inside the callback so it survives multiple selections!
+                (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                prefs.edit().putString(LauncherPreferences.theme().keys().font(), allFonts[index]).apply()
             }
         })
-
         items.add(SettingsItem.Toggle("tgl_shadow", getString(R.string.settings_theme_text_shadow), null, null, LauncherPreferences.theme().textShadow()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().textShadow(), it).apply()
         })

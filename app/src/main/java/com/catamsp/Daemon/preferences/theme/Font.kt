@@ -38,4 +38,10 @@ enum class Font(val id: Int) {
             MICHROMA -> ResourcesCompat.getFont(context, R.font.michroma)!!
         }
     }
+
+    companion object {
+        fun getTypeface(context: android.content.Context, fontName: String): Typeface {
+            return FontManager.getTypeface(context, fontName)
+        }
+    }
 }

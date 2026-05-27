@@ -49,6 +49,10 @@ class UniversalResultAdapter : ListAdapter<UniversalSearchResult, UniversalResul
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val item = getItem(position)
         
+        // CRITICAL FIX: Manually apply the selected typeface to search results
+        val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+        holder.titleText.typeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(holder.itemView.context, fontName)
+
         if (item.subtitle != null) {
             holder.titleText.text = "${item.title}\n${item.subtitle}"
         } else {

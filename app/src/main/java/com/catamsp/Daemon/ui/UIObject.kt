@@ -14,6 +14,7 @@ import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
+import com.catamsp.Daemon.preferences.theme.Font
 
 /**
  * An interface implemented by every [Activity], Fragment etc. in Launcher.
@@ -79,7 +80,13 @@ interface UIObject {
         } else {
             LauncherPreferences.theme().background().applyToTheme(theme)
         }
-        LauncherPreferences.theme().font().applyToTheme(theme)
+        
+        val fontName = LauncherPreferences.theme().font()
+        try {
+            Font.valueOf(fontName).applyToTheme(theme)
+        } catch (e: Exception) {
+            // Custom font - cannot apply to theme style, will be applied to views manually
+        }
 
         return theme
     }

@@ -19,7 +19,9 @@ import com.catamsp.Daemon.R
 import com.catamsp.Daemon.databinding.SettingsLauncherBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Font
+import com.catamsp.Daemon.preferences.theme.FontManager
 import com.catamsp.Daemon.ui.UIObject
+import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
@@ -92,10 +94,24 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             val activity = requireActivity() as? SettingsActivity
             items.add(SettingsItem.Header("hdr_clock", getString(R.string.settings_launcher_section_date_time)))
             
-            val fonts = Font.entries
-            items.add(SettingsItem.Clickable("btn_clock_font", getString(R.string.settings_clock_font), "Current: ${LauncherPreferences.clock().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-                activity?.showSelectionCarousel("btn_clock_font", fonts.indexOf(LauncherPreferences.clock().font()), fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
-                    prefs.edit().putString(LauncherPreferences.clock().keys().font(), fonts[index].name).apply()
+            // Build Dynamic Font List (Built-in + Custom)
+            val builtInFonts = Font.entries.map { it.name }
+            val customFonts = FontManager.getCustomFontNames(context)
+            val allFonts = builtInFonts + customFonts
+            
+            val currentFontName = LauncherPreferences.clock().font()
+            val currentFontLabel = try { FontManager.getDisplayName(currentFontName) } catch (e: Exception) { currentFontName }
+
+            items.add(SettingsItem.Clickable(
+                "btn_clock_font", 
+                getString(R.string.settings_clock_font), 
+                "Current: $currentFontLabel"
+            ) {
+                val displayNames = allFonts.map { FontManager.getDisplayName(it) }
+                activity?.showSelectionCarousel("btn_clock_font", allFonts.indexOf(currentFontName), displayNames, allFonts) { index: Int ->
+                    // CRITICAL: Refresh the lock inside the callback so it survives multiple selections!
+                    (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                    prefs.edit().putString(LauncherPreferences.clock().keys().font(), allFonts[index]).apply()
                 }
             })
 

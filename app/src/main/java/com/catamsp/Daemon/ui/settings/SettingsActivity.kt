@@ -21,6 +21,7 @@ import com.catamsp.Daemon.databinding.SettingsBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
+import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActionsRecycler
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentAnimations
@@ -53,12 +54,12 @@ class SettingsActivity : UIObjectActivity() {
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
-                val font = LauncherPreferences.theme().font()
+                val fontName = LauncherPreferences.theme().font()
 
-                binding.settingsHeading.typeface = font.getTypeface(this)
+                binding.settingsHeading.typeface = Font.getTypeface(this, fontName)
 
                 val tabAdapter = binding.settingsTabs.adapter as? SettingsTabAdapter
-                tabAdapter?.updateFont(font)
+                tabAdapter?.updateFont(fontName)
                 centerTabs()
             }
         }
@@ -222,7 +223,7 @@ class SettingsActivity : UIObjectActivity() {
         })
     }
 
-    fun showSelectionCarousel(key: String, currentValueIndex: Int, items: List<String>, onSelected: (Int) -> Unit) {
+    fun showSelectionCarousel(key: String, currentValueIndex: Int, items: List<String>, rawValues: List<String>? = null, onSelected: (Int) -> Unit) {
         if (activeCarouselKey == key) {
             hideSelectionCarousel()
             return
@@ -232,7 +233,6 @@ class SettingsActivity : UIObjectActivity() {
         selectionCarouselListener = onSelected
         currentSelectionItems = items
         
-        val font = LauncherPreferences.theme().font()
         val adapter = object : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
                 val v = LayoutInflater.from(parent.context).inflate(R.layout.item_animation_3d, parent, false)
@@ -240,8 +240,25 @@ class SettingsActivity : UIObjectActivity() {
             }
             override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
                 val tv = holder.itemView.findViewById<TextView>(R.id.animation_name)
-                tv.text = items[position]
-                tv.typeface = font.getTypeface(this@SettingsActivity)
+                val itemName = items[position]
+                val rawItemName = rawValues?.get(position) ?: itemName
+                tv.text = itemName
+                
+                // Live Font Preview Logic: If this is a font carousel, render the text using the font it represents
+                if (key.contains("font")) {
+                    try {
+                        // Dynamically load the typeface for this specific row's text.
+                        // FontManager is now case-insensitive, so it works even with Title Case labels.
+                        tv.typeface = Font.getTypeface(this@SettingsActivity, rawItemName)
+                    } catch (e: Exception) {
+                        tv.typeface = android.graphics.Typeface.DEFAULT
+                    }
+                } else {
+                    // Fallback for non-font carousels (animations, themes, etc)
+                    val currentFont = LauncherPreferences.theme().font()
+                    tv.typeface = Font.getTypeface(this@SettingsActivity, currentFont)
+                }
+                
                 tv.setTextColor(getThemeColor(android.R.attr.textColor))
                 holder.itemView.setOnClickListener {
                     binding.settingsAnimationCarousel.smoothScrollToPosition(position)
@@ -333,14 +350,14 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
  */
 class SettingsTabAdapter(
     private val titles: Array<Int>,
-    var font: com.catamsp.Daemon.preferences.theme.Font,
+    var fontName: String,
     private val onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SettingsTabAdapter.ViewHolder>() {
 
     class ViewHolder(val textView: TextView) : RecyclerView.ViewHolder(textView)
 
-    fun updateFont(newFont: com.catamsp.Daemon.preferences.theme.Font) {
-        this.font = newFont
+    fun updateFont(newFontName: String) {
+        this.fontName = newFontName
         notifyItemRangeChanged(0, itemCount, "FONT_UPDATE")
     }
 
@@ -367,14 +384,14 @@ class SettingsTabAdapter(
         val textColor = (holder.itemView.context as? SettingsActivity)?.getThemeColor(android.R.attr.textColor) 
             ?: holder.itemView.context.getColor(android.R.color.white)
         holder.textView.setText(titles[position])
-        holder.textView.typeface = font.getTypeface(holder.itemView.context)
+        holder.textView.typeface = Font.getTypeface(holder.itemView.context, fontName)
         holder.textView.setTextColor(textColor)
         holder.textView.setOnClickListener { onClick(position) }
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.contains("FONT_UPDATE")) {
-            holder.textView.typeface = font.getTypeface(holder.itemView.context)
+            holder.textView.typeface = Font.getTypeface(holder.itemView.context, fontName)
         } else {
             super.onBindViewHolder(holder, position, payloads)
         }
