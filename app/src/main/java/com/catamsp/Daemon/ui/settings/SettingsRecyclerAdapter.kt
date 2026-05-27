@@ -165,6 +165,9 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
                 icon.isVisible = false
             }
 
+            // Always ensure the arrow is visible for clickable items
+            arrow.isVisible = true 
+
             if (item.onRemove != null) {
                 removeBtn.isVisible = true
                 removeBtn.setOnClickListener { item.onRemove.invoke() }
@@ -175,11 +178,8 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
                 } else {
                     removeBtn.setImageResource(R.drawable.baseline_close_24)
                 }
-                
-                arrow.isVisible = false
             } else {
                 removeBtn.isVisible = false
-                arrow.isVisible = true
             }
 
             itemView.setOnClickListener { item.onClick() }

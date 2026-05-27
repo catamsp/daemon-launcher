@@ -278,12 +278,31 @@ class SettingsActivity : UIObjectActivity() {
                 if (currentValueIndex != -1) {
                     (layoutManager as LinearLayoutManager).scrollToPositionWithOffset(currentValueIndex, 0)
                 }
+
+                // Dynamic Horizon: Apply carousel height as bottom padding to the main settings list
+                val carouselHeight = height
+                binding.settingsViewpager.setPadding(
+                    binding.settingsViewpager.paddingLeft,
+                    binding.settingsViewpager.paddingTop,
+                    binding.settingsViewpager.paddingRight,
+                    carouselHeight
+                )
+                binding.settingsViewpager.clipToPadding = true
             }
         }
     }
 
     fun hideSelectionCarousel() {
         binding.settingsAnimationCarousel.visibility = View.GONE
+        
+        // Restore the horizon to the bottom of the screen
+        binding.settingsViewpager.setPadding(
+            binding.settingsViewpager.paddingLeft,
+            binding.settingsViewpager.paddingTop,
+            binding.settingsViewpager.paddingRight,
+            0
+        )
+        
         selectionCarouselListener = null
         activeCarouselKey = null
     }
