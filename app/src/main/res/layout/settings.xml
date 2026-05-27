@@ -39,6 +39,51 @@
         android:visibility="gone"
         app:layout_constraintBottom_toTopOf="@id/settings_bottom_bar" />
 
+    <!-- Binary Choice Ribbon: Static buttons for 2-option selections (e.g., Wallpaper) -->
+    <LinearLayout
+        android:id="@+id/settings_binary_ribbon"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@android:color/transparent"
+        android:orientation="horizontal"
+        android:visibility="gone"
+        android:weightSum="2"
+        app:layout_constraintBottom_toTopOf="@id/settings_bottom_bar"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:id="@+id/binary_ribbon_button_1"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/ribbon_button_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp"
+            tools:text="Static Image" />
+
+        <TextView
+            android:id="@+id/binary_ribbon_button_2"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:background="@drawable/ribbon_button_selector"
+            android:clickable="true"
+            android:focusable="true"
+            android:padding="16dp"
+            tools:text="Cinematic Video" />
+
+    </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/settings_bottom_bar"
         android:layout_width="match_parent"

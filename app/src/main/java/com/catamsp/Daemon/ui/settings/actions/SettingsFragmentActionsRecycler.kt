@@ -29,7 +29,9 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             refreshList()
             if (prefKey == LauncherPreferences.theme().keys().font()) {
-                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+                view?.post {
+                    adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+                }
             }
         }
     

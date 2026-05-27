@@ -45,6 +45,15 @@ class LauncherAccessibilityService : AccessibilityService() {
         }
 
         fun lockScreen(context: Context) {
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                Toast.makeText(
+                    context,
+                    context.getString(R.string.toast_lock_screen_not_supported),
+                    Toast.LENGTH_LONG
+                ).show()
+                return
+            }
+            
             if (!isEnabled(context)) {
                 showEnableDialog(context)
             } else {

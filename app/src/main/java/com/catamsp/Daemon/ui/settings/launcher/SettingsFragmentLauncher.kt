@@ -33,7 +33,6 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import android.util.DisplayMetrics
 import android.view.WindowManager
 import com.catamsp.Daemon.R
-import com.catamsp.Daemon.actions.lock.LockMethod
 import com.catamsp.Daemon.actions.openAppsList
 import com.catamsp.Daemon.databinding.SettingsLauncherBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
@@ -52,6 +51,7 @@ import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetsActivity
 
 import com.catamsp.Daemon.widgets.wallpaper.WallpaperController
+import com.catamsp.Daemon.actions.lock.LauncherAccessibilityService
 
 import com.catamsp.Daemon.preferences.theme.FontManager
 import kotlinx.coroutines.CoroutineScope
@@ -81,10 +81,10 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
                         
                         if (fontName != null) {
                             Toast.makeText(context, "Font imported!", Toast.LENGTH_SHORT).show()
-                            refreshList()
-                            // Automatically select and trigger the carousel for the new font
+                            // Set preference FIRST so the subtitle shows the correct font name
                             val prefs = LauncherPreferences.getSharedPreferences()
                             prefs.edit().putString(LauncherPreferences.theme().keys().font(), fontName).apply()
+                            // refreshListWithFontUpdate() will be called automatically by the preference listener
                         } else {
                             Toast.makeText(context, "Failed to import font. Make sure it is .ttf or .otf", Toast.LENGTH_SHORT).show()
                         }
@@ -116,11 +116,13 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
             }
         }
     }
-    private val sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            refreshList()
+private val sharedPreferencesListener =
+    SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
-                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+                // Use commit callback to ensure FONT_UPDATE fires after DiffUtil completes
+                refreshListWithFontUpdate()
+            } else {
+                refreshList()
             }
         }
 
@@ -140,25 +142,15 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
         refreshList()
     }
 
-    override fun onStart() {
-        super<Fragment>.onStart()
-        LauncherPreferences.getSharedPreferences()
-            .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        super<UIObject>.onStart()
-    }
-
-    override fun onPause() {
-        LauncherPreferences.getSharedPreferences()
-            .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        super.onPause()
-    }
-
-    private fun refreshList() {
-        if (!isAdded) return
-        val context = context ?: return
-        
+    /**
+     * Builds the list of settings items for the launcher settings screen.
+     * Extracted to allow reuse with and without font update callback.
+     */
+    private fun buildSettingsItems(): List<SettingsItem> {
         val items = mutableListOf<SettingsItem>()
+        val context = context ?: return emptyList()
         val prefs = LauncherPreferences.getSharedPreferences()
+        val activity = requireActivity() as? SettingsActivity
 
         // --- GENERAL ---
         items.add(SettingsItem.Header("hdr_general", getString(R.string.settings_general)))
@@ -169,30 +161,30 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
         // --- APPEARANCE ---
         items.add(SettingsItem.Header("hdr_app", getString(R.string.settings_launcher_section_appearance)))
         
-        val activity = requireActivity() as? SettingsActivity
-
-        items.add(SettingsItem.Clickable("btn_wallpaper", getString(R.string.settings_theme_wallpaper), "Static or Video") {
-            (activity as? UIObjectActivity)?.ignoreAutoClose = true
-            val options = arrayOf("Static Photo", "Video Wallpaper")
-            AlertDialog.Builder(context, R.style.AlertDialogCustom)
-                .setTitle("Choose Wallpaper Mode")
-                .setItems(options) { dialog, which ->
-                    when (which) {
-                        0 -> {
-                            isPickingVideo = false
-                            pickWallpaperLauncher.launch("image/*")
-                        }
-                        1 -> {
-                            isPickingVideo = true
-                            pickWallpaperLauncher.launch("video/*")
-                        }
-                    }
-                    dialog.dismiss()
+        items.add(SettingsItem.Clickable("btn_wallpaper", getString(R.string.settings_theme_wallpaper), "Current: Tap to change") {
+            // Use Binary Ribbon for wallpaper selection (Static vs Video)
+            activity?.showBinaryRibbon(
+                button1Text = "Static Image",
+                button2Text = "Cinematic Video",
+                onButton1Click = {
+                    // CRITICAL: Set the safety lock so the settings menu doesn't close when the picker opens!
+                    (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                    
+                    // Launch Static Image Picker
+                    isPickingVideo = false
+                    pickWallpaperLauncher.launch("image/*")
+                    activity.hideBinaryRibbon()
+                },
+                onButton2Click = {
+                    // CRITICAL: Set the safety lock so the settings menu doesn't close when the picker opens!
+                    (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                    
+                    // Launch Video Picker
+                    isPickingVideo = true
+                    pickWallpaperLauncher.launch("video/*")
+                    activity.hideBinaryRibbon()
                 }
-                .setOnCancelListener {
-                    (activity as? UIObjectActivity)?.ignoreAutoClose = false
-                }
-                .show()
+            )
         })
 
         val themes = ColorTheme.entries.filter { it.isAvailable() }
@@ -257,7 +249,15 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoCloseKeyboard(), it).apply()
         })
         items.add(SettingsItem.Clickable("btn_lock", getString(R.string.settings_actions_lock_method), null) {
-            LockMethod.chooseMethod(context)
+            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+                Toast.makeText(context, context.getString(R.string.toast_lock_screen_not_supported), Toast.LENGTH_SHORT).show()
+                return@Clickable
+            }
+            if (!LauncherAccessibilityService.isEnabled(context)) {
+                LauncherAccessibilityService.showEnableDialog(context)
+            } else {
+                LauncherAccessibilityService.lockScreen(context)
+            }
         })
 
         // --- APPS ---
@@ -308,7 +308,42 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideNavigationBar(), it).apply()
         })
 
-        adapter.submitList(items)
+        return items
+    }
+
+    /**
+     * Refreshes the settings list with a standard submitList() call.
+     * Use this for non-font preference changes.
+     */
+    private fun refreshList() {
+        if (!isAdded) return
+        adapter.submitList(buildSettingsItems())
+    }
+
+    /**
+     * Refreshes the settings list and triggers FONT_UPDATE payload after DiffUtil completes.
+     * Use this when the font preference changes to avoid race conditions.
+     */
+    private fun refreshListWithFontUpdate() {
+        if (!isAdded) return
+        val items = buildSettingsItems()
+        adapter.submitList(items) {
+            // This callback fires AFTER DiffUtil has completely finished applying the new list
+            adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+        }
+    }
+
+    override fun onStart() {
+        super<Fragment>.onStart()
+        LauncherPreferences.getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        super<UIObject>.onStart()
+    }
+
+    override fun onPause() {
+        LauncherPreferences.getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        super.onPause()
     }
 
     private fun showColorPickerDialog(initialColor: Int, onColorSelected: (Int) -> Unit) {

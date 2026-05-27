@@ -292,8 +292,74 @@ class SettingsActivity : UIObjectActivity() {
         }
     }
 
+    /**
+     * Shows a binary choice ribbon with two static, side-by-side tappable buttons.
+     * This is used for 2-option selections like "Static Image vs. Cinematic Video" wallpaper.
+     * Unlike the carousel, this provides instant tap-to-select without swiping.
+     */
+    fun showBinaryRibbon(
+        button1Text: String,
+        button2Text: String,
+        onButton1Click: () -> Unit,
+        onButton2Click: () -> Unit
+    ) {
+        // Hide the carousel first
+        binding.settingsAnimationCarousel.visibility = View.GONE
+        
+        // Show the binary ribbon
+        val ribbon = binding.settingsBinaryRibbon
+        val button1 = binding.binaryRibbonButton1
+        val button2 = binding.binaryRibbonButton2
+        
+        // Apply font and styling
+        val currentFont = LauncherPreferences.theme().font()
+        val textColor = getThemeColor(android.R.attr.textColor)
+        val typeface = Font.getTypeface(this, currentFont)
+        
+        button1.text = button1Text
+        button1.typeface = typeface
+        button1.setTextColor(textColor)
+        button1.setOnClickListener { onButton1Click() }
+        
+        button2.text = button2Text
+        button2.typeface = typeface
+        button2.setTextColor(textColor)
+        button2.setOnClickListener { onButton2Click() }
+        
+        ribbon.visibility = View.VISIBLE
+        
+        // Apply same Dynamic Horizon bottom padding to the Settings list
+        binding.root.post {
+            val ribbonHeight = ribbon.height
+            binding.settingsViewpager.setPadding(
+                binding.settingsViewpager.paddingLeft,
+                binding.settingsViewpager.paddingTop,
+                binding.settingsViewpager.paddingRight,
+                ribbonHeight
+            )
+            binding.settingsViewpager.clipToPadding = true
+        }
+    }
+
+    /**
+     * Hides the binary choice ribbon and restores the carousel space.
+     */
+    fun hideBinaryRibbon() {
+        val ribbon = binding.settingsBinaryRibbon
+        ribbon.visibility = View.GONE
+        
+        // Restore the carousel padding
+        binding.settingsViewpager.setPadding(
+            binding.settingsViewpager.paddingLeft,
+            binding.settingsViewpager.paddingTop,
+            binding.settingsViewpager.paddingRight,
+            0
+        )
+    }
+
     fun hideSelectionCarousel() {
         binding.settingsAnimationCarousel.visibility = View.GONE
+        binding.settingsBinaryRibbon.visibility = View.GONE
         
         // Restore the horizon to the bottom of the screen
         binding.settingsViewpager.setPadding(

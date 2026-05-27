@@ -4,7 +4,6 @@ import java.util.HashMap;
 import java.util.Set;
 
 import com.catamsp.Daemon.R;
-import com.catamsp.Daemon.actions.lock.LockMethod;
 import com.catamsp.Daemon.preferences.list.AppNameFormat;
 import com.catamsp.Daemon.preferences.list.ListLayout;
 import com.catamsp.Daemon.preferences.serialization.MapAbstractAppInfoStringPreferenceSerializer;
@@ -94,9 +93,6 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "search_web", type = boolean.class, defaultValue = "false"),
                         @Preference(name = "search_auto_open_keyboard", type = boolean.class, defaultValue = "true"),
                         @Preference(name = "search_auto_close_keyboard", type = boolean.class, defaultValue = "false"),
-                }),
-                @PreferenceGroup(name = "actions", prefix = "settings_actions_", suffix = "_key", value = {
-                        @Preference(name = "lock_method", type = LockMethod.class, defaultValue = "DEVICE_ADMIN"),
                 }),
                 @PreferenceGroup(name = "globe", prefix = "settings_globe_", suffix = "_key", value = {
                         @Preference(name = "perspective", type = boolean.class, defaultValue = "false"),

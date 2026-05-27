@@ -148,13 +148,15 @@ enum class LauncherAction(
         "lock_screen",
         R.string.list_other_lock_screen,
         R.drawable.baseline_lock_24,
-        { c -> LauncherPreferences.actions().lockMethod().lockOrEnable(c) }
+        LauncherAccessibilityService::lockScreen,
+        false,
+        { _ -> BuildConfig.USE_ACCESSIBILITY_SERVICE }
     ),
     TORCH(
         "toggle_torch",
         R.string.list_other_torch,
         R.drawable.baseline_flashlight_on_24,
-        ::toggleTorch,
+        ::toggleTorch
     ),
     LAUNCH_OTHER_LAUNCHER(
         "launcher_other_launcher",
@@ -192,7 +194,6 @@ enum class LauncherAction(
     }
 }
 
-
 /* Media player actions */
 private fun audioManagerPressKey(context: Context, key: Int) {
     val mAudioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
@@ -202,7 +203,6 @@ private fun audioManagerPressKey(context: Context, key: Int) {
     mAudioManager.dispatchMediaKeyEvent(downEvent)
     val upEvent = KeyEvent(eventTime, eventTime, KeyEvent.ACTION_UP, key, 0)
     mAudioManager.dispatchMediaKeyEvent(upEvent)
-
 }
 
 private fun audioVolumeAdjust(context: Context, direction: Int) {
