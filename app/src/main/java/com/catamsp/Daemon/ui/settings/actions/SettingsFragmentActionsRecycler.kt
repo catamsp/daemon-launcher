@@ -26,8 +26,11 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
     private val adapter = SettingsRecyclerAdapter()
 
     private var sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             refreshList()
+            if (prefKey == LauncherPreferences.theme().keys().font()) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            }
         }
     
     private lateinit var binding: SettingsActionsRecyclerBinding
@@ -103,13 +106,12 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
         items.add(SettingsItem.Header("hdr_gestures", "Action Bindings"))
 
         lifecycleScope.launch {
-            val fontSuffix = LauncherPreferences.theme().font().name
             val settingsItems = withContext(Dispatchers.Default) {
                 Gesture.entries.map { gesture ->
                     val action = Action.forGesture(gesture)
                     if (action == null) {
                         SettingsItem.Clickable(
-                            itemKey = gesture.id + "_" + fontSuffix,
+                            itemKey = gesture.id,
                             title = gesture.getLabel(activity),
                             description = "Tap to bind an app or action",
                             icon = null
@@ -120,7 +122,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
                         // Get icon/label info (could be heavy, so we do it in Default dispatcher)
                         val data = action.getIconAndContentDescription(activity)
                         SettingsItem.Clickable(
-                            itemKey = gesture.id + "_" + fontSuffix,
+                            itemKey = gesture.id,
                             title = gesture.getLabel(activity),
                             description = data.second,
                             icon = data.first,

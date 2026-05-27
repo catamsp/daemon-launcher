@@ -34,8 +34,11 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
     private val adapter = SettingsRecyclerAdapter()
 
     private val sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             refreshList()
+            if (prefKey == LauncherPreferences.theme().keys().font()) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            }
         }
 
     override fun onCreateView(

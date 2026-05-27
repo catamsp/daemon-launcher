@@ -52,6 +52,20 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
         }
     }
 
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.contains("FONT_UPDATE")) {
+            val item = getItem(position)
+            when (holder) {
+                is HeaderViewHolder -> holder.bind(item as SettingsItem.Header)
+                is ToggleViewHolder -> holder.bind(item as SettingsItem.Toggle)
+                is SliderViewHolder -> holder.bind(item as SettingsItem.Slider)
+                is ClickableViewHolder -> holder.bind(item as SettingsItem.Clickable)
+            }
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
+    }
+
     inner class HeaderViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val title: TextView = view.findViewById(R.id.settings_item_header_title)
         fun bind(item: SettingsItem.Header) {

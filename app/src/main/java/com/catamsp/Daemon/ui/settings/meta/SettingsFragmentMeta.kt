@@ -2,6 +2,7 @@ package com.catamsp.Daemon.ui.settings.meta
 
 import android.app.AlertDialog
 import android.content.Intent
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -25,14 +26,19 @@ import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 
 /**
  * The [SettingsFragmentMeta] is a used as a tab in the SettingsActivity.
- *
- * It is used to change settings and access resources about Launcher,
- * that are not directly related to the behaviour of the app itself.
  */
 class SettingsFragmentMeta : Fragment(), UIObject {
 
     private lateinit var binding: SettingsMetaBinding
     private val adapter = SettingsRecyclerAdapter()
+
+    private val sharedPreferencesListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
+            refreshList()
+            if (prefKey == LauncherPreferences.theme().keys().font()) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            }
+        }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,18 +60,25 @@ class SettingsFragmentMeta : Fragment(), UIObject {
 
     override fun onStart() {
         super<Fragment>.onStart()
+        LauncherPreferences.getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
         super<UIObject>.onStart()
+    }
+
+    override fun onPause() {
+        LauncherPreferences.getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        super.onPause()
     }
 
     private fun refreshList() {
         if (!isAdded) return
         val context = context ?: return
         val items = mutableListOf<SettingsItem>()
-        val fontSuffix = LauncherPreferences.theme().font().name
 
-        items.add(SettingsItem.Header("hdr_help_$fontSuffix", "Support & Help"))
+        items.add(SettingsItem.Header("hdr_help", "Support & Help"))
         
-        items.add(SettingsItem.Clickable("btn_reset_$fontSuffix", getString(R.string.settings_meta_reset), "Wipe all settings and restart") {
+        items.add(SettingsItem.Clickable("btn_reset", getString(R.string.settings_meta_reset), "Wipe all settings and restart") {
             AlertDialog.Builder(context, R.style.AlertDialogCustom)
                 .setTitle(getString(R.string.settings_meta_reset))
                 .setMessage(getString(R.string.settings_meta_reset_confirm))
@@ -78,33 +91,34 @@ class SettingsFragmentMeta : Fragment(), UIObject {
                 .show()
         })
 
-        items.add(SettingsItem.Header("hdr_dev_$fontSuffix", "Development"))
+        items.add(SettingsItem.Header("hdr_dev", "Development"))
 
-        items.add(SettingsItem.Clickable("btn_code_$fontSuffix", getString(R.string.settings_meta_view_code), "View source on GitHub") {
+        items.add(SettingsItem.Clickable("btn_code", getString(R.string.settings_meta_view_code), "View source on GitHub") {
             openInBrowser(getString(R.string.settings_meta_link_github), context)
         })
 
-        items.add(SettingsItem.Clickable("btn_docs_$fontSuffix", getString(R.string.settings_meta_view_docs), "Read the official documentation") {
+        items.add(SettingsItem.Clickable("btn_docs", getString(R.string.settings_meta_view_docs), "Read the official documentation") {
             openInBrowser(getString(R.string.settings_meta_link_docs), context)
         })
 
-        items.add(SettingsItem.Clickable("btn_bug_$fontSuffix", getString(R.string.settings_meta_report_bug), "Report issues or suggest features") {
+        items.add(SettingsItem.Clickable("btn_bug", getString(R.string.settings_meta_report_bug), "Report issues or suggest features") {
             showReportBugDialog()
         })
 
-        items.add(SettingsItem.Header("hdr_legal_$fontSuffix", "Legal"))
+        items.add(SettingsItem.Header("hdr_legal", "Legal"))
 
-        items.add(SettingsItem.Clickable("btn_licenses_$fontSuffix", getString(R.string.settings_meta_licenses), "Open source credits") {
+        items.add(SettingsItem.Clickable("btn_licenses", getString(R.string.settings_meta_licenses), "Open source credits") {
             startActivity(Intent(context, LegalInfoActivity::class.java))
         })
 
-        items.add(SettingsItem.Clickable("btn_version_$fontSuffix", "Version: ${BuildConfig.VERSION_NAME}", "Tap to copy debug info") {
+        items.add(SettingsItem.Clickable("btn_version", "Version: ${BuildConfig.VERSION_NAME}", "Tap to copy debug info") {
             val deviceInfo = getDeviceInfo()
             copyToClipboard(context, deviceInfo)
         })
 
         adapter.submitList(items)
     }
+
     private fun showReportBugDialog() {
         val deviceInfo = getDeviceInfo()
         val context = requireContext()

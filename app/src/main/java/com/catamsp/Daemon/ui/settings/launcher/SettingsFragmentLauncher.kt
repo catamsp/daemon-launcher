@@ -80,8 +80,11 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         }
     }
     private val sharedPreferencesListener =
-        SharedPreferences.OnSharedPreferenceChangeListener { _, _ ->
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             refreshList()
+            if (prefKey == LauncherPreferences.theme().keys().font()) {
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            }
         }
 
     override fun onCreateView(
@@ -122,14 +125,17 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         val fontSuffix = LauncherPreferences.theme().font().name
 
         // --- GENERAL ---
-        items.add(SettingsItem.Header("hdr_general_$fontSuffix", getString(R.string.settings_general)))
-        items.add(SettingsItem.Clickable("btn_home_$fontSuffix", getString(R.string.settings_general_choose_home_screen), null) {
+        items.add(SettingsItem.Header("hdr_general", getString(R.string.settings_general)))
+        items.add(SettingsItem.Clickable("btn_home", getString(R.string.settings_general_choose_home_screen), null) {
             setDefaultHomeScreen(context, checkDefault = false)
         })
 
         // --- APPEARANCE ---
-        items.add(SettingsItem.Header("hdr_app_$fontSuffix", getString(R.string.settings_launcher_section_appearance)))
-        items.add(SettingsItem.Clickable("btn_wallpaper_$fontSuffix", getString(R.string.settings_theme_wallpaper), "Static or Video") {
+        items.add(SettingsItem.Header("hdr_app", getString(R.string.settings_launcher_section_appearance)))
+        
+        val activity = requireActivity() as? SettingsActivity
+
+        items.add(SettingsItem.Clickable("btn_wallpaper", getString(R.string.settings_theme_wallpaper), "Static or Video") {
             (activity as? UIObjectActivity)?.ignoreAutoClose = true
             val options = arrayOf("Static Photo", "Video Wallpaper")
             AlertDialog.Builder(context, R.style.AlertDialogCustom)
@@ -153,100 +159,98 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
                 .show()
         })
 
-        val activity = requireActivity() as? SettingsActivity
-
         val themes = ColorTheme.entries.filter { it.isAvailable() }
-        items.add(SettingsItem.Clickable("btn_theme_$fontSuffix", getString(R.string.settings_theme_color_theme), "Current: ${LauncherPreferences.theme().colorTheme().getLabel(context)}") {
+        items.add(SettingsItem.Clickable("btn_theme", getString(R.string.settings_theme_color_theme), "Current: ${LauncherPreferences.theme().colorTheme().getLabel(context)}") {
             activity?.showSelectionCarousel("btn_theme", themes.indexOf(LauncherPreferences.theme().colorTheme()), themes.map { it.getLabel(context) }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().colorTheme(), themes[index].name).apply()
             }
         })
 
         val fonts = Font.entries
-        items.add(SettingsItem.Clickable("btn_font_$fontSuffix", getString(R.string.settings_theme_font), "Current: ${LauncherPreferences.theme().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
+        items.add(SettingsItem.Clickable("btn_font", getString(R.string.settings_theme_font), "Current: ${LauncherPreferences.theme().font().name.lowercase().replaceFirstChar { it.uppercase() }}") {
             activity?.showSelectionCarousel("btn_font", fonts.indexOf(LauncherPreferences.theme().font()), fonts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().font(), fonts[index].name).apply()
             }
         })
 
-        items.add(SettingsItem.Toggle("tgl_shadow_$fontSuffix", getString(R.string.settings_theme_text_shadow), null, null, LauncherPreferences.theme().textShadow()) {
+        items.add(SettingsItem.Toggle("tgl_shadow", getString(R.string.settings_theme_text_shadow), null, null, LauncherPreferences.theme().textShadow()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().textShadow(), it).apply()
         })
 
         val bgs = Background.entries
-        items.add(SettingsItem.Clickable("btn_bg_$fontSuffix", getString(R.string.settings_theme_background), "Current: ${LauncherPreferences.theme().background().name.lowercase().replaceFirstChar { it.uppercase() }}") {
+        items.add(SettingsItem.Clickable("btn_bg", getString(R.string.settings_theme_background), "Current: ${LauncherPreferences.theme().background().name.lowercase().replaceFirstChar { it.uppercase() }}") {
             activity?.showSelectionCarousel("btn_bg", bgs.indexOf(LauncherPreferences.theme().background()), bgs.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.theme().keys().background(), bgs[index].name).apply()
             }
         })
 
-        items.add(SettingsItem.Toggle("tgl_mono_$fontSuffix", getString(R.string.settings_theme_monochrome_icons), null, null, LauncherPreferences.theme().monochromeIcons()) {
+        items.add(SettingsItem.Toggle("tgl_mono", getString(R.string.settings_theme_monochrome_icons), null, null, LauncherPreferences.theme().monochromeIcons()) {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().monochromeIcons(), it).apply()
         })
 
         // --- FUNCTIONALITY ---
-        items.add(SettingsItem.Header("hdr_func_$fontSuffix", getString(R.string.settings_launcher_section_functionality)))
-        items.add(SettingsItem.Toggle("tgl_auto_launch_$fontSuffix", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {
+        items.add(SettingsItem.Header("hdr_func", getString(R.string.settings_launcher_section_functionality)))
+        items.add(SettingsItem.Toggle("tgl_auto_launch", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoLaunch(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_web_search_$fontSuffix", getString(R.string.settings_functionality_search_web), getString(R.string.settings_functionality_search_web_summary), null, LauncherPreferences.functionality().searchWeb()) {
+        items.add(SettingsItem.Toggle("tgl_web_search", getString(R.string.settings_functionality_search_web), getString(R.string.settings_functionality_search_web_summary), null, LauncherPreferences.functionality().searchWeb()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchWeb(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_auto_kb_$fontSuffix", getString(R.string.settings_functionality_auto_keyboard), null, null, LauncherPreferences.functionality().searchAutoOpenKeyboard()) {
+        items.add(SettingsItem.Toggle("tgl_auto_kb", getString(R.string.settings_functionality_auto_keyboard), null, null, LauncherPreferences.functionality().searchAutoOpenKeyboard()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoOpenKeyboard(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_close_kb_$fontSuffix", getString(R.string.settings_functionality_auto_close_keyboard), null, null, LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
+        items.add(SettingsItem.Toggle("tgl_close_kb", getString(R.string.settings_functionality_auto_close_keyboard), null, null, LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoCloseKeyboard(), it).apply()
         })
-        items.add(SettingsItem.Clickable("btn_lock_$fontSuffix", getString(R.string.settings_actions_lock_method), null) {
+        items.add(SettingsItem.Clickable("btn_lock", getString(R.string.settings_actions_lock_method), null) {
             LockMethod.chooseMethod(context)
         })
 
         // --- APPS ---
-        items.add(SettingsItem.Header("hdr_apps_$fontSuffix", getString(R.string.settings_launcher_section_apps)))
-        items.add(SettingsItem.Clickable("btn_hidden_$fontSuffix", getString(R.string.settings_apps_hidden), null) {
+        items.add(SettingsItem.Header("hdr_apps", getString(R.string.settings_launcher_section_apps)))
+        items.add(SettingsItem.Clickable("btn_hidden", getString(R.string.settings_apps_hidden), null) {
             openAppsList(context, favorite = false, hidden = true)
         })
-        items.add(SettingsItem.Toggle("tgl_hide_bound_$fontSuffix", getString(R.string.settings_apps_hide_bound_apps), null, null, LauncherPreferences.apps().hideBoundApps()) {
+        items.add(SettingsItem.Toggle("tgl_hide_bound", getString(R.string.settings_apps_hide_bound_apps), null, null, LauncherPreferences.apps().hideBoundApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hideBoundApps(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_hide_paused_$fontSuffix", getString(R.string.settings_apps_hide_paused_apps), null, null, LauncherPreferences.apps().hidePausedApps()) {
+        items.add(SettingsItem.Toggle("tgl_hide_paused", getString(R.string.settings_apps_hide_paused_apps), null, null, LauncherPreferences.apps().hidePausedApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePausedApps(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_hide_private_$fontSuffix", getString(R.string.settings_apps_hide_private_space_apps), null, null, LauncherPreferences.apps().hidePrivateSpaceApps()) {
+        items.add(SettingsItem.Toggle("tgl_hide_private", getString(R.string.settings_apps_hide_private_space_apps), null, null, LauncherPreferences.apps().hidePrivateSpaceApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePrivateSpaceApps(), it).apply()
         })
 
         val layouts = ListLayout.entries
-        items.add(SettingsItem.Clickable("btn_list_layout_$fontSuffix", getString(R.string.settings_list_layout), "Current: ${LauncherPreferences.list().layout().name.lowercase().replaceFirstChar { it.uppercase() }}") {
+        items.add(SettingsItem.Clickable("btn_list_layout", getString(R.string.settings_list_layout), "Current: ${LauncherPreferences.list().layout().name.lowercase().replaceFirstChar { it.uppercase() }}") {
             activity?.showSelectionCarousel("btn_list_layout", layouts.indexOf(LauncherPreferences.list().layout()), layouts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.list().keys().layout(), layouts[index].name).apply()
             }
         })
 
         val formats = AppNameFormat.entries
-        items.add(SettingsItem.Clickable("btn_name_format_$fontSuffix", getString(R.string.settings_list_app_name_format), "Current: ${LauncherPreferences.list().appNameFormat().name.lowercase().replaceFirstChar { it.uppercase() }}") {
+        items.add(SettingsItem.Clickable("btn_name_format", getString(R.string.settings_list_app_name_format), "Current: ${LauncherPreferences.list().appNameFormat().name.lowercase().replaceFirstChar { it.uppercase() }}") {
             activity?.showSelectionCarousel("btn_name_format", formats.indexOf(LauncherPreferences.list().appNameFormat()), formats.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
                 prefs.edit().putString(LauncherPreferences.list().keys().appNameFormat(), formats[index].name).apply()
             }
         })
 
-        items.add(SettingsItem.Toggle("tgl_rev_layout_$fontSuffix", getString(R.string.settings_list_reverse_layout), null, null, LauncherPreferences.list().reverseLayout()) {
+        items.add(SettingsItem.Toggle("tgl_rev_layout", getString(R.string.settings_list_reverse_layout), null, null, LauncherPreferences.list().reverseLayout()) {
             prefs.edit().putBoolean(LauncherPreferences.list().keys().reverseLayout(), it).apply()
         })
 
         // --- DISPLAY ---
-        items.add(SettingsItem.Header("hdr_display_$fontSuffix", getString(R.string.settings_launcher_section_display)))
-        items.add(SettingsItem.Toggle("tgl_rotate_$fontSuffix", getString(R.string.settings_display_rotate_screen), null, null, LauncherPreferences.display().rotateScreen()) {
+        items.add(SettingsItem.Header("hdr_display", getString(R.string.settings_launcher_section_display)))
+        items.add(SettingsItem.Toggle("tgl_rotate", getString(R.string.settings_display_rotate_screen), null, null, LauncherPreferences.display().rotateScreen()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().rotateScreen(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_timeout_$fontSuffix", getString(R.string.settings_display_screen_timeout_disabled), null, null, LauncherPreferences.display().screenTimeoutDisabled()) {
+        items.add(SettingsItem.Toggle("tgl_timeout", getString(R.string.settings_display_screen_timeout_disabled), null, null, LauncherPreferences.display().screenTimeoutDisabled()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().screenTimeoutDisabled(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_status_$fontSuffix", getString(R.string.settings_display_hide_status_bar), null, null, LauncherPreferences.display().hideStatusBar()) {
+        items.add(SettingsItem.Toggle("tgl_status", getString(R.string.settings_display_hide_status_bar), null, null, LauncherPreferences.display().hideStatusBar()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideStatusBar(), it).apply()
         })
-        items.add(SettingsItem.Toggle("tgl_nav_$fontSuffix", getString(R.string.settings_display_hide_navigation_bar), null, null, LauncherPreferences.display().hideNavigationBar()) {
+        items.add(SettingsItem.Toggle("tgl_nav", getString(R.string.settings_display_hide_navigation_bar), null, null, LauncherPreferences.display().hideNavigationBar()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideNavigationBar(), it).apply()
         })
 

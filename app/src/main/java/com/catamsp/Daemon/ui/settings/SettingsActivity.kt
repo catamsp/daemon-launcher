@@ -53,8 +53,12 @@ class SettingsActivity : UIObjectActivity() {
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
+                val font = LauncherPreferences.theme().font()
+
+                binding.settingsHeading.typeface = font.getTypeface(this)
+
                 val tabAdapter = binding.settingsTabs.adapter as? SettingsTabAdapter
-                tabAdapter?.updateFont(LauncherPreferences.theme().font())
+                tabAdapter?.updateFont(font)
                 centerTabs()
             }
         }
@@ -329,7 +333,7 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
  */
 class SettingsTabAdapter(
     private val titles: Array<Int>,
-    private var font: com.catamsp.Daemon.preferences.theme.Font,
+    var font: com.catamsp.Daemon.preferences.theme.Font,
     private val onClick: (Int) -> Unit
 ) : RecyclerView.Adapter<SettingsTabAdapter.ViewHolder>() {
 
@@ -337,7 +341,7 @@ class SettingsTabAdapter(
 
     fun updateFont(newFont: com.catamsp.Daemon.preferences.theme.Font) {
         this.font = newFont
-        notifyDataSetChanged()
+        notifyItemRangeChanged(0, itemCount, "FONT_UPDATE")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
@@ -366,6 +370,14 @@ class SettingsTabAdapter(
         holder.textView.typeface = font.getTypeface(holder.itemView.context)
         holder.textView.setTextColor(textColor)
         holder.textView.setOnClickListener { onClick(position) }
+    }
+
+    override fun onBindViewHolder(holder: ViewHolder, position: Int, payloads: MutableList<Any>) {
+        if (payloads.contains("FONT_UPDATE")) {
+            holder.textView.typeface = font.getTypeface(holder.itemView.context)
+        } else {
+            super.onBindViewHolder(holder, position, payloads)
+        }
     }
 
     override fun getItemCount(): Int = titles.size
