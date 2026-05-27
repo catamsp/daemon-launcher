@@ -140,23 +140,10 @@
         </service>
 
         <service
-            android:name=".widgets.wallpaper.DaemonParallaxService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_WALLPAPER">
-            <intent-filter>
-                <action android:name="android.service.wallpaper.WallpaperService" />
-            </intent-filter>
-            <meta-data
-                android:name="android.service.wallpaper"
-                android:resource="@xml/parallax_wallpaper_config" />
-        </service>
-
-        <service
-            android:name=".widgets.wallpaper.DaemonVideoService"
-            android:enabled="true"
-            android:exported="true"
-            android:permission="android.permission.BIND_WALLPAPER">
+            android:name=".services.DaemonVideoService"
+            android:label="Daemon Video Wallpaper"
+            android:permission="android.permission.BIND_WALLPAPER"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.service.wallpaper.WallpaperService" />
             </intent-filter>

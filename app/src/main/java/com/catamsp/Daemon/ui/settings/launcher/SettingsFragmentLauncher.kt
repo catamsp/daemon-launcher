@@ -57,17 +57,25 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
     private lateinit var binding: SettingsLauncherBinding
     private val adapter = SettingsRecyclerAdapter()
     
-    private var isPickingParallax = false
     private var isPickingVideo = false
 
     private val pickWallpaperLauncher = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
         uri?.let {
             if (isPickingVideo) {
-                WallpaperController.applyVideoWallpaper(requireContext(), it)
-                activity?.finish()
+                WallpaperController.applyVideoWallpaper(requireActivity(), it) {
+                    // Success
+                }
             } else {
-                WallpaperController.applyDaemonWallpaper(requireContext(), it, isPickingParallax)
-                activity?.finish()
+                WallpaperController.applyStaticWallpaper(
+                    requireActivity(),
+                    it,
+                    onSuccess = {
+                        Toast.makeText(requireContext(), "Wallpaper set!", Toast.LENGTH_SHORT).show()
+                    },
+                    onError = { e ->
+                        Toast.makeText(requireContext(), "Failed to set wallpaper: ${e.message}", Toast.LENGTH_SHORT).show()
+                    }
+                )
             }
         }
     }
@@ -121,30 +129,20 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
 
         // --- APPEARANCE ---
         items.add(SettingsItem.Header("hdr_app_$fontSuffix", getString(R.string.settings_launcher_section_appearance)))
-        items.add(SettingsItem.Clickable("btn_wallpaper_$fontSuffix", getString(R.string.settings_theme_wallpaper), "Static, Parallax, Video, or Live") {
+        items.add(SettingsItem.Clickable("btn_wallpaper_$fontSuffix", getString(R.string.settings_theme_wallpaper), "Static or Video") {
             (activity as? UIObjectActivity)?.ignoreAutoClose = true
-            val options = arrayOf("Static Photo", "Daemon 3D Parallax", "Video / GIF Wallpaper", "External Live App")
+            val options = arrayOf("Static Photo", "Video Wallpaper")
             AlertDialog.Builder(context, R.style.AlertDialogCustom)
                 .setTitle("Choose Wallpaper Mode")
                 .setItems(options) { dialog, which ->
                     when (which) {
                         0 -> {
                             isPickingVideo = false
-                            isPickingParallax = false
                             pickWallpaperLauncher.launch("image/*")
                         }
                         1 -> {
-                            isPickingVideo = false
-                            isPickingParallax = true
-                            pickWallpaperLauncher.launch("image/*")
-                        }
-                        2 -> {
                             isPickingVideo = true
-                            isPickingParallax = false
-                            pickWallpaperLauncher.launch("*/*") // Allow videos and images (gifs)
-                        }
-                        3 -> {
-                            WallpaperController.launchNativeLiveWallpaperPicker(context)
+                            pickWallpaperLauncher.launch("video/*")
                         }
                     }
                     dialog.dismiss()
