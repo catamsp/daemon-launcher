@@ -7,10 +7,12 @@ import android.graphics.Rect
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
@@ -91,9 +93,54 @@ interface UIObject {
         return theme
     }
 
-    // fun applyTheme() { }
     fun setOnClicks() {}
     fun adjustLayout() {}
+
+    /**
+     * Recursively applies a custom font to a view and all its children.
+     * Defaults to the global UI font if no fontName is provided.
+     */
+    fun applyFont(view: View?, fontName: String = LauncherPreferences.theme().font()) {
+        if (view == null) return
+        val tf = Font.getTypeface(view.context, fontName)
+
+        if (view is TextView) {
+            view.typeface = tf
+        }
+
+        if (view is ViewGroup) {
+            for (i in 0 until view.childCount) {
+                applyFont(view.getChildAt(i), fontName)
+            }
+        }
+    }
+
+    /**
+     * Specifically targets a Toolbar to apply a custom font to its title.
+     */
+    fun applyFontToToolbar(toolbar: androidx.appcompat.widget.Toolbar?, fontName: String = LauncherPreferences.theme().font()) {
+        if (toolbar == null) return
+        val tf = Font.getTypeface(toolbar.context, fontName)
+        
+        for (i in 0 until toolbar.childCount) {
+            val child = toolbar.getChildAt(i)
+            if (child is TextView) {
+                child.typeface = tf
+            }
+        }
+    }
+
+    /**
+     * Specifically targets the internal TextView of a SearchView to apply custom fonts.
+     */
+    fun applyFontToSearchView(searchView: View?) {
+        if (searchView == null) return
+        val fontName = LauncherPreferences.theme().font()
+        val tf = Font.getTypeface(searchView.context, fontName)
+
+        val searchText = searchView.findViewById<TextView>(androidx.appcompat.R.id.search_src_text)
+        searchText?.typeface = tf
+    }
 
     fun isHomeScreen(): Boolean {
         return false

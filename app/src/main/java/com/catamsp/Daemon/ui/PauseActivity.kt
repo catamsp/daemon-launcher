@@ -12,6 +12,8 @@ class PauseActivity : UIObjectActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_pause)
 
+        applyFont(findViewById(R.id.pause_container))
+
         val appInfoStr = intent.getStringExtra("app_info")
 
         val buttonContinue = findViewById<Button>(R.id.button_continue)

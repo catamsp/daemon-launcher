@@ -11,18 +11,22 @@ import com.catamsp.Daemon.writeEmail
 
 const val EXTRA_CRASH_LOG = "crashLog"
 
-class ReportCrashActivity : AppCompatActivity() {
+class ReportCrashActivity : AppCompatActivity(), UIObject {
     // We don't know what caused the crash, so this Activity should use as little functionality as possible.
-    // In particular it is not a UIObject (and hence looks quite ugly)
+    // In particular it is not a UIObject Activity (to avoid theme/preference dependency recursion)
+    // but we implement the interface to gain access to applyFont.
     private lateinit var binding: ActivityReportCrashBinding
     private var report: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+        super<AppCompatActivity>.onCreate(savedInstanceState)
+        super<UIObject>.onCreate()
 
         // Initialise layout
         binding = ActivityReportCrashBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        applyFont(binding.root)
 
         setTitle(R.string.report_crash_title)
         setSupportActionBar(binding.reportCrashAppbar)
@@ -55,5 +59,10 @@ class ReportCrashActivity : AppCompatActivity() {
                 this
             )
         }
+    }
+
+    override fun onStart() {
+        super<AppCompatActivity>.onStart()
+        super<UIObject>.onStart()
     }
 }

@@ -153,6 +153,7 @@ class PinShortcutActivity : UIObjectActivity() {
         }
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+            applyFont(holder.itemView)
             val gesture = gestures[position]
             val (icon, label) = Action.forGesture(gesture)
                 ?.getIconAndContentDescription(context)

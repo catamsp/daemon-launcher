@@ -38,6 +38,8 @@ class ManageWidgetPanelsActivity : UIObjectActivity() {
         binding = ActivityManageWidgetPanelsBinding.inflate(layoutInflater)
         setContentView(binding.main)
 
+        applyFont(binding.main)
+
         val viewManager = LinearLayoutManager(this)
         viewAdapter = WidgetPanelsRecyclerAdapter(this, true) { widgetPanel ->
             startActivity(
@@ -67,7 +69,10 @@ class ManageWidgetPanelsActivity : UIObjectActivity() {
                     updateWidgetPanel(WidgetPanel(panelId, label))
                 }
                 setView(R.layout.dialog_create_widget_panel)
-            }.create().also { it.show() }.apply {
+            }.create().also { dialog ->
+                dialog.show()
+                applyFont(dialog.window?.decorView)
+            }.apply {
                 findViewById<EditText>(R.id.dialog_create_widget_panel_edit_text)
                     ?.setText(
                         getString(

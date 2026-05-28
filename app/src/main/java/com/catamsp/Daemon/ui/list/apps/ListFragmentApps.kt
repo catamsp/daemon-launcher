@@ -55,6 +55,11 @@ class ListFragmentApps : Fragment(), UIObject {
         return binding.root
     }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        applyFontToSearchView(binding.listAppsSearchview)
+    }
+
     override fun onStart() {
         super<Fragment>.onStart()
         super<UIObject>.onStart()

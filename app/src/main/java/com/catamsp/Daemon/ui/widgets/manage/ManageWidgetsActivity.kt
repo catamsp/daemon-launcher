@@ -52,6 +52,8 @@ class ManageWidgetsActivity : UIObject, Activity() {
         binding = ActivityManageWidgetsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        applyFont(binding.root)
+
         panelId = intent.extras?.getInt(EXTRA_PANEL_ID, WidgetPanel.HOME.id) ?: WidgetPanel.HOME.id
 
         binding.manageWidgetsButtonAdd.setOnClickListener {

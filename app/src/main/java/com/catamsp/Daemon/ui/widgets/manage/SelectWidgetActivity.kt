@@ -170,6 +170,10 @@ class SelectWidgetActivity : UIObjectActivity() {
             finish()
         }
 
+        applyFont(binding.selectWidgetHeading)
+        applyFont(binding.selectWidgetSearch)
+        applyFont(binding.selectWidgetToolbar)
+
         refreshList()
     }
 
@@ -255,6 +259,7 @@ class SelectWidgetActivity : UIObjectActivity() {
         }
 
         override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+            applyFont(holder.itemView)
             when (val item = getItem(position)) {
                 is WidgetListItem.Header -> {
                     val hHolder = holder as HeaderViewHolder

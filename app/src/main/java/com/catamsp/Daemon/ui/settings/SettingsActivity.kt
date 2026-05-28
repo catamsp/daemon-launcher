@@ -99,6 +99,8 @@ class SettingsActivity : UIObjectActivity() {
         binding = SettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        applyFont(binding.settingsHeading)
+
         // set up tabs and swiping in settings
         val sectionsPagerAdapter = SettingsSectionsPagerAdapter(this)
         val tabAdapter = SettingsTabAdapter(TAB_TITLES, LauncherPreferences.theme().font()) { position ->

@@ -90,7 +90,10 @@ class SettingsFragmentMeta : Fragment(), UIObject {
                 }
                 .setNegativeButton(android.R.string.cancel, null)
                 .setIcon(android.R.drawable.ic_dialog_alert)
-                .show()
+                .create().also { dialog ->
+                    dialog.show()
+                    applyFont(dialog.window?.decorView)
+                }
         })
 
         items.add(SettingsItem.Header("hdr_dev", "Development"))

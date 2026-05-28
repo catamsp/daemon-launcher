@@ -39,6 +39,9 @@ class SelectActionActivity : AbstractListActivity() {
         ) { tab, position ->
             tab.text = sectionsPagerAdapter.getPageTitle(position)
         }.attach()
+
+        applyFont(binding.selectActionHeading)
+        applyFont(binding.selectActionTabs)
     }
 
     override fun setOnClicks() {

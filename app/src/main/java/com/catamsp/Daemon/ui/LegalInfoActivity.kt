@@ -14,6 +14,9 @@ class LegalInfoActivity : UIObjectActivity() {
         // Initialise layout
         binding = LegalInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        
+        applyFont(binding.root)
+        applyFontToToolbar(binding.legalInfoAppbar)
 
         setTitle(R.string.legal_info_title)
         setSupportActionBar(binding.legalInfoAppbar)

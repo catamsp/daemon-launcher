@@ -120,7 +120,10 @@ fun AbstractDetailedAppInfo.showRenameDialog(context: Context) {
                     ?.text.toString()
             )
         }
-    }.create().also { it.show() }.apply {
+    }.create().also { dialog ->
+        dialog.show()
+        (context as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFont(dialog.window?.decorView)
+    }.apply {
         val input = findViewById<EditText>(R.id.dialog_rename_app_edit_text)
         input?.setText(getCustomLabel(context))
         input?.hint = getLabel()

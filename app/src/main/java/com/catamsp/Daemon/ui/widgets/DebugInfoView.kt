@@ -14,6 +14,9 @@ class DebugInfoView(context: Context, attrs: AttributeSet? = null, val appWidget
         WidgetDebugInfoBinding.inflate(LayoutInflater.from(context), this, true)
 
     init {
+        val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+        val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(context, fontName)
+        binding.debugInfoText.typeface = tf
         binding.debugInfoText.text = getDeviceInfo()
     }
 }

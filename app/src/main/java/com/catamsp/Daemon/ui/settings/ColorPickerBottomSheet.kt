@@ -12,6 +12,7 @@ import androidx.core.graphics.alpha
 import com.catamsp.Daemon.R
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Font
+import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.views.ColorWheelView
 import com.catamsp.Daemon.ui.views.PremiumRibbonSlider
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
@@ -19,7 +20,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 class ColorPickerBottomSheet(
     private val initialColor: Int,
     private val onColorSelected: (Int) -> Unit
-) : BottomSheetDialogFragment() {
+) : BottomSheetDialogFragment(), UIObject {
 
     private var currentHue = 0f
     private var currentSaturation = 1f
@@ -91,6 +92,8 @@ class ColorPickerBottomSheet(
             onColorSelected(finalColor)
             dismiss()
         }
+
+        applyFont(view)
     }
 
     private fun updatePreview() {
@@ -106,7 +109,8 @@ class ColorPickerBottomSheet(
     }
 
     override fun onStart() {
-        super.onStart()
+        super<BottomSheetDialogFragment>.onStart()
+        super<UIObject>.onStart()
         dialog?.window?.let { window ->
             window.setDimAmount(0f)
             window.setBackgroundDrawableResource(android.R.color.transparent)

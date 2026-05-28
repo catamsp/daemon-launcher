@@ -30,6 +30,7 @@ class WidgetPanelsRecyclerAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: ViewHolder, i: Int) {
+        (context as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFont(viewHolder.itemView)
         viewHolder.labelView.text = widgetPanels[i].label
         val numWidgets = widgetPanels[i].getWidgets().size
         viewHolder.infoView.text = context.resources.getQuantityString(
@@ -78,7 +79,10 @@ class WidgetPanelsRecyclerAdapter(
                     updateWidgetPanel(widgetPanel)
                 }
                 setView(R.layout.dialog_rename_widget_panel)
-            }.create().also { it.show() }.apply {
+            }.create().also { dialog ->
+                dialog.show()
+                (context as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFont(dialog.window?.decorView)
+            }.apply {
                 findViewById<EditText>(R.id.dialog_rename_widget_panel_edit_text)?.let {
                     it.setText(widgetPanel.label)
                     it.hint = context.getString(R.string.widget_panel_default_name, widgetPanel.id)
