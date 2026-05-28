@@ -123,7 +123,7 @@ private val sharedPreferencesListener =
         super.onPause()
     }
 
-    private fun buildSettingsItems(): List<SettingsItem> {
+    private fun buildSettingsItems(customFonts: List<String>): List<SettingsItem> {
         val items = mutableListOf<SettingsItem>()
         val context = context ?: return emptyList()
         val prefs = LauncherPreferences.getSharedPreferences()
@@ -173,7 +173,6 @@ private val sharedPreferencesListener =
 
         // Build Dynamic Font List (Built-in + Custom)
         val builtInFonts = Font.entries.map { it.name }
-        val customFonts = FontManager.getCustomFontNames(context)
         val allFonts = builtInFonts + customFonts
 
         val currentFontName = LauncherPreferences.theme().font()
@@ -293,7 +292,14 @@ private val sharedPreferencesListener =
      */
     private fun refreshList() {
         if (!isAdded) return
-        adapter.submitList(buildSettingsItems())
+        lifecycleScope.launch {
+            val ctx = context ?: return@launch
+            val customFonts = withContext(Dispatchers.IO) {
+                FontManager.getCustomFontNames(ctx)
+            }
+            if (!isAdded) return@launch
+            adapter.submitList(buildSettingsItems(customFonts))
+        }
     }
 
     /**
@@ -302,10 +308,17 @@ private val sharedPreferencesListener =
      */
     private fun refreshListWithFontUpdate() {
         if (!isAdded) return
-        val items = buildSettingsItems()
-        adapter.submitList(items) {
-            // This callback fires AFTER DiffUtil has completely finished applying the new list
-            adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+        lifecycleScope.launch {
+            val ctx = context ?: return@launch
+            val customFonts = withContext(Dispatchers.IO) {
+                FontManager.getCustomFontNames(ctx)
+            }
+            if (!isAdded) return@launch
+            val items = buildSettingsItems(customFonts)
+            adapter.submitList(items) {
+                // This callback fires AFTER DiffUtil has completely finished applying the new list
+                adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            }
         }
     }
 

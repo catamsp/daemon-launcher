@@ -148,6 +148,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
                 }
             }
             items.addAll(settingsItems)
+            if (!isAdded) return@launch
             adapter.submitList(items)
         }
     }

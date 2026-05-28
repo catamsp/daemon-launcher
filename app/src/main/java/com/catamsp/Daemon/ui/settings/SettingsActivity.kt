@@ -110,6 +110,7 @@ class SettingsActivity : UIObjectActivity() {
 
         binding.settingsViewpager.apply {
             adapter = sectionsPagerAdapter
+            offscreenPageLimit = 5
             setCurrentItem(intent.getIntExtra(EXTRA_TAB, 0), false)
         }
 
@@ -313,6 +314,14 @@ class SettingsActivity : UIObjectActivity() {
         val ribbon = binding.settingsBinaryRibbon
         val button1 = binding.binaryRibbonButton1
         val button2 = binding.binaryRibbonButton2
+        
+        // Remove button 3 if present from ternary ribbon
+        while (ribbon.childCount > 2) {
+            ribbon.removeViewAt(2)
+        }
+        
+        // Set weightSum to 2 for binary layout
+        ribbon.weightSum = 2f
         
         // Apply font and styling
         val currentFont = LauncherPreferences.theme().font()
