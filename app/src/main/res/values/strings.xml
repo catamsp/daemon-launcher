@@ -212,6 +212,11 @@
 
     <string name="settings_theme_wallpaper">Choose a wallpaper</string>
 
+    <string name="settings_theme_spacing">Text spacing</string>
+    <string name="settings_theme_spacing_item_compact">Compact</string>
+    <string name="settings_theme_spacing_item_default">Standard</string>
+    <string name="settings_theme_spacing_item_spacious">Spacious</string>
+
     <string name="settings_launcher_section_display">Display</string>
 
     <string name="settings_display_screen_timeout_disabled">Keep screen on</string>

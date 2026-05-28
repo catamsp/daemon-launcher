@@ -81,10 +81,12 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         }
     }
 
-    private val sharedPreferencesListener =
+private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
                 refreshListWithFontUpdate()
+            } else if (prefKey == LauncherPreferences.theme().keys().spacingDensity()) {
+                refreshListWithSpacingUpdate()
             } else {
                 refreshList()
             }
@@ -209,6 +211,37 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             prefs.edit().putBoolean(LauncherPreferences.theme().keys().monochromeIcons(), it).apply()
         })
 
+        // Spacing Density - Ternary Ribbon
+        val spacingValues = arrayOf("compact", "default", "spacious")
+        val spacingItems = arrayOf(
+            getString(R.string.settings_theme_spacing_item_compact),
+            getString(R.string.settings_theme_spacing_item_default),
+            getString(R.string.settings_theme_spacing_item_spacious)
+        )
+        val currentSpacingIndex = spacingValues.indexOf(LauncherPreferences.theme().spacingDensity())
+        items.add(SettingsItem.Clickable("btn_spacing", getString(R.string.settings_theme_spacing), "Current: ${spacingItems[currentSpacingIndex]}") {
+            activity?.showTernaryRibbon(
+                button1Text = getString(R.string.settings_theme_spacing_item_compact),
+                button2Text = getString(R.string.settings_theme_spacing_item_default),
+                button3Text = getString(R.string.settings_theme_spacing_item_spacious),
+                onButton1Click = {
+                    prefs.edit().putString(LauncherPreferences.theme().keys().spacingDensity(), "compact").apply()
+                    activity?.applySpacingChanges()
+                    activity.hideBinaryRibbon()
+                },
+                onButton2Click = {
+                    prefs.edit().putString(LauncherPreferences.theme().keys().spacingDensity(), "default").apply()
+                    activity?.applySpacingChanges()
+                    activity.hideBinaryRibbon()
+                },
+                onButton3Click = {
+                    prefs.edit().putString(LauncherPreferences.theme().keys().spacingDensity(), "spacious").apply()
+                    activity?.applySpacingChanges()
+                    activity.hideBinaryRibbon()
+                }
+            )
+        })
+
         // --- FUNCTIONALITY ---
         items.add(SettingsItem.Header("hdr_func", getString(R.string.settings_launcher_section_functionality)))
         items.add(SettingsItem.Toggle("tgl_auto_launch", getString(R.string.settings_functionality_auto_launch), getString(R.string.settings_functionality_auto_launch_summary), null, LauncherPreferences.functionality().searchAutoLaunch()) {
@@ -274,5 +307,14 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             // This callback fires AFTER DiffUtil has completely finished applying the new list
             adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
         }
+    }
+
+    /**
+     * Refreshes the settings list and triggers SPACING_UPDATE payload after DiffUtil completes.
+     * Use this when the spacing preference changes to update text sizes without rebuilding the list.
+     */
+    internal fun refreshListWithSpacingUpdate() {
+        if (!isAdded) return
+        adapter.notifyItemRangeChanged(0, adapter.itemCount, "SPACING_UPDATE")
     }
 }

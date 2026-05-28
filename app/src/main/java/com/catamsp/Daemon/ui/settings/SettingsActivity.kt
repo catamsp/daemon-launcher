@@ -5,10 +5,13 @@ import android.content.SharedPreferences
 import android.os.Bundle
 import android.provider.Settings
 import android.util.TypedValue
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -22,16 +25,14 @@ import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
 import com.catamsp.Daemon.preferences.theme.Font
+import com.catamsp.Daemon.preferences.theme.TransitionAnimation
 import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.settings.actions.SettingsFragmentActionsRecycler
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentAnimations
-import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentWidgets
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
+import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentWidgets
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
 import com.catamsp.Daemon.widgets.ClockWidget
-
-import androidx.core.content.ContextCompat
-import com.catamsp.Daemon.preferences.theme.TransitionAnimation
 
 /**
  * The [SettingsActivity] is a tabbed activity:
@@ -357,6 +358,125 @@ class SettingsActivity : UIObjectActivity() {
             binding.settingsViewpager.paddingRight,
             0
         )
+    }
+
+/**
+    * Shows a ternary choice ribbon with three static, side-by-side tappable buttons.
+    * This is used for 3-option selections like "Compact / Standard / Spacious" text spacing.
+    * Unlike the carousel, this provides instant tap-to-select without swiping.
+    */
+    fun showTernaryRibbon(
+        button1Text: String,
+        button2Text: String,
+        button3Text: String,
+        onButton1Click: () -> Unit,
+        onButton2Click: () -> Unit,
+        onButton3Click: () -> Unit
+    ) {
+        // Hide the carousel first
+        binding.settingsAnimationCarousel.visibility = View.GONE
+        
+        // Show the ternary ribbon (reuses binary ribbon layout with 3 buttons)
+        val ribbon = binding.settingsBinaryRibbon
+        val button1 = binding.binaryRibbonButton1
+        val button2 = binding.binaryRibbonButton2
+        
+        // Set weightSum to 3 for ternary layout
+        ribbon.weightSum = 3f
+        
+        // Apply font and styling
+        val currentFont = LauncherPreferences.theme().font()
+        val textColor = getThemeColor(android.R.attr.textColor)
+        val typeface = Font.getTypeface(this, currentFont)
+        
+        // Configure button1
+        button1.text = button1Text
+        button1.typeface = typeface
+        button1.setTextColor(textColor)
+        button1.setOnClickListener { onButton1Click() }
+        
+        // Configure button2 (center button)
+        button2.text = button2Text
+        button2.typeface = typeface
+        button2.setTextColor(textColor)
+        button2.setOnClickListener { onButton2Click() }
+        
+        // Create button3 dynamically as a TextView
+        val button3 = TextView(this).apply {
+            text = button3Text
+            this.typeface = typeface
+            setTextColor(textColor)
+            gravity = Gravity.CENTER
+            setTextSize(16f)
+            setTypeface(typeface, android.graphics.Typeface.BOLD)
+            setBackground(ContextCompat.getDrawable(this@SettingsActivity, R.drawable.ribbon_button_selector))
+            isClickable = true
+            focusable = View.FOCUSABLE
+            setPadding(16, 0, 16, 0)
+            
+            // Create layout params with weight for equal distribution
+            val params = LinearLayout.LayoutParams(
+                0,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+            params.weight = 1f
+            layoutParams = params
+            
+            setOnClickListener { onButton3Click() }
+        }
+        
+        // Remove any existing button3 and add the new one
+        // Only remove views starting from index 2 (button3 position)
+        while (ribbon.childCount > 2) {
+            ribbon.removeViewAt(2)
+        }
+        ribbon.addView(button3)
+        
+        ribbon.visibility = View.VISIBLE
+        
+        // Apply same Dynamic Horizon bottom padding to the Settings list
+        binding.root.post {
+            val ribbonHeight = ribbon.height
+            binding.settingsViewpager.setPadding(
+                binding.settingsViewpager.paddingLeft,
+                binding.settingsViewpager.paddingTop,
+                binding.settingsViewpager.paddingRight,
+                ribbonHeight
+            )
+            binding.settingsViewpager.clipToPadding = true
+        }
+    }
+
+    /**
+     * Applies spacing density changes to the UI.
+     * Updates text sizes for all launcher items based on the selected density.
+     */
+    fun applySpacingChanges() {
+        val spacingPref = LauncherPreferences.theme().spacingDensity()
+        val multiplier = when (spacingPref) {
+            "compact" -> 0.8f
+            "spacious" -> 1.2f
+            else -> 1.0f
+        }
+        
+        // Default text sizes (in SP)
+        val groupHeaderSize = 13f
+        val itemTitleSize = 16f
+        val itemDescriptionSize = 13f
+        val bottomTabSize = 16f
+        
+        // Apply scaled sizes to the UI
+        // Note: This would typically require updating the adapter and notifying it of data changes
+        // For immediate effect, we need to refresh the UI
+        val prefs = LauncherPreferences.getSharedPreferences()
+        prefs.edit().putFloat("spacing_multiplier", multiplier).apply()
+        
+        // Notify fragments to refresh with new spacing using SPACING_UPDATE payload
+        supportFragmentManager.fragments.forEach { fragment ->
+            if (fragment is SettingsFragmentLauncher) {
+                fragment.refreshListWithSpacingUpdate()
+            }
+        }
     }
 
     fun hideSelectionCarousel() {

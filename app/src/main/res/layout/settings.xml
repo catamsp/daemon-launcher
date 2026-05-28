@@ -47,7 +47,7 @@
         android:background="@android:color/transparent"
         android:orientation="horizontal"
         android:visibility="gone"
-        android:weightSum="2"
+        android:weightSum="3"
         app:layout_constraintBottom_toTopOf="@id/settings_bottom_bar"
         android:paddingStart="16dp"
         android:paddingEnd="16dp"

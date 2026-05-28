@@ -58,6 +58,15 @@
             android:title="@string/settings_theme_animations"
             android:defaultValue="true" />
 
+        <DropDownPreference
+            app:iconSpaceReserved="false"
+            android:key="@string/settings_theme_spacing_density_key"
+            android:title="@string/settings_theme_spacing"
+            android:entries="@array/settings_theme_spacing_items"
+            android:entryValues="@array/settings_theme_spacing_values"
+            android:defaultValue="default"
+            app:useSimpleSummaryProvider="true" />
+
     </PreferenceCategory>
 
     <PreferenceCategory

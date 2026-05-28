@@ -1,5 +1,6 @@
 package com.catamsp.Daemon.ui.settings
 
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -53,7 +54,7 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
-        if (payloads.contains("FONT_UPDATE")) {
+        if (payloads.contains("FONT_UPDATE") || payloads.contains("SPACING_UPDATE")) {
             val item = getItem(position)
             when (holder) {
                 is HeaderViewHolder -> holder.bind(item as SettingsItem.Header)
@@ -72,10 +73,19 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             title.text = item.title
             val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
             title.typeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            
+            // Apply spacing density
+            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
+            val multiplier = when (spacingPref) {
+                "compact" -> 0.85f
+                "spacious" -> 1.15f
+                else -> 1.0f
+            }
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
         }
     }
 
-    inner class ToggleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+inner class ToggleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val title: TextView = view.findViewById(R.id.settings_item_toggle_title)
         private val desc: TextView = view.findViewById(R.id.settings_item_toggle_desc)
         private val icon: ImageView = view.findViewById(R.id.settings_item_toggle_icon)
@@ -90,14 +100,24 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
             title.typeface = tf
             desc.typeface = tf
-
+            
+            // Apply spacing density
+            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
+            val multiplier = when (spacingPref) {
+                "compact" -> 0.85f
+                "spacious" -> 1.15f
+                else -> 1.0f
+            }
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
+            desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
+            
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
                 icon.isVisible = true
             } else {
                 icon.isVisible = false
             }
-
+            
             switch.setOnCheckedChangeListener(null)
             switch.isChecked = item.isChecked
             switch.setOnCheckedChangeListener { _, isChecked -> item.onToggle(isChecked) }
@@ -122,7 +142,18 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             title.typeface = tf
             desc.typeface = tf
             valueText.typeface = tf
-
+            
+            // Apply spacing density
+            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
+            val multiplier = when (spacingPref) {
+                "compact" -> 0.85f
+                "spacious" -> 1.15f
+                else -> 1.0f
+            }
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
+            desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
+            valueText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
+            
             valueText.text = item.value.toString()
             seekBar.max = item.max - item.min
             seekBar.progress = item.value - item.min
@@ -141,7 +172,7 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
         }
     }
 
-    inner class ClickableViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+inner class ClickableViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         private val title: TextView = view.findViewById(R.id.settings_item_clickable_title)
         private val desc: TextView = view.findViewById(R.id.settings_item_clickable_desc)
         private val icon: ImageView = view.findViewById(R.id.settings_item_clickable_icon)
@@ -157,7 +188,17 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
             val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
             title.typeface = tf
             desc.typeface = tf
-
+            
+            // Apply spacing density
+            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
+            val multiplier = when (spacingPref) {
+                "compact" -> 0.85f
+                "spacious" -> 1.15f
+                else -> 1.0f
+            }
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
+            desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
+            
             if (item.icon != null) {
                 icon.setImageDrawable(item.icon)
                 icon.isVisible = true
@@ -167,7 +208,7 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
 
             // Always ensure the arrow is visible for clickable items
             arrow.isVisible = true 
-
+            
             if (item.onRemove != null) {
                 removeBtn.isVisible = true
                 removeBtn.setOnClickListener { item.onRemove.invoke() }

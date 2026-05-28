@@ -64,6 +64,7 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "font", type = String.class, defaultValue = "SYSTEM_DEFAULT"),
                         @Preference(name = "text_shadow", type = boolean.class, defaultValue = "false"),
                         @Preference(name = "monochrome_icons", type = boolean.class, defaultValue = "false"),
+                        @Preference(name = "spacing_density", type = String.class, defaultValue = "default"),
                 }),
                 @PreferenceGroup(name = "animations", prefix = "settings_anim_", suffix = "_key", value = {
                         @Preference(name = "master_toggle", type = boolean.class, defaultValue = "true"),
