@@ -15,7 +15,9 @@ import com.catamsp.Daemon.actions.Gesture
 import com.catamsp.Daemon.databinding.SettingsActionsRecyclerBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.ui.UIObject
+import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.ui.list.SelectActionActivity
+import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
 import kotlinx.coroutines.*
@@ -95,10 +97,17 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
             prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().edgeSwipe(), it).apply()
             refreshList()
         })
-        items.add(SettingsItem.Slider("sld_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), null, LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth(), 0, 33) {
-            prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), it).apply()
-            refreshList()
+
+        val currentEdgeWidth = LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth().coerceIn(20, 60)
+        items.add(SettingsItem.Clickable("btn_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), "Current Width: $currentEdgeWidth") {
+            (activity as? UIObjectActivity)?.ignoreAutoClose = true
+            
+            (activity as? SettingsActivity)?.showSliderCarousel(20, 60, currentEdgeWidth) { newValue ->
+                prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), newValue).apply()
+                // No refreshList() here to keep ribbon open. The global listener or manual closure handles UI.
+            }
         })
+
         items.add(SettingsItem.Toggle("tgl_diag_swipe", getString(R.string.settings_enabled_gestures_diagonal_swipe), null, null, LauncherPreferences.enabled_gestures().diagonalSwipe()) {
             prefs.edit().putBoolean(LauncherPreferences.enabled_gestures().keys().diagonalSwipe(), it).apply()
             refreshList()

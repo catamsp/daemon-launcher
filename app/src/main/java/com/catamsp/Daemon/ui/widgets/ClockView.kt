@@ -3,6 +3,7 @@ package com.catamsp.Daemon.ui.widgets
 import android.content.Context
 import android.text.format.DateFormat
 import android.util.AttributeSet
+import android.util.TypedValue
 import android.view.LayoutInflater
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.isVisible
@@ -85,6 +86,10 @@ class ClockView(
         binding.clockUpperView.format24Hour = upperFormat
         binding.clockLowerView.format12Hour = lowerFormat
         binding.clockUpperView.format12Hour = upperFormat
+
+        val clockSize = LauncherPreferences.clock().clockSize().toFloat()
+        binding.clockUpperView.setTextSize(TypedValue.COMPLEX_UNIT_SP, clockSize)
+        binding.clockLowerView.setTextSize(TypedValue.COMPLEX_UNIT_SP, clockSize)
 
         val fontName = LauncherPreferences.clock().font()
         try {

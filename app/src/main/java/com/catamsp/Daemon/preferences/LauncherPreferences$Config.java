@@ -75,6 +75,7 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                 }),
                 @PreferenceGroup(name = "clock", prefix = "settings_clock_", suffix = "_key", value = {
                         @Preference(name = "font", type = String.class, defaultValue = "SYSTEM_DEFAULT"),
+                        @Preference(name = "clock_size", type = int.class, defaultValue = "24"),
                         @Preference(name = "color", type = int.class, defaultValue = "0xffffffff"),
                         @Preference(name = "date_visible", type = boolean.class, defaultValue = "true"),
                         @Preference(name = "time_visible", type = boolean.class, defaultValue = "true"),

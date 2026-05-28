@@ -174,8 +174,9 @@
     <string name="settings_clock_time_visible_key" translatable="false">clock.time_visible</string>
     <string name="settings_clock_show_seconds_key" translatable="false">clock.show_seconds</string>
     <string name="settings_clock_date_visible_key" translatable="false">clock.date_visible</string>
-    <string name="settings_clock_localized_key" translatable="false">clock.date_localized</string>
-    <string name="settings_clock_flip_date_time_key" translatable="false">clock.date_time_flip</string>
+    <string name="settings_clock_localized_key" translatable="false">clock.localized</string>
+    <string name="settings_clock_clock_size_key" translatable="false">clock.clock_size</string>
+    <string name="settings_clock_flip_date_time_key" translatable="false">clock.flip_date_time</string>
 
 
     <!--

@@ -145,6 +145,14 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
                 }
             })
 
+            val currentClockSize = LauncherPreferences.clock().clockSize()
+            items.add(SettingsItem.Clickable("btn_clock_size", getString(R.string.settings_clock_size), "Current Size: $currentClockSize") {
+                (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                (activity as? SettingsActivity)?.showSliderCarousel(16, 40, currentClockSize) { newValue ->
+                    prefs.edit().putInt(LauncherPreferences.clock().keys().clockSize(), newValue).apply()
+                }
+            })
+
             items.add(SettingsItem.Clickable("btn_clock_color", getString(R.string.settings_clock_color), "Hex: #%08X".format(LauncherPreferences.clock().color())) {
                 showColorPickerDialog(LauncherPreferences.clock().color()) { color ->
                     prefs.edit().putInt(LauncherPreferences.clock().keys().color(), color).apply()
@@ -181,8 +189,12 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
                 prefs.edit().putBoolean(LauncherPreferences.globe().keys().showGlow(), it).apply()
             })
 
-            items.add(SettingsItem.Slider("sld_globe_opacity", getString(R.string.settings_globe_glow_opacity), null, LauncherPreferences.globe().glowOpacity(), 0, 255) {
-                prefs.edit().putInt(LauncherPreferences.globe().keys().glowOpacity(), it).apply()
+            val currentGlowOpacity = LauncherPreferences.globe().glowOpacity()
+            items.add(SettingsItem.Clickable("btn_globe_glow_opacity", getString(R.string.settings_globe_glow_opacity), "Current Opacity: $currentGlowOpacity") {
+                (activity as? UIObjectActivity)?.ignoreAutoClose = true
+                (activity as? SettingsActivity)?.showSliderCarousel(0, 255, currentGlowOpacity) { newValue ->
+                    prefs.edit().putInt(LauncherPreferences.globe().keys().glowOpacity(), newValue).apply()
+                }
             })
         }
 

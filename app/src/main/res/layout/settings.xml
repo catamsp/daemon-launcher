@@ -84,6 +84,25 @@
 
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/settings_slider_ribbon"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        android:background="@android:color/transparent"
+        android:clickable="true"
+        android:focusable="true"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="24dp"
+        android:visibility="gone"
+        app:layout_constraintBottom_toTopOf="@id/settings_bottom_bar">
+
+        <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+            android:id="@+id/slider_ribbon_custom"
+            android:layout_width="match_parent"
+            android:layout_height="32dp" />
+    </LinearLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/settings_bottom_bar"
         android:layout_width="match_parent"

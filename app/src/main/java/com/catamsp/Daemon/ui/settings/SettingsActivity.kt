@@ -360,6 +360,7 @@ class SettingsActivity : UIObjectActivity() {
     fun hideSelectionCarousel() {
         binding.settingsAnimationCarousel.visibility = View.GONE
         binding.settingsBinaryRibbon.visibility = View.GONE
+        binding.settingsSliderRibbon.visibility = View.GONE
         
         // Restore the horizon to the bottom of the screen
         binding.settingsViewpager.setPadding(
@@ -371,6 +372,44 @@ class SettingsActivity : UIObjectActivity() {
         
         selectionCarouselListener = null
         activeCarouselKey = null
+    }
+
+    /**
+     * Shows a premium horizontal slider ribbon for granular adjustments.
+     */
+    fun showSliderCarousel(min: Int, max: Int, currentValue: Int, onValueSelected: (Int) -> Unit) {
+        // Hide other ribbons first
+        binding.settingsAnimationCarousel.visibility = View.GONE
+        binding.settingsBinaryRibbon.visibility = View.GONE
+        
+        val ribbon = binding.settingsSliderRibbon
+        val customSlider = binding.sliderRibbonCustom
+        
+        customSlider.setValues(min, max, currentValue)
+        
+        // Live update the value internally as the user drags
+        customSlider.onValueChangeListener = { liveValue ->
+            // Logic for real-time adjustments could go here if needed
+        }
+
+        // Save to database on thumb lift, BUT KEEP RIBBON OPEN
+        customSlider.onStopTrackingListener = { finalValue ->
+            onValueSelected(finalValue)
+        }
+        
+        ribbon.visibility = View.VISIBLE
+        
+        // Apply Dynamic Horizon
+        binding.root.post {
+            val ribbonHeight = ribbon.height
+            binding.settingsViewpager.setPadding(
+                binding.settingsViewpager.paddingLeft,
+                binding.settingsViewpager.paddingTop,
+                binding.settingsViewpager.paddingRight,
+                ribbonHeight
+            )
+            binding.settingsViewpager.clipToPadding = true
+        }
     }
 
     override fun onStart() {
