@@ -91,6 +91,7 @@ class WidgetPanelsRecyclerAdapter(
             true
         }
 
+        (context as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFontToMenu(context, popup.menu)
         popup.show()
         return true
     }

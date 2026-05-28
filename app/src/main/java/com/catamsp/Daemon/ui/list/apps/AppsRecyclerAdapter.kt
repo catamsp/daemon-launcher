@@ -209,6 +209,7 @@ class AppsRecyclerAdapter(
             }
         }
 
+        (activity as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFontToMenu(activity, popup.menu)
         popup.show()
         return true
     }

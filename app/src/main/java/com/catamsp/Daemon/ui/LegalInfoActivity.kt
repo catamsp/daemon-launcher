@@ -15,12 +15,12 @@ class LegalInfoActivity : UIObjectActivity() {
         binding = LegalInfoBinding.inflate(layoutInflater)
         setContentView(binding.root)
         
-        applyFont(binding.root)
-        applyFontToToolbar(binding.legalInfoAppbar)
-
         setTitle(R.string.legal_info_title)
         setSupportActionBar(binding.legalInfoAppbar)
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
+        applyFont(binding.root)
+        applyFontToToolbar(binding.legalInfoAppbar)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

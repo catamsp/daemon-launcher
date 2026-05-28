@@ -13,6 +13,11 @@ import android.view.WindowInsets
 import android.view.WindowInsetsController
 import android.view.WindowManager
 import android.widget.TextView
+import android.graphics.Paint
+import android.text.Spannable
+import android.text.SpannableString
+import android.text.TextPaint
+import android.text.style.MetricAffectingSpan
 import androidx.appcompat.app.AppCompatActivity
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
@@ -142,6 +147,20 @@ interface UIObject {
         searchText?.typeface = tf
     }
 
+    /**
+     * Applies a custom font to all items in a Menu (e.g. PopupMenu).
+     */
+    fun applyFontToMenu(context: android.content.Context, menu: android.view.Menu?, fontName: String = LauncherPreferences.theme().font()) {
+        if (menu == null) return
+        val tf = Font.getTypeface(context, fontName)
+        for (i in 0 until menu.size()) {
+            val item = menu.getItem(i)
+            val span = SpannableString(item.title)
+            span.setSpan(CustomTypefaceSpan(tf), 0, span.length, Spannable.SPAN_INCLUSIVE_INCLUSIVE)
+            item.title = span
+        }
+    }
+
     fun isHomeScreen(): Boolean {
         return false
     }
@@ -196,6 +215,20 @@ interface UIObject {
         }
     }
 
+}
+
+class CustomTypefaceSpan(private val typeface: android.graphics.Typeface) : MetricAffectingSpan() {
+    override fun updateDrawState(ds: TextPaint) {
+        applyCustomTypeFace(ds, typeface)
+    }
+
+    override fun updateMeasureState(paint: TextPaint) {
+        applyCustomTypeFace(paint, typeface)
+    }
+
+    private fun applyCustomTypeFace(paint: Paint, tf: android.graphics.Typeface) {
+        paint.typeface = tf
+    }
 }
 
 abstract class UIObjectActivity : AppCompatActivity(), UIObject {

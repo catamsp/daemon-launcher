@@ -115,6 +115,7 @@ class WidgetOverlayView : ViewGroup {
                 return@setOnMenuItemClickListener true
             }
         }
+        (context as? com.catamsp.Daemon.ui.UIObject)?.applyFontToMenu(context, menu.menu)
         menu.show()
     }
 
