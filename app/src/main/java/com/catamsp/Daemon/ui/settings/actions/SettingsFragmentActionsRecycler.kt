@@ -98,11 +98,11 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
             refreshList()
         })
 
-        val currentEdgeWidth = LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth().coerceIn(20, 60)
+        val currentEdgeWidth = LauncherPreferences.enabled_gestures().edgeSwipeEdgeWidth().coerceIn(14, 60)
         items.add(SettingsItem.Clickable("btn_edge_width", getString(R.string.settings_enabled_gestures_edge_swipe_edge_width), "Current Width: $currentEdgeWidth") {
             (activity as? UIObjectActivity)?.ignoreAutoClose = true
-            
-            (activity as? SettingsActivity)?.showSliderCarousel(20, 60, currentEdgeWidth) { newValue ->
+
+            (activity as? SettingsActivity)?.showSliderCarousel(14, 60, currentEdgeWidth) { newValue: Int ->
                 prefs.edit().putInt(LauncherPreferences.enabled_gestures().keys().edgeSwipeEdgeWidth(), newValue).apply()
                 // No refreshList() here to keep ribbon open. The global listener or manual closure handles UI.
             }

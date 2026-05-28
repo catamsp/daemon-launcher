@@ -6,54 +6,32 @@ import android.app.WallpaperManager
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
-import android.graphics.BitmapFactory
-import android.graphics.Color
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.EditText
-import android.widget.SeekBar
-import android.widget.TextView
 import android.widget.Toast
-import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.annotation.ColorInt
-import androidx.core.graphics.alpha
-import androidx.core.graphics.blue
-import androidx.core.graphics.green
-import androidx.core.graphics.red
-import androidx.core.graphics.toColorInt
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
-import android.util.DisplayMetrics
-import android.view.WindowManager
 import com.catamsp.Daemon.R
-import com.catamsp.Daemon.actions.openAppsList
 import com.catamsp.Daemon.databinding.SettingsLauncherBinding
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Background
 import com.catamsp.Daemon.preferences.theme.ColorTheme
 import com.catamsp.Daemon.preferences.theme.Font
-import com.catamsp.Daemon.preferences.list.ListLayout
-import com.catamsp.Daemon.preferences.list.AppNameFormat
-import com.catamsp.Daemon.setDefaultHomeScreen
+import com.catamsp.Daemon.preferences.theme.FontManager
 import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.UIObjectActivity
+import com.catamsp.Daemon.ui.list.AppListActivity
 import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
-import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetPanelsActivity
 import com.catamsp.Daemon.ui.widgets.manage.ManageWidgetsActivity
-
 import com.catamsp.Daemon.widgets.wallpaper.WallpaperController
-import com.catamsp.Daemon.actions.lock.LauncherAccessibilityService
-
-import com.catamsp.Daemon.preferences.theme.FontManager
+import com.catamsp.Daemon.setDefaultHomeScreen
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -66,31 +44,22 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
     
     private var isPickingVideo = false
 
-private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
+    private val pickFontLauncher = registerForActivityResult(ActivityResultContracts.OpenDocument()) { uri: Uri? ->
         uri?.let {
-            // Check if fragment is still attached before starting coroutine
             if (!isAdded) return@let
-            
             CoroutineScope(Dispatchers.IO).launch {
-                try {
-                    val ctx = requireContext()
-                    val fontName = FontManager.importFont(ctx, it)
-                    withContext(Dispatchers.Main) {
-                        // Check if fragment is still attached before updating UI
-                        if (!isAdded) return@withContext
-                        
-                        if (fontName != null) {
-                            Toast.makeText(context, "Font imported!", Toast.LENGTH_SHORT).show()
-                            // Set preference FIRST so the subtitle shows the correct font name
-                            val prefs = LauncherPreferences.getSharedPreferences()
-                            prefs.edit().putString(LauncherPreferences.theme().keys().font(), fontName).apply()
-                            // refreshListWithFontUpdate() will be called automatically by the preference listener
-                        } else {
-                            Toast.makeText(context, "Failed to import font. Make sure it is .ttf or .otf", Toast.LENGTH_SHORT).show()
-                        }
+                val fontName = FontManager.importFont(requireContext(), it)
+                withContext(Dispatchers.Main) {
+                    if (!isAdded) return@withContext
+                    if (fontName != null) {
+                        Toast.makeText(context, "Font imported!", Toast.LENGTH_SHORT).show()
+                        refreshList()
+                        // Automatically select and trigger the carousel for the new font
+                        val prefs = LauncherPreferences.getSharedPreferences()
+                        prefs.edit().putString(LauncherPreferences.theme().keys().font(), fontName).apply()
+                    } else {
+                        Toast.makeText(context, "Failed to import font. Make sure it is .ttf or .otf", Toast.LENGTH_SHORT).show()
                     }
-                } catch (e: Exception) {
-                    Log.e("SettingsFragmentLauncher", "Font import failed: ${e.message}")
                 }
             }
         }
@@ -103,23 +72,18 @@ private val pickFontLauncher = registerForActivityResult(ActivityResultContracts
                     // Success
                 }
             } else {
-                WallpaperController.applyStaticWallpaper(
-                    requireActivity(),
-                    it,
-                    onSuccess = {
-                        Toast.makeText(requireContext(), "Wallpaper set!", Toast.LENGTH_SHORT).show()
-                    },
-                    onError = { e ->
-                        Toast.makeText(requireContext(), "Failed to set wallpaper: ${e.message}", Toast.LENGTH_SHORT).show()
-                    }
-                )
+                WallpaperController.applyStaticWallpaper(requireActivity(), it, {
+                    // Success
+                }, {
+                    Toast.makeText(context, "Failed to apply wallpaper", Toast.LENGTH_SHORT).show()
+                })
             }
         }
     }
-private val sharedPreferencesListener =
-    SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
+
+    private val sharedPreferencesListener =
+        SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
-                // Use commit callback to ensure FONT_UPDATE fires after DiffUtil completes
                 refreshListWithFontUpdate()
             } else {
                 refreshList()
@@ -137,15 +101,26 @@ private val sharedPreferencesListener =
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        
         binding.launcherRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.launcherRecyclerView.adapter = adapter
+        
         refreshList()
     }
 
-    /**
-     * Builds the list of settings items for the launcher settings screen.
-     * Extracted to allow reuse with and without font update callback.
-     */
+    override fun onStart() {
+        super<Fragment>.onStart()
+        LauncherPreferences.getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        super<UIObject>.onStart()
+    }
+
+    override fun onPause() {
+        LauncherPreferences.getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
+        super.onPause()
+    }
+
     private fun buildSettingsItems(): List<SettingsItem> {
         val items = mutableListOf<SettingsItem>()
         val context = context ?: return emptyList()
@@ -155,7 +130,7 @@ private val sharedPreferencesListener =
         // --- GENERAL ---
         items.add(SettingsItem.Header("hdr_general", getString(R.string.settings_general)))
         items.add(SettingsItem.Clickable("btn_home", getString(R.string.settings_general_choose_home_screen), null) {
-            setDefaultHomeScreen(context, checkDefault = false)
+            setDefaultHomeScreen(context, false)
         })
 
         // --- APPEARANCE ---
@@ -248,49 +223,17 @@ private val sharedPreferencesListener =
         items.add(SettingsItem.Toggle("tgl_close_kb", getString(R.string.settings_functionality_auto_close_keyboard), null, null, LauncherPreferences.functionality().searchAutoCloseKeyboard()) {
             prefs.edit().putBoolean(LauncherPreferences.functionality().keys().searchAutoCloseKeyboard(), it).apply()
         })
-        items.add(SettingsItem.Clickable("btn_lock", getString(R.string.settings_actions_lock_method), null) {
-            if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-                Toast.makeText(context, context.getString(R.string.toast_lock_screen_not_supported), Toast.LENGTH_SHORT).show()
-                return@Clickable
-            }
-            if (!LauncherAccessibilityService.isEnabled(context)) {
-                LauncherAccessibilityService.showEnableDialog(context)
-            } else {
-                LauncherAccessibilityService.lockScreen(context)
-            }
-        })
 
         // --- APPS ---
         items.add(SettingsItem.Header("hdr_apps", getString(R.string.settings_launcher_section_apps)))
         items.add(SettingsItem.Clickable("btn_hidden", getString(R.string.settings_apps_hidden), null) {
-            openAppsList(context, favorite = false, hidden = true)
+            val intent = Intent(context, AppListActivity::class.java).apply {
+                putExtra("hidden", true)
+            }
+            startActivity(intent)
         })
         items.add(SettingsItem.Toggle("tgl_hide_bound", getString(R.string.settings_apps_hide_bound_apps), null, null, LauncherPreferences.apps().hideBoundApps()) {
             prefs.edit().putBoolean(LauncherPreferences.apps().keys().hideBoundApps(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_hide_paused", getString(R.string.settings_apps_hide_paused_apps), null, null, LauncherPreferences.apps().hidePausedApps()) {
-            prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePausedApps(), it).apply()
-        })
-        items.add(SettingsItem.Toggle("tgl_hide_private", getString(R.string.settings_apps_hide_private_space_apps), null, null, LauncherPreferences.apps().hidePrivateSpaceApps()) {
-            prefs.edit().putBoolean(LauncherPreferences.apps().keys().hidePrivateSpaceApps(), it).apply()
-        })
-
-        val layouts = ListLayout.entries
-        items.add(SettingsItem.Clickable("btn_list_layout", getString(R.string.settings_list_layout), "Current: ${LauncherPreferences.list().layout().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            activity?.showSelectionCarousel("btn_list_layout", layouts.indexOf(LauncherPreferences.list().layout()), layouts.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
-                prefs.edit().putString(LauncherPreferences.list().keys().layout(), layouts[index].name).apply()
-            }
-        })
-
-        val formats = AppNameFormat.entries
-        items.add(SettingsItem.Clickable("btn_name_format", getString(R.string.settings_list_app_name_format), "Current: ${LauncherPreferences.list().appNameFormat().name.lowercase().replaceFirstChar { it.uppercase() }}") {
-            activity?.showSelectionCarousel("btn_name_format", formats.indexOf(LauncherPreferences.list().appNameFormat()), formats.map { it.name.lowercase().replaceFirstChar { it.uppercase() } }) { index: Int ->
-                prefs.edit().putString(LauncherPreferences.list().keys().appNameFormat(), formats[index].name).apply()
-            }
-        })
-
-        items.add(SettingsItem.Toggle("tgl_rev_layout", getString(R.string.settings_list_reverse_layout), null, null, LauncherPreferences.list().reverseLayout()) {
-            prefs.edit().putBoolean(LauncherPreferences.list().keys().reverseLayout(), it).apply()
         })
 
         // --- DISPLAY ---
@@ -330,73 +273,6 @@ private val sharedPreferencesListener =
         adapter.submitList(items) {
             // This callback fires AFTER DiffUtil has completely finished applying the new list
             adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
-        }
-    }
-
-    override fun onStart() {
-        super<Fragment>.onStart()
-        LauncherPreferences.getSharedPreferences()
-            .registerOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        super<UIObject>.onStart()
-    }
-
-    override fun onPause() {
-        LauncherPreferences.getSharedPreferences()
-            .unregisterOnSharedPreferenceChangeListener(sharedPreferencesListener)
-        super.onPause()
-    }
-
-    private fun showColorPickerDialog(initialColor: Int, onColorSelected: (Int) -> Unit) {
-        var currentColor = initialColor
-        val context = requireContext()
-
-        AlertDialog.Builder(context, R.style.AlertDialogCustom).apply {
-            setView(R.layout.dialog_choose_color)
-            setTitle(R.string.dialog_choose_color_title)
-            setPositiveButton(android.R.string.ok) { _, _ ->
-                onColorSelected(currentColor)
-            }
-            setNegativeButton(R.string.dialog_cancel, null)
-        }.create().also { it.show() }.apply {
-            val preview = findViewById<EditText>(R.id.dialog_select_color_preview)
-            val red = findViewById<SeekBar>(R.id.dialog_select_color_seekbar_red)
-            val green = findViewById<SeekBar>(R.id.dialog_select_color_seekbar_green)
-            val blue = findViewById<SeekBar>(R.id.dialog_select_color_seekbar_blue)
-            val alpha = findViewById<SeekBar>(R.id.dialog_select_color_seekbar_alpha)
-
-            fun updateUI(updateText: Boolean) {
-                preview?.setBackgroundColor(currentColor)
-                val brightness = (currentColor.red * 0.299 + currentColor.green * 0.587 + currentColor.blue * 0.114)
-                preview?.setTextColor(if (brightness > 150) android.graphics.Color.BLACK else android.graphics.Color.WHITE)
-                if (updateText) preview?.setText("#%08X".format(currentColor))
-                red?.progress = currentColor.red
-                green?.progress = currentColor.green
-                blue?.progress = currentColor.blue
-                alpha?.progress = currentColor.alpha
-            }
-
-            updateUI(true)
-
-            red?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { if(f) { currentColor = android.graphics.Color.argb(currentColor.alpha, p, currentColor.green, currentColor.blue); updateUI(true) } }
-                override fun onStartTrackingTouch(p0: SeekBar?) {}
-                override fun onStopTrackingTouch(p0: SeekBar?) {}
-            })
-            green?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { if(f) { currentColor = android.graphics.Color.argb(currentColor.alpha, currentColor.red, p, currentColor.blue); updateUI(true) } }
-                override fun onStartTrackingTouch(p0: SeekBar?) {}
-                override fun onStopTrackingTouch(p0: SeekBar?) {}
-            })
-            blue?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { if(f) { currentColor = android.graphics.Color.argb(currentColor.alpha, currentColor.red, currentColor.green, p); updateUI(true) } }
-                override fun onStartTrackingTouch(p0: SeekBar?) {}
-                override fun onStopTrackingTouch(p0: SeekBar?) {}
-            })
-            alpha?.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(s: SeekBar?, p: Int, f: Boolean) { if(f) { currentColor = android.graphics.Color.argb(p, currentColor.red, currentColor.green, currentColor.blue); updateUI(true) } }
-                override fun onStartTrackingTouch(p0: SeekBar?) {}
-                override fun onStopTrackingTouch(p0: SeekBar?) {}
-            })
         }
     }
 }

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bottom_sheet_background_minimal"
+    android:orientation="vertical"
+    android:padding="24dp">
+
+    <TextView
+        android:id="@+id/color_picker_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Color Studio"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:layout_marginBottom="16dp" />
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="24dp">
+
+        <com.catamsp.Daemon.ui.views.ColorWheelView
+            android:id="@+id/color_wheel"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            app:layout_constraintDimensionRatio="1:1"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <View
+            android:id="@+id/color_preview_box"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:background="@android:color/white"
+            app:layout_constraintBottom_toBottomOf="@id/color_wheel"
+            app:layout_constraintEnd_toEndOf="@id/color_wheel" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Brightness"
+        android:textSize="13sp"
+        android:layout_marginBottom="8dp" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/brightness_slider"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginBottom="16dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Transparency"
+        android:textSize="13sp"
+        android:layout_marginBottom="8dp" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/alpha_slider"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:layout_marginBottom="32dp" />
+
+    <TextView
+        android:id="@+id/btn_apply_color"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:background="@drawable/ribbon_button_selector"
+        android:gravity="center"
+        android:text="Apply Color"
+        android:textAllCaps="true"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        android:clickable="true"
+        android:focusable="true" />
+
+</LinearLayout>
