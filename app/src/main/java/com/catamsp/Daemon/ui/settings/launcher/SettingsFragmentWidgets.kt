@@ -16,7 +16,7 @@ import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.preferences.theme.FontManager
 import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.ui.UIObjectActivity
-import com.catamsp.Daemon.ui.settings.ColorPickerBottomSheet
+import com.catamsp.Daemon.ui.settings.ModernColorPickerBottomSheet
 import com.catamsp.Daemon.ui.settings.SettingsActivity
 import com.catamsp.Daemon.ui.settings.SettingsItem
 import com.catamsp.Daemon.ui.settings.SettingsRecyclerAdapter
@@ -149,7 +149,7 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             })
 
             items.add(SettingsItem.Clickable("btn_clock_color", getString(R.string.settings_clock_color), "Hex: #%08X".format(LauncherPreferences.clock().color())) {
-                val bottomSheet = ColorPickerBottomSheet(LauncherPreferences.clock().color()) { color ->
+                val bottomSheet = ModernColorPickerBottomSheet(LauncherPreferences.clock().color()) { color ->
                     prefs.edit().putInt(LauncherPreferences.clock().keys().color(), color).apply()
                     refreshList()
                 }

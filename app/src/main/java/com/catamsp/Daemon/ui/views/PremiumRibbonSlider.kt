@@ -36,6 +36,13 @@ class PremiumRibbonSlider @JvmOverloads constructor(
     var onValueChangeListener: ((Int) -> Unit)? = null
     var onStopTrackingListener: ((Int) -> Unit)? = null
 
+    var progress: Int
+        get() = currentValue
+        set(value) {
+            currentValue = value.coerceIn(minValue, maxValue)
+            invalidate()
+        }
+
     fun setValues(min: Int, max: Int, current: Int) {
         minValue = min
         maxValue = max

@@ -80,10 +80,6 @@
             android:entries="@array/settings_theme_font_items"
             android:defaultValue="HACK"
             app:useSimpleSummaryProvider="true" />
-        <com.catamsp.Daemon.preferences.ColorPreference
-            app:iconSpaceReserved="false"
-            android:key="@string/settings_clock_color_key"
-            android:title="@string/settings_clock_color" />
         <SwitchPreference
             app:iconSpaceReserved="false"
             android:key="@string/settings_clock_localized_key"

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Preset colors for color picker -->
+    <array name="color_picker_presets" type="color">
+        <item>#FFFFFFFF</item> <!-- White -->
+        <item>#1E1E1EFF</item> <!-- Dark Grey -->
+        <item>#FF0000FF</item> <!-- Blue -->
+        <item>#FFFF0000</item> <!-- Red -->
+        <item>#FF00FF00</item> <!-- Green -->
+        <item>#FFFFFF00</item> <!-- Yellow -->
+        <item>#FFFF00FF</item> <!-- Magenta -->
+        <item>#FF00FFFF</item> <!-- Cyan -->
+        <item>#FFFFF000</item> <!-- Amber -->
+        <item>#FFFFA500</item> <!-- Orange -->
+        <item>#FF800080</item> <!-- Purple -->
+        <item>#FFC0C0C0</item> <!-- Silver -->
+    </array>
+
+    <array name="color_picker_presets_names" type="string">
+        <item>White</item>
+        <item>Dark Grey</item>
+        <item>Blue</item>
+        <item>Red</item>
+        <item>Green</item>
+        <item>Yellow</item>
+        <item>Magenta</item>
+        <item>Cyan</item>
+        <item>Amber</item>
+        <item>Orange</item>
+        <item>Purple</item>
+        <item>Silver</item>
+    </array>
+</resources>

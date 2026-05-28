@@ -204,6 +204,10 @@
     <string name="settings_clock_font">Home Screen Font (Clock, Date)</string>
     <string name="settings_clock_size">Clock Size</string>
     <string name="settings_clock_color">Color</string>
+    <string name="color_picker_hex">Color</string>
+    <string name="color_picker_copy">Copy</string>
+    <string name="color_picker_cancel">Cancel</string>
+    <string name="color_picker_apply">Apply</string>
     <string name="settings_clock_time_visible">Show time</string>
     <string name="settings_clock_date_visible">Show date</string>
     <string name="settings_clock_localized">Use localized date format</string>
@@ -303,6 +307,7 @@
     <string name="list_title_private_space">Private Space</string>
 
     <string name="activity_select_action_title">Choose Action</string>
+    <string name="dialog_rename_title">Rename %1$s</string>
 
     <string name="list_tab_app">Apps</string>
     <string name="list_tab_other">Other</string>
@@ -352,9 +357,6 @@
     <string name="snackbar_app_hidden">App hidden. You can make it visible again in settings.</string>
     <string name="undo">Undo</string>
     <string name="list_other_expand_settings_panel">Quick Settings</string>
-    <string name="toast_device_admin_not_enabled">Daemon launcher needs to be a device admin in order to lock the screen.</string>
-    <string name="device_admin_explanation">This is required for the lock screen action.</string>
-    <string name="device_admin_description">Enable the lock screen action</string>
     <string name="alert_no_torch_found">No camera with torch detected.</string>
     <string name="alert_torch_access_exception">Error: Can\'t access torch.</string>
     <string name="alert_lock_screen_failed">Error: Failed to lock screen. (If you just upgraded the app, try to disable and re-enable the accessibility service in phone settings)</string>
@@ -374,34 +376,14 @@
         Note that excessive permissions are required. You should never grant such permissions lightly to any app.
 
         Daemon launcher will use the accessibility service only for performing the following actions when requested by the user:
-
         * lock screen
         * open recent apps
 
         Daemon launcher will never use the accessibility service to collect data. You can check the source code to make sure.
     </string>
 
-
-<string name="screen_lock_method_dialog_title">Enable Accessibility Service</string>
-    <string name="screen_lock_method_dialog_text"><![CDATA[
-        <h1>Enable Accessibility Service</h1>
-        To lock the screen, Daemon launcher needs to be enabled as an accessibility service.
-        <br/><br/>
-        Accessibility services can access your sensitive information. Only enable this if you trust this app.
-        <br/><br/>
-        Tap "Activate Accessibility Service" below to go to the accessibility settings screen.
-        ]]></string>
-    <string name="screen_lock_method_use_accessibility">Use Accessibility Service</string>
-    <string name="settings_actions_lock_method">Lock Screen</string>
-    <string name="dialog_rename_title">Rename %1$s</string>
-    <string name="dialog_select_color_red">Red</string>
-    <string name="dialog_select_color_alpha">Alpha</string>
-    <string name="dialog_select_color_blue">Blue</string>
-    <string name="dialog_select_color_green">Green</string>
-    <string name="dialog_select_color_color_hex">Color</string>
-    <string name="dialog_choose_color_title">Choose color</string>
     <string name="dialog_consent_accessibility_privileges">I am aware that this will grant far-reaching privileges to Daemon launcher.</string>
-    <string name="dialog_consent_accessibility_other_options">I am aware that other options exist (using device administrator privileges or the power button).</string>
+    <string name="dialog_consent_accessibility_other_options">I understand that additional options may be available in the accessibility service settings.</string>
     <string name="dialog_consent_accessibility_consent">I consent to Daemon launcher using the accessibility service to provide functionality unrelated to accessibility.</string>
     <string name="dialog_consent_accessibility_data_collection">I consent to Daemon launcher not collecting any data.</string>
     <string name="dialog_consent_accessibility_text"><![CDATA[You are about to activate the accessibility service. This will grant <strong>far-reaching privileges</strong> to Daemon launcher.<br/>Daemon launcher will use these privileges <strong>only</strong> to perform the following actions:

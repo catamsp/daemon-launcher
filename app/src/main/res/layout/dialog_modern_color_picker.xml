@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/bg_premium_bottom_sheet"
+    android:padding="24dp">
+
+    <View
+        android:id="@+id/color_preview_box"
+        android:layout_width="match_parent"
+        android:layout_height="100dp"
+        android:layout_marginBottom="16dp"
+        android:background="@drawable/color_preview_background" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="24dp">
+        
+        <EditText
+            android:id="@+id/hex_edit_text"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:background="@null"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:textColor="#FFFFFF"
+            android:maxLines="1"
+            android:inputType="textNoSuggestions|textCapCharacters" />
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Hue"
+        android:textSize="12sp"
+        android:textColor="#88FFFFFF" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/slider_hue"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Saturation"
+        android:textSize="12sp"
+        android:textColor="#88FFFFFF" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/slider_saturation"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Brightness"
+        android:textSize="12sp"
+        android:textColor="#88FFFFFF" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/slider_brightness"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_marginBottom="12dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Transparency"
+        android:textSize="12sp"
+        android:textColor="#88FFFFFF" />
+
+    <com.catamsp.Daemon.ui.views.PremiumRibbonSlider
+        android:id="@+id/slider_alpha"
+        android:layout_width="match_parent"
+        android:layout_height="24dp"
+        android:layout_marginBottom="24dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="end">
+        <TextView
+            android:id="@+id/btn_cancel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Cancel"
+            android:padding="16dp"
+            android:textStyle="bold" />
+        <TextView
+            android:id="@+id/btn_apply"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Apply"
+            android:padding="16dp"
+            android:textStyle="bold" />
+    </LinearLayout>
+</LinearLayout>
