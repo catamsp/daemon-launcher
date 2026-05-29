@@ -19,11 +19,14 @@ import com.catamsp.Daemon.ui.UIObject
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import kotlinx.coroutines.*
 
+import android.graphics.drawable.Drawable
+
 data class RunningProcess(
     val packageName: String,
     val name: String,
     val ram: String,
     val cpu: String,
+    val icon: Drawable? = null,
     val isPersistent: Boolean = false
 )
 
@@ -188,6 +191,7 @@ class KillSpaceDialog(context: Context) : Dialog(context, android.R.style.Theme_
                     try {
                         val info = pm.getApplicationInfo(pkg, PackageManager.GET_META_DATA)
                         val label = pm.getApplicationLabel(info).toString()
+                        val icon = pm.getApplicationIcon(info)
 
                         val ramKb = parseRamToKb(ramRaw)
                         val ramPercent = if (totalRamKb > 0) (ramKb / totalRamKb) * 100 else 0.0
@@ -199,7 +203,7 @@ class KillSpaceDialog(context: Context) : Dialog(context, android.R.style.Theme_
 
                         // Avoid duplicates from multiple threads
                         if (apps.none { it.packageName == pkg }) {
-                            apps.add(RunningProcess(pkg, label, ramWithPercent, "$cpu%", isPersistent))
+                            apps.add(RunningProcess(pkg, label, ramWithPercent, "$cpu%", icon, isPersistent))
                         }
                     } catch (e: Exception) {
                     }
@@ -236,6 +240,7 @@ class KillSpaceDialog(context: Context) : Dialog(context, android.R.style.Theme_
     ) : RecyclerView.Adapter<KillSpaceAdapter.ViewHolder>() {
 
         inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+            val icon: ImageView = view.findViewById(R.id.app_icon)
             val name: TextView = view.findViewById(R.id.app_name)
             val stats: TextView = view.findViewById(R.id.app_stats)
             val btnKill: ImageView = view.findViewById(R.id.btn_kill)
@@ -250,6 +255,7 @@ class KillSpaceDialog(context: Context) : Dialog(context, android.R.style.Theme_
 
         override fun onBindViewHolder(holder: ViewHolder, position: Int) {
             val item = items[position]
+            holder.icon.setImageDrawable(item.icon)
             holder.name.text = item.name
             holder.stats.text = "RAM: ${item.ram}  |  CPU: ${item.cpu}"
             
