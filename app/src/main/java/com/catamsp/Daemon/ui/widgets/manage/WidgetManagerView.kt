@@ -99,6 +99,34 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                 Rect(rect.left, rect.top, rect.right + dx.coerceIn(range), rect.bottom)
             }
         }),
+        TOP_LEFT({ dx, dy, sw, sh, rect ->
+            val rangeX = (-rect.left)..(rect.right - rect.left - (8 * sw / GRID_SIZE) + 5)
+            val rangeY = (-rect.top)..(rect.bottom - rect.top - (8 * sh / GRID_SIZE) + 5)
+            val newLeft = if (rangeX.isEmpty()) rect.left else rect.left + dx.coerceIn(rangeX)
+            val newTop = if (rangeY.isEmpty()) rect.top else rect.top + dy.coerceIn(rangeY)
+            Rect(newLeft, newTop, rect.right, rect.bottom)
+        }),
+        TOP_RIGHT({ dx, dy, sw, sh, rect ->
+            val rangeX = ((8 * sw / GRID_SIZE) + 5 + rect.left - rect.right)..(sw - rect.right)
+            val rangeY = (-rect.top)..(rect.bottom - rect.top - (8 * sh / GRID_SIZE) + 5)
+            val newRight = if (rangeX.isEmpty()) rect.right else rect.right + dx.coerceIn(rangeX)
+            val newTop = if (rangeY.isEmpty()) rect.top else rect.top + dy.coerceIn(rangeY)
+            Rect(rect.left, newTop, newRight, rect.bottom)
+        }),
+        BOTTOM_LEFT({ dx, dy, sw, sh, rect ->
+            val rangeX = (-rect.left)..(rect.right - rect.left - (8 * sw / GRID_SIZE) + 5)
+            val rangeY = ((8 * sh / GRID_SIZE) + 5 + rect.top - rect.bottom)..(sh - rect.bottom)
+            val newLeft = if (rangeX.isEmpty()) rect.left else rect.left + dx.coerceIn(rangeX)
+            val newBottom = if (rangeY.isEmpty()) rect.bottom else rect.bottom + dy.coerceIn(rangeY)
+            Rect(newLeft, rect.top, rect.right, newBottom)
+        }),
+        BOTTOM_RIGHT({ dx, dy, sw, sh, rect ->
+            val rangeX = ((8 * sw / GRID_SIZE) + 5 + rect.left - rect.right)..(sw - rect.right)
+            val rangeY = ((8 * sh / GRID_SIZE) + 5 + rect.top - rect.bottom)..(sh - rect.bottom)
+            val newRight = if (rangeX.isEmpty()) rect.right else rect.right + dx.coerceIn(rangeX)
+            val newBottom = if (rangeY.isEmpty()) rect.bottom else rect.bottom + dy.coerceIn(rangeY)
+            Rect(rect.left, rect.top, newRight, newBottom)
+        }),
     }
 
     private var selectedWidgetOverlayView: WidgetOverlayView? = null
@@ -126,10 +154,10 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                 val view = overlayViewById.asIterable()
                     .map { it.value }.firstOrNull { overlayView ->
                         val touchRect = RectF(
-                            overlayView.x - 60,
-                            overlayView.y - 60,
-                            overlayView.x + overlayView.width + 60,
-                            overlayView.y + overlayView.height + 60
+                            overlayView.x - 100,
+                            overlayView.y - 100,
+                            overlayView.x + overlayView.width + 100,
+                            overlayView.y + overlayView.height + 100
                         )
                         touchRect.contains(start.x.toFloat(), start.y.toFloat())
                     } ?: return true

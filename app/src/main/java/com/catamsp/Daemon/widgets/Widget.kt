@@ -16,6 +16,7 @@ sealed class Widget {
     abstract val panelId: Int
     abstract var allowInteraction: Boolean
     var alignment: Int = android.view.Gravity.FILL
+    var zIndex: Int = 0
 
     /**
      * @param activity The activity where the view will be used. Must not be an AppCompatActivity.

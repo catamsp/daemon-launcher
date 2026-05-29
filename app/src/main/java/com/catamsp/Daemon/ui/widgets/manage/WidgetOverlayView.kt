@@ -13,6 +13,7 @@ import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.graphics.toRectF
 import com.catamsp.Daemon.R
+import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.widgets.Widget
 import com.catamsp.Daemon.widgets.updateWidget
 
@@ -38,18 +39,17 @@ class WidgetOverlayView : ViewGroup {
     init {
         addView(popupAnchor)
         setWillNotDraw(false)
-        handlePaint.style = Paint.Style.FILL
-        handlePaint.color = Color.WHITE
-        handlePaint.alpha = 200
-        handlePaint.setShadowLayer(8f, 0f, 4f, Color.argb(100, 0, 0, 0))
-
-        selectedHandlePaint.style = Paint.Style.FILL
-        selectedHandlePaint.color = Color.parseColor("#4285F4")
-        selectedHandlePaint.setShadowLayer(8f, 0f, 4f, Color.argb(100, 0, 0, 0))
-
+        
         paint.style = Paint.Style.STROKE
+        paint.strokeWidth = 4f
         paint.color = Color.WHITE
-        paint.setShadowLayer(10f, 0f, 0f, Color.BLACK)
+        paint.alpha = 200
+        paint.setShadowLayer(8f, 0f, 4f, Color.argb(100, 0, 0, 0))
+
+        selectedHandlePaint.style = Paint.Style.STROKE
+        selectedHandlePaint.strokeWidth = 6f
+        selectedHandlePaint.color = Color.parseColor("#4285F4")
+        selectedHandlePaint.setShadowLayer(10f, 0f, 4f, Color.argb(120, 0, 0, 0))
     }
 
     private var preview: Drawable? = null
@@ -72,23 +72,13 @@ class WidgetOverlayView : ViewGroup {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
-        val cornerRadius = 20f
-        getHandles().forEach {
-            val handleRect = it.position.toRectF()
-            val insetX = handleRect.width() * 0.3f
-            val insetY = handleRect.height() * 0.3f
-            val visualRect = RectF(
-                handleRect.left + insetX,
-                handleRect.top + insetY,
-                handleRect.right - insetX,
-                handleRect.bottom - insetY
-            )
+        val bounds = getBounds().toRectF()
+        val cornerRadius = 30f
 
-            if (it.mode == mode) {
-                canvas.drawRoundRect(visualRect, cornerRadius, cornerRadius, selectedHandlePaint)
-            } else {
-                canvas.drawRoundRect(visualRect, cornerRadius, cornerRadius, handlePaint)
-            }
+        if (mode != null) {
+            canvas.drawRoundRect(bounds, cornerRadius, cornerRadius, selectedHandlePaint)
+        } else {
+            canvas.drawRoundRect(bounds, cornerRadius, cornerRadius, paint)
         }
 
         if (mode == null) {
@@ -124,6 +114,24 @@ class WidgetOverlayView : ViewGroup {
                 return@setOnMenuItemClickListener true
             }
 
+            val layerMenu = it.addSubMenu("Layering")
+            layerMenu.add("Bring to Front").setOnMenuItemClickListener { _ ->
+                val allWidgets = LauncherPreferences.widgets().widgets() ?: emptySet()
+                val maxZ = allWidgets.filter { w -> w.panelId == widget.panelId }.maxOfOrNull { w -> w.zIndex } ?: 0
+                widget.zIndex = maxZ + 1
+                updateWidget(widget)
+                (parent as? View)?.requestLayout()
+                return@setOnMenuItemClickListener true
+            }
+            layerMenu.add("Send to Back").setOnMenuItemClickListener { _ ->
+                val allWidgets = LauncherPreferences.widgets().widgets() ?: emptySet()
+                val minZ = allWidgets.filter { w -> w.panelId == widget.panelId }.minOfOrNull { w -> w.zIndex } ?: 0
+                widget.zIndex = minZ - 1
+                updateWidget(widget)
+                (parent as? View)?.requestLayout()
+                return@setOnMenuItemClickListener true
+            }
+
             val alignMenu = it.addSubMenu("Align Widget")
             val alignments = mapOf(
                 "Fill" to android.view.Gravity.FILL,
@@ -153,24 +161,44 @@ class WidgetOverlayView : ViewGroup {
 
     fun getHandles(): List<Handle> {
         val THICKNESS = 60
-        val dynamicEdgeSize = if (width < 300 || height < 300) 40 else 100
+        val CORNER_SIZE = 120
+        val dynamicEdgeSize = if (width < 300 || height < 300) 80 else 150
         
         return listOf(
+            // Corners first for priority
+            Handle(
+                WidgetManagerView.EditMode.TOP_LEFT,
+                Rect(-CORNER_SIZE, -CORNER_SIZE, dynamicEdgeSize, dynamicEdgeSize)
+            ),
+            Handle(
+                WidgetManagerView.EditMode.TOP_RIGHT,
+                Rect(width - dynamicEdgeSize, -CORNER_SIZE, width + CORNER_SIZE, dynamicEdgeSize)
+            ),
+            Handle(
+                WidgetManagerView.EditMode.BOTTOM_LEFT,
+                Rect(-CORNER_SIZE, height - dynamicEdgeSize, dynamicEdgeSize, height + CORNER_SIZE)
+            ),
+            Handle(
+                WidgetManagerView.EditMode.BOTTOM_RIGHT,
+                Rect(width - dynamicEdgeSize, height - dynamicEdgeSize, width + CORNER_SIZE, height + CORNER_SIZE)
+            ),
+            
+            // Edges
             Handle(
                 WidgetManagerView.EditMode.TOP,
-                Rect(dynamicEdgeSize, -THICKNESS, width - dynamicEdgeSize, 0)
+                Rect(dynamicEdgeSize, -THICKNESS, width - dynamicEdgeSize, dynamicEdgeSize)
             ),
             Handle(
                 WidgetManagerView.EditMode.BOTTOM,
-                Rect(dynamicEdgeSize, height, width - dynamicEdgeSize, height + THICKNESS)
+                Rect(dynamicEdgeSize, height - dynamicEdgeSize, width - dynamicEdgeSize, height + THICKNESS)
             ),
             Handle(
                 WidgetManagerView.EditMode.LEFT,
-                Rect(-THICKNESS, dynamicEdgeSize, 0, height - dynamicEdgeSize)
+                Rect(-THICKNESS, dynamicEdgeSize, dynamicEdgeSize, height - dynamicEdgeSize)
             ),
             Handle(
                 WidgetManagerView.EditMode.RIGHT,
-                Rect(width, dynamicEdgeSize, width + THICKNESS, height - dynamicEdgeSize)
+                Rect(width - dynamicEdgeSize, dynamicEdgeSize, width + THICKNESS, height - dynamicEdgeSize)
             )
         )
 

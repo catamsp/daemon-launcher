@@ -40,7 +40,7 @@ open class WidgetContainerView(
             Log.i("WidgetContainer", "updating ${activity.localClassName}")
             widgetViewById.forEach { removeView(it.value) }
             widgetViewById.clear()
-            widgets.filter { it.panelId == widgetPanelId }.forEach { widget ->
+            widgets.filter { it.panelId == widgetPanelId }.sortedBy { it.zIndex }.forEach { widget ->
                 widget.createView(activity)?.let {
                     val lp = LayoutParams(widget.position)
                     lp.alignment = widget.alignment
