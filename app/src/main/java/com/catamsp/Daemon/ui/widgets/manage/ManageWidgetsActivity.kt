@@ -160,8 +160,10 @@ class ManageWidgetsActivity : UIObject, Activity() {
 
         val position = WidgetPosition.findFreeSpace(
             WidgetPanel.byId(panelId),
-            max(3, (GRID_SIZE * (widgetInfo.minWidth) / display.width.toFloat()).roundToInt()),
-            max(3, (GRID_SIZE * (widgetInfo.minHeight) / display.height.toFloat()).roundToInt())
+            max(12, (GRID_SIZE * (widgetInfo.minWidth) / display.width.toFloat()).roundToInt())
+                .coerceAtMost(GRID_SIZE.toInt()),
+            max(12, (GRID_SIZE * (widgetInfo.minHeight) / display.height.toFloat()).roundToInt())
+                .coerceAtMost(GRID_SIZE.toInt())
         )
 
         val widget = AppWidget(appWidgetId, position, panelId, widgetInfo)
