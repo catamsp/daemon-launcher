@@ -65,7 +65,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
             Rect(rect.left + cdx, rect.top + cdy, rect.right + cdx, rect.bottom + cdy)
         }),
         TOP({ _, dy, _, sh, rect ->
-            val range = (-rect.top)..(rect.bottom - rect.top - (2 * sh / GRID_SIZE) + 5)
+            val range = (-rect.top)..(rect.bottom - rect.top - (8 * sh / GRID_SIZE) + 5)
             if (range.isEmpty()) {
                 rect
             } else {
@@ -73,7 +73,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
             }
         }),
         BOTTOM({ _, dy, _, sh, rect ->
-            val range = ((2 * sh / GRID_SIZE) + 5 + rect.top - rect.bottom)..(sh - rect.bottom)
+            val range = ((8 * sh / GRID_SIZE) + 5 + rect.top - rect.bottom)..(sh - rect.bottom)
             if (range.isEmpty()) {
                 rect
             } else {
@@ -81,7 +81,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
             }
         }),
         LEFT({ dx, _, sw, _, rect ->
-            val range = (-rect.left)..(rect.right - rect.left - (2 * sw / GRID_SIZE) + 5)
+            val range = (-rect.left)..(rect.right - rect.left - (8 * sw / GRID_SIZE) + 5)
             if (range.isEmpty()) {
                 rect
             } else {
@@ -89,7 +89,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
             }
         }),
         RIGHT({ dx, _, sw, _, rect ->
-            val range = ((2 * sw / GRID_SIZE) + 5 + rect.left - rect.right)..(sw - rect.right)
+            val range = ((8 * sw / GRID_SIZE) + 5 + rect.left - rect.right)..(sw - rect.right)
             if (range.isEmpty()) {
                 rect
             } else {

@@ -6,7 +6,7 @@ import kotlin.math.ceil
 import kotlin.math.max
 import kotlin.math.roundToInt
 
-const val GRID_SIZE: Short = 12
+const val GRID_SIZE: Short = 48
 
 @Serializable
 data class WidgetPosition(var x: Short, var y: Short, var width: Short, var height: Short) {
@@ -46,8 +46,8 @@ data class WidgetPosition(var x: Short, var y: Short, var width: Short, var heig
                 .coerceIn(0, (GRID_SIZE - 1).toShort())
 
 
-            val w = max(2, ((absolute.right - absolute.left) / gridWidth).roundToInt()).toShort()
-            val h = max(2, ((absolute.bottom - absolute.top) / gridHeight).roundToInt()).toShort()
+            val w = max(8, ((absolute.right - absolute.left) / gridWidth).roundToInt()).toShort()
+            val h = max(8, ((absolute.bottom - absolute.top) / gridHeight).roundToInt()).toShort()
 
             return WidgetPosition(x, y, w, h)
 

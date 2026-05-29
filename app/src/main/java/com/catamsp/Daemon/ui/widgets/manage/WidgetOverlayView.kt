@@ -5,6 +5,7 @@ import android.graphics.Canvas
 import android.graphics.Color
 import android.graphics.Paint
 import android.graphics.Rect
+import android.graphics.RectF
 import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.view.View
@@ -37,14 +38,14 @@ class WidgetOverlayView : ViewGroup {
     init {
         addView(popupAnchor)
         setWillNotDraw(false)
-        handlePaint.style = Paint.Style.STROKE
+        handlePaint.style = Paint.Style.FILL
         handlePaint.color = Color.WHITE
-        handlePaint.strokeWidth = 2f
-        handlePaint.setShadowLayer(10f, 0f, 0f, Color.BLACK)
+        handlePaint.alpha = 200
+        handlePaint.setShadowLayer(8f, 0f, 4f, Color.argb(100, 0, 0, 0))
 
-        selectedHandlePaint.style = Paint.Style.FILL_AND_STROKE
-        selectedHandlePaint.setARGB(100, 255, 255, 255)
-        handlePaint.setShadowLayer(10f, 0f, 0f, Color.BLACK)
+        selectedHandlePaint.style = Paint.Style.FILL
+        selectedHandlePaint.color = Color.parseColor("#4285F4")
+        selectedHandlePaint.setShadowLayer(8f, 0f, 4f, Color.argb(100, 0, 0, 0))
 
         paint.style = Paint.Style.STROKE
         paint.color = Color.WHITE
@@ -71,16 +72,24 @@ class WidgetOverlayView : ViewGroup {
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
 
+        val cornerRadius = 20f
         getHandles().forEach {
+            val handleRect = it.position.toRectF()
+            val insetX = handleRect.width() * 0.3f
+            val insetY = handleRect.height() * 0.3f
+            val visualRect = RectF(
+                handleRect.left + insetX,
+                handleRect.top + insetY,
+                handleRect.right - insetX,
+                handleRect.bottom - insetY
+            )
+
             if (it.mode == mode) {
-                canvas.drawRoundRect(it.position.toRectF(), 5f, 5f, selectedHandlePaint)
+                canvas.drawRoundRect(visualRect, cornerRadius, cornerRadius, selectedHandlePaint)
             } else {
-                canvas.drawRoundRect(it.position.toRectF(), 5f, 5f, handlePaint)
+                canvas.drawRoundRect(visualRect, cornerRadius, cornerRadius, handlePaint)
             }
         }
-        val bounds = getBounds()
-
-        canvas.drawRoundRect(bounds.toRectF(), 5f, 5f, paint)
 
         if (mode == null) {
             return

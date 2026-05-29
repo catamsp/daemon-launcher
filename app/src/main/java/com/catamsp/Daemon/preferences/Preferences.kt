@@ -27,7 +27,7 @@ import com.catamsp.Daemon.widgets.getAppWidgetHost
  * Increase when breaking changes are introduced and write an appropriate case in
  * `migratePreferencesToNewVersion`
  */
-const val PREFERENCE_VERSION = 102
+const val PREFERENCE_VERSION = 103
 const val UNKNOWN_PREFERENCE_VERSION = -1
 private const val TAG = "Launcher - Preferences"
 
@@ -88,8 +88,22 @@ fun migratePreferencesToNewVersion(context: Context) {
                     remove(LauncherPreferences.animations().keys().other())
                     apply()
                 }
+                LauncherPreferences.internal().versionCode(102)
+                migratePreferencesToNewVersion(context)
+            }
+
+            102 -> {
+                // Migration to 48x48 grid
+                val widgets = LauncherPreferences.widgets().widgets()?.map { widget ->
+                    widget.position.x = (widget.position.x * 4).toShort()
+                    widget.position.y = (widget.position.y * 4).toShort()
+                    widget.position.width = (widget.position.width * 4).toShort()
+                    widget.position.height = (widget.position.height * 4).toShort()
+                    widget
+                }?.toSet()
+                LauncherPreferences.widgets().widgets(widgets)
                 LauncherPreferences.internal().versionCode(PREFERENCE_VERSION)
-                Log.i(TAG, "migration of preferences complete (101 -> $PREFERENCE_VERSION).")
+                Log.i(TAG, "migration of preferences complete (102 -> $PREFERENCE_VERSION).")
             }
 
             else -> {
@@ -118,7 +132,7 @@ fun resetPreferences(context: Context) {
         setOf(
             ClockWidget(
                 generateInternalId(),
-                WidgetPosition(1, 3, 10, 4),
+                WidgetPosition(4, 12, 40, 16),
                 WidgetPanel.HOME.id
             )
         )
@@ -130,7 +144,7 @@ fun resetPreferences(context: Context) {
                 it.add(
                     DebugInfoWidget(
                         generateInternalId(),
-                        WidgetPosition(1, 1, 10, 4),
+                        WidgetPosition(4, 4, 40, 16),
                         WidgetPanel.HOME.id
                     )
                 )
