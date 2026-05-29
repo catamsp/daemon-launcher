@@ -55,10 +55,12 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
 
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            refreshList()
-            if (prefKey == LauncherPreferences.theme().keys().font()) {
-                view?.post {
-                    adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+            if (isAdded) {
+                refreshList()
+                if (prefKey == LauncherPreferences.theme().keys().font()) {
+                    view?.post {
+                        adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
+                    }
                 }
             }
         }
@@ -93,6 +95,8 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
     }
 
     private fun refreshList() {
+        if (!isAdded) return
+        
         val items = mutableListOf<SettingsItem>()
         val prefs = LauncherPreferences.getSharedPreferences()
         val context = requireContext()

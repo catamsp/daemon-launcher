@@ -16,6 +16,7 @@
     <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
     <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
     <uses-permission android:name="android.permission.SET_WALLPAPER" />
+    <uses-permission android:name="rikka.shizuku.permission.API_V23" />
 
     <application
         android:name=".Application"
@@ -132,6 +133,14 @@
                 android:name="android.service.wallpaper"
                 android:resource="@xml/video_wallpaper_config" />
         </service>
+
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="${applicationId}.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
     </application>
 
 </manifest>

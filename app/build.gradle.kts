@@ -36,7 +36,7 @@ android {
 
     defaultConfig {
         applicationId = "com.catamsp.Daemon"
-        minSdk = 21
+        minSdk = 24
         targetSdk = 35
         versionCode = 56
         versionName = "0.2.11"
@@ -139,6 +139,11 @@ dependencies {
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.jonahbauer.android.preference.annotations)
     kapt(libs.jonahbauer.android.preference.annotations)
+    
+    val shizukuVersion = "13.1.5"
+    implementation("dev.rikka.shizuku:api:$shizukuVersion")
+    implementation("dev.rikka.shizuku:provider:$shizukuVersion")
+    
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.test.ext.junit)

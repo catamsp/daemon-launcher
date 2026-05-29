@@ -32,6 +32,7 @@ import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentAnimations
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentLauncher
 import com.catamsp.Daemon.ui.settings.launcher.SettingsFragmentWidgets
 import com.catamsp.Daemon.ui.settings.meta.SettingsFragmentMeta
+import com.catamsp.Daemon.ui.settings.system.SettingsFragmentSystem
 import com.catamsp.Daemon.widgets.ClockWidget
 
 /**
@@ -110,7 +111,7 @@ class SettingsActivity : UIObjectActivity() {
 
         binding.settingsViewpager.apply {
             adapter = sectionsPagerAdapter
-            offscreenPageLimit = 5
+            offscreenPageLimit = 6
             setCurrentItem(intent.getIntExtra(EXTRA_TAB, 0), false)
         }
 
@@ -574,6 +575,7 @@ private val TAB_TITLES = arrayOf(
     R.string.settings_tab_launcher,
     R.string.settings_tab_animations,
     R.string.settings_tab_widgets,
+    R.string.settings_tab_system,
     R.string.settings_tab_meta
 )
 
@@ -586,7 +588,8 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
             1 -> SettingsFragmentLauncher()
             2 -> SettingsFragmentAnimations()
             3 -> SettingsFragmentWidgets()
-            4 -> SettingsFragmentMeta()
+            4 -> SettingsFragmentSystem()
+            5 -> SettingsFragmentMeta()
             else -> Fragment()
         }
     }
@@ -596,7 +599,7 @@ class SettingsSectionsPagerAdapter(private val activity: FragmentActivity) :
     }
 
     override fun getItemCount(): Int {
-        return 5
+        return 6
     }
 }
 

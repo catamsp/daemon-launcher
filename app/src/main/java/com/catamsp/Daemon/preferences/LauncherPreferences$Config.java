@@ -30,6 +30,7 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                         @Preference(name = "started_time", type = long.class),
                         // see PREFERENCE_VERSION in com.catamsp.Daemon.preferences.Preferences.kt
                         @Preference(name = "version_code", type = int.class, defaultValue = "-1"),
+                        @Preference(name = "kill_space_enabled", type = boolean.class, defaultValue = "false"),
                 }),
                 @PreferenceGroup(name = "apps", prefix = "settings_apps_", suffix = "_key", value = {
                         @Preference(name = "favorites", type = Set.class, serializer = SetAbstractAppInfoPreferenceSerializer.class),

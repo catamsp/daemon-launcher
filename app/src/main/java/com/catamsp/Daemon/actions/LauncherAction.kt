@@ -164,6 +164,18 @@ enum class LauncherAction(
         R.drawable.baseline_home_24,
         ::launchOtherLauncher
     ),
+    KILL_SPACE(
+        "kill_space",
+        R.string.list_other_kill_space,
+        R.drawable.baseline_close_24,
+        { context ->
+            com.catamsp.Daemon.ui.settings.system.KillSpaceDialog(context).show()
+        },
+        canReachSettings = false,
+        available = { _ ->
+            com.catamsp.Daemon.preferences.LauncherPreferences.internal().killSpaceEnabled()
+        }
+    ),
     NOP("nop", R.string.list_other_nop, R.drawable.baseline_not_interested_24, {});
 
     override fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?): Boolean {
