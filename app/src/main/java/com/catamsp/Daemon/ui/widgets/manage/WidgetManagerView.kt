@@ -44,6 +44,9 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
         touchSlopSquare = touchSlop * touchSlop
 
         longPressTimeout = ViewConfiguration.getLongPressTimeout().toLong()
+
+        clipChildren = false
+        clipToPadding = false
     }
 
 
@@ -122,14 +125,13 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                 currentGestureStart = start
                 val view = overlayViewById.asIterable()
                     .map { it.value }.firstOrNull { overlayView ->
-                        RectF(
-                            overlayView.x,
-                            overlayView.y,
-                            overlayView.x + overlayView.width,
-                            overlayView.y + overlayView.height
+                        val touchRect = RectF(
+                            overlayView.x - 60,
+                            overlayView.y - 60,
+                            overlayView.x + overlayView.width + 60,
+                            overlayView.y + overlayView.height + 60
                         )
-                            .toRect()
-                            .contains(start)
+                        touchRect.contains(start.x.toFloat(), start.y.toFloat())
                     } ?: return true
 
                 val position =
@@ -187,6 +189,7 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                     widget.position = newPosition
                     endInteraction()
                     updateWidget(widget)
+                    (context as? Activity)?.let { widget.updateSize(it, selectedWidgetView) }
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
                         view.performHapticFeedback(HapticFeedbackConstants.GESTURE_END)
                     }
@@ -219,7 +222,9 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                 WidgetOverlayView(activity).let {
                     it.widgetId = widget.id
                     addView(it)
-                    (it.layoutParams as Companion.LayoutParams).position = widget.position
+                    val lp = (it.layoutParams as Companion.LayoutParams)
+                    lp.position = widget.position
+                    lp.alignment = android.view.Gravity.FILL
                     overlayViewById[widget.id] = it
                 }
             }

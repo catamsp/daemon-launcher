@@ -123,28 +123,54 @@ class WidgetOverlayView : ViewGroup {
                 updateWidget(widget)
                 return@setOnMenuItemClickListener true
             }
+
+            val alignMenu = it.addSubMenu("Align Widget")
+            val alignments = mapOf(
+                "Fill" to android.view.Gravity.FILL,
+                "Center" to android.view.Gravity.CENTER,
+                "Top Left" to (android.view.Gravity.TOP or android.view.Gravity.LEFT),
+                "Top Center" to (android.view.Gravity.TOP or android.view.Gravity.CENTER_HORIZONTAL),
+                "Top Right" to (android.view.Gravity.TOP or android.view.Gravity.RIGHT),
+                "Center Left" to (android.view.Gravity.CENTER_VERTICAL or android.view.Gravity.LEFT),
+                "Center Right" to (android.view.Gravity.CENTER_VERTICAL or android.view.Gravity.RIGHT),
+                "Bottom Left" to (android.view.Gravity.BOTTOM or android.view.Gravity.LEFT),
+                "Bottom Center" to (android.view.Gravity.BOTTOM or android.view.Gravity.CENTER_HORIZONTAL),
+                "Bottom Right" to (android.view.Gravity.BOTTOM or android.view.Gravity.RIGHT)
+            )
+
+            alignments.forEach { (label, gravity) ->
+                alignMenu.add(label).setOnMenuItemClickListener {
+                    widget.alignment = gravity
+                    updateWidget(widget)
+                    (parent as? View)?.requestLayout()
+                    return@setOnMenuItemClickListener true
+                }
+            }
         }
         (context as? com.catamsp.Daemon.ui.UIObject)?.applyFontToMenu(context, menu.menu)
         menu.show()
     }
 
     fun getHandles(): List<Handle> {
+        val THICKNESS = 60
+        val dynamicEdgeSize = if (width < 300 || height < 300) 40 else 100
+        
         return listOf(
             Handle(
                 WidgetManagerView.EditMode.TOP,
-                Rect(HANDLE_EDGE_SIZE, 0, width - HANDLE_EDGE_SIZE, HANDLE_SIZE)
+                Rect(dynamicEdgeSize, -THICKNESS, width - dynamicEdgeSize, 0)
             ),
             Handle(
                 WidgetManagerView.EditMode.BOTTOM,
-                Rect(HANDLE_EDGE_SIZE, height - HANDLE_SIZE, width - HANDLE_EDGE_SIZE, height)
+                Rect(dynamicEdgeSize, height, width - dynamicEdgeSize, height + THICKNESS)
             ),
             Handle(
                 WidgetManagerView.EditMode.LEFT,
-                Rect(0, HANDLE_EDGE_SIZE, HANDLE_SIZE, height - HANDLE_EDGE_SIZE)
+                Rect(-THICKNESS, dynamicEdgeSize, 0, height - dynamicEdgeSize)
             ),
             Handle(
                 WidgetManagerView.EditMode.RIGHT,
-                Rect(width - HANDLE_SIZE, HANDLE_EDGE_SIZE, width, height - HANDLE_EDGE_SIZE)
+                Rect(width, dynamicEdgeSize, width + THICKNESS, height - dynamicEdgeSize)
             )
         )
 

@@ -85,12 +85,20 @@ class AppWidget(
         val view = activity.getAppWidgetHost()
             .createView(activity, this.id, providerInfo)
 
+        updateSize(activity, view)
+        view.setPadding(0, 0, 0, 0)
+        return view
+    }
+
+    override fun updateSize(activity: Activity, view: View?) {
+        val hostView = view as? AppWidgetHostView ?: return
         val dp = activity.resources.displayMetrics.density
         val screenWidth = activity.resources.displayMetrics.widthPixels
         val screenHeight = activity.resources.displayMetrics.heightPixels
+        val absolutePosition = position.getAbsoluteRect(screenWidth, screenHeight)
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            val absolutePosition = position.getAbsoluteRect(screenWidth, screenHeight)
-            view.updateAppWidgetSize(
+            hostView.updateAppWidgetSize(
                 Bundle.EMPTY,
                 listOf(
                     SizeF(
@@ -99,9 +107,11 @@ class AppWidget(
                     )
                 )
             )
+        } else {
+            val widthDp = (absolutePosition.width() / dp).toInt()
+            val heightDp = (absolutePosition.height() / dp).toInt()
+            hostView.updateAppWidgetSize(null, widthDp, heightDp, widthDp, heightDp)
         }
-        view.setPadding(0, 0, 0, 0)
-        return view
     }
 
     override fun findView(views: Sequence<View>): AppWidgetHostView? {

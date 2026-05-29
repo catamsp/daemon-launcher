@@ -15,6 +15,7 @@ sealed class Widget {
     abstract var position: WidgetPosition
     abstract val panelId: Int
     abstract var allowInteraction: Boolean
+    var alignment: Int = android.view.Gravity.FILL
 
     /**
      * @param activity The activity where the view will be used. Must not be an AppCompatActivity.
@@ -25,6 +26,8 @@ sealed class Widget {
     abstract fun getIcon(context: Context): Drawable?
     abstract fun isConfigurable(context: Context): Boolean
     abstract fun configure(activity: Activity, requestCode: Int)
+
+    open fun updateSize(activity: Activity, view: View?) {}
 
     fun delete(context: Context) {
         if (id >= 0) {

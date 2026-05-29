@@ -3,9 +3,11 @@ package com.catamsp.Daemon.ui.widgets
 import android.app.Activity
 import android.content.Context
 import android.graphics.PointF
+import android.graphics.Rect
 import android.graphics.RectF
 import android.util.AttributeSet
 import android.util.Log
+import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.View.MeasureSpec.makeMeasureSpec
@@ -40,7 +42,9 @@ open class WidgetContainerView(
             widgetViewById.clear()
             widgets.filter { it.panelId == widgetPanelId }.forEach { widget ->
                 widget.createView(activity)?.let {
-                    addView(it, LayoutParams(widget.position))
+                    val lp = LayoutParams(widget.position)
+                    lp.alignment = widget.alignment
+                    addView(it, lp)
                     widgetViewById[widget.id] = it
                 }
             }
@@ -74,12 +78,20 @@ open class WidgetContainerView(
         val mHeight = MeasureSpec.getSize(heightMeasureSpec)
 
         (0..<size).map { getChildAt(it) }.forEach {
-            val position =
-                (it.layoutParams as LayoutParams).position.getAbsoluteRect(mWidth, mHeight)
-            it.measure(
-                makeMeasureSpec(position.width(), MeasureSpec.EXACTLY),
-                makeMeasureSpec(position.height(), MeasureSpec.EXACTLY)
-            )
+            val lp = it.layoutParams as LayoutParams
+            val position = lp.position.getAbsoluteRect(mWidth, mHeight)
+            
+            if (lp.alignment == Gravity.FILL) {
+                it.measure(
+                    makeMeasureSpec(position.width(), MeasureSpec.EXACTLY),
+                    makeMeasureSpec(position.height(), MeasureSpec.EXACTLY)
+                )
+            } else {
+                it.measure(
+                    makeMeasureSpec(position.width(), MeasureSpec.AT_MOST),
+                    makeMeasureSpec(position.height(), MeasureSpec.AT_MOST)
+                )
+            }
         }
 
         // Find rightmost and bottom-most child
@@ -111,9 +123,16 @@ open class WidgetContainerView(
             val child = getChildAt(i)
             val lp = child.layoutParams as LayoutParams
             val position = lp.position.getAbsoluteRect(r - l, b - t)
-            child.layout(position.left, position.top, position.right, position.bottom)
-            child.layoutParams.width = position.width()
-            child.layoutParams.height = position.height()
+            
+            if (lp.alignment == Gravity.FILL) {
+                child.layout(position.left, position.top, position.right, position.bottom)
+            } else {
+                val outRect = Rect()
+                Gravity.apply(lp.alignment, child.measuredWidth, child.measuredHeight, position, outRect)
+                child.layout(outRect.left, outRect.top, outRect.right, outRect.bottom)
+            }
+            child.layoutParams.width = child.width
+            child.layoutParams.height = child.height
         }
     }
 
@@ -137,6 +156,7 @@ open class WidgetContainerView(
     companion object {
         class LayoutParams : ViewGroup.LayoutParams {
             var position = WidgetPosition(0, 0, 4, 4)
+            var alignment = Gravity.FILL
 
 
             constructor(position: WidgetPosition) : super(WRAP_CONTENT, WRAP_CONTENT) {
