@@ -24,6 +24,10 @@ class AppListActivity : AbstractListActivity() {
     override val intention = Companion.Intention.VIEW
     private lateinit var binding: ActivityListBinding
 
+    // Store pending icon pick for gallery picker result
+    var pendingIconAppInfo: com.catamsp.Daemon.apps.AbstractDetailedAppInfo? = null
+        internal set
+
     private fun updateLockIcon(locked: Boolean) {
         if (
         // hide lock when private space does not exist
@@ -123,5 +127,22 @@ class AppListActivity : AbstractListActivity() {
 
     override fun adjustLayout() {
         updateTitle()
+    }
+
+    @Suppress("DEPRECATION")
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: android.content.Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == REQUEST_PICK_ICON && resultCode == RESULT_OK) {
+            val uri = data?.data ?: return
+            val appInfo = pendingIconAppInfo ?: return
+            com.catamsp.Daemon.apps.CustomIconManager.setIcon(appInfo.getRawInfo(), uri)
+            pendingIconAppInfo = null
+            // Clear Coil cache so the new icon is loaded
+            try { coil.Coil.imageLoader(this).memoryCache?.clear() } catch (_: Exception) {}
+            // Refresh the fragment's adapter
+            val fragment = supportFragmentManager.findFragmentById(R.id.list_fragment_container)
+                as? com.catamsp.Daemon.ui.list.apps.ListFragmentApps
+            fragment?.refreshAppsList()
+        }
     }
 }

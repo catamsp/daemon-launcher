@@ -307,6 +307,64 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideNavigationBar(), it).apply()
         })
 
+        // --- ICONS ---
+        items.add(SettingsItem.Header("hdr_icons", getString(R.string.settings_icons_section)))
+
+        // Icon Theme
+        val iconThemes = com.catamsp.Daemon.preferences.theme.IconTheme.entries
+        val currentIconTheme = try {
+            LauncherPreferences.icons().iconTheme()
+        } catch (_: Exception) {
+            com.catamsp.Daemon.preferences.theme.IconTheme.NONE
+        }
+        items.add(SettingsItem.Clickable("btn_icon_theme", getString(R.string.settings_icon_theme), "Current: ${currentIconTheme.getLabel(context)}") {
+            activity?.showSelectionCarousel("btn_icon_theme", iconThemes.indexOf(currentIconTheme), iconThemes.map { it.getLabel(context) }) { index ->
+                prefs.edit().putString(LauncherPreferences.icons().keys().iconTheme(), iconThemes[index].name).apply()
+                com.catamsp.Daemon.apps.IconPackManager.getInstance(context).clearCache()
+            }
+        })
+
+        // Icon Pack
+        val iconPacks = com.catamsp.Daemon.apps.IconPackManager.getInstance(context).getInstalledIconPacks()
+        val packEnabled = try {
+            LauncherPreferences.icons().iconPackEnabled()
+        } catch (_: Exception) { false }
+        val activePackPkg = try {
+            LauncherPreferences.icons().iconPackPackage()
+        } catch (_: Exception) { "" }
+
+        val packLabel = if (packEnabled && !activePackPkg.isNullOrEmpty()) {
+            iconPacks.find { it.packageName == activePackPkg }?.label ?: activePackPkg
+        } else {
+            getString(R.string.settings_icon_pack_disabled)
+        }
+
+        val packOptions = mutableListOf(getString(R.string.settings_icon_pack_none))
+        val packPackageNames = mutableListOf("")
+        for (pack in iconPacks) {
+            packOptions.add(pack.label)
+            packPackageNames.add(pack.packageName)
+        }
+
+        val currentPackIndex = if (packEnabled) {
+            packPackageNames.indexOf(activePackPkg).coerceAtLeast(0)
+        } else 0
+
+        items.add(SettingsItem.Clickable("btn_icon_pack", getString(R.string.settings_icon_pack), "Current: $packLabel") {
+            activity?.showSelectionCarousel("btn_icon_pack", currentPackIndex, packOptions) { index ->
+                if (index == 0) {
+                    prefs.edit().putBoolean(LauncherPreferences.icons().keys().iconPackEnabled(), false).apply()
+                    prefs.edit().putString(LauncherPreferences.icons().keys().iconPackPackage(), "").apply()
+                    com.catamsp.Daemon.apps.IconPackManager.getInstance(context).clearCache()
+                } else {
+                    val selectedPkg = packPackageNames[index]
+                    prefs.edit().putBoolean(LauncherPreferences.icons().keys().iconPackEnabled(), true).apply()
+                    prefs.edit().putString(LauncherPreferences.icons().keys().iconPackPackage(), selectedPkg).apply()
+                    com.catamsp.Daemon.apps.IconPackManager.getInstance(context).loadIconPack(selectedPkg)
+                }
+            }
+        })
+
         val restoreKey = activity?.intent?.getStringExtra("RESTORE_CAROUSEL")
         if (restoreKey != null) {
             activity?.intent?.removeExtra("RESTORE_CAROUSEL")

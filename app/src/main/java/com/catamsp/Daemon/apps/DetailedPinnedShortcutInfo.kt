@@ -38,8 +38,24 @@ class DetailedPinnedShortcutInfo(
 
     // TODO: make nullable?
     override fun getIcon(context: Context): Drawable {
-        return shortcutInfo.getShortcutInfo(context)?.let { loadBadgedIcon(context, it) }
+        // 1. Per-app custom override
+        val customIcon = CustomIconManager.getIcon(shortcutInfo)
+        if (customIcon != null) return applyThemeIfNeeded(context, customIcon)
+
+        // 2. System icon (shortcuts don't have icon pack mappings)
+        val systemIcon = shortcutInfo.getShortcutInfo(context)?.let { loadBadgedIcon(context, it) }
             ?: AppCompatResources.getDrawable(context, R.drawable.baseline_question_mark_24)!!
+
+        // 3. Apply icon theme
+        return applyThemeIfNeeded(context, systemIcon)
+    }
+
+    private fun applyThemeIfNeeded(context: Context, icon: Drawable): Drawable {
+        return try {
+            IconThemeManager.transform(context, icon)
+        } catch (_: Exception) {
+            icon
+        }
     }
 
     override fun getUser(context: Context): UserHandle {

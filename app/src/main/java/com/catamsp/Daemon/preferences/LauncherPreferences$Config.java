@@ -14,6 +14,7 @@ import com.catamsp.Daemon.preferences.serialization.SetWidgetSerializer;
 import com.catamsp.Daemon.preferences.theme.Background;
 import com.catamsp.Daemon.preferences.theme.ColorTheme;
 import com.catamsp.Daemon.preferences.theme.Font;
+import com.catamsp.Daemon.preferences.theme.IconTheme;
 import com.catamsp.Daemon.preferences.theme.TransitionAnimation;
 import eu.jonahbauer.android.preference.annotations.Preference;
 import eu.jonahbauer.android.preference.annotations.PreferenceGroup;
@@ -105,6 +106,11 @@ import eu.jonahbauer.android.preference.annotations.Preferences;
                 @PreferenceGroup(name = "widgets", prefix = "settings_widgets_", suffix = "_key", value = {
                         @Preference(name = "widgets", type = Set.class, serializer = SetWidgetSerializer.class),
                         @Preference(name = "custom_panels", type = Set.class, serializer = SetWidgetPanelSerializer.class)
+                }),
+                @PreferenceGroup(name = "icons", prefix = "settings_icons_", suffix = "_key", value = {
+                        @Preference(name = "icon_theme", type = IconTheme.class, defaultValue = "NONE"),
+                        @Preference(name = "icon_pack_enabled", type = boolean.class, defaultValue = "false"),
+                        @Preference(name = "icon_pack_package", type = String.class, defaultValue = ""),
                 }),
         })
 public final class LauncherPreferences$Config {

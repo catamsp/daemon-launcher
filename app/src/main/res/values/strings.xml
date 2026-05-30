@@ -473,4 +473,32 @@
     <string name="action_unknown">Invalid action (probably an uninstalled app)</string>
     <string name="invalid_shortcut">Invalid shortcut</string>
     <string name="content_description_toggle_favorites">Filter favorite apps</string>
+
+    <!-- Icon Theme -->
+    <string name="icon_theme_none">None</string>
+    <string name="icon_theme_circle">Circle</string>
+    <string name="icon_theme_squircle">Squircle</string>
+    <string name="icon_theme_rounded_square">Rounded Square</string>
+    <string name="icon_theme_diamond">Diamond</string>
+    <string name="icon_theme_teardrop">Teardrop</string>
+    <string name="icon_theme_hexagon">Hexagon</string>
+    <string name="settings_icons_section">ICONS</string>
+    <string name="settings_icon_theme">Icon Theme</string>
+    <string name="settings_icon_pack">Icon Pack</string>
+    <string name="settings_icon_pack_disabled">Disabled</string>
+    <string name="settings_icon_pack_none">None</string>
+    <string name="settings_icon_pack_installed">Installed Packs</string>
+    <string name="list_app_change_icon">Change Icon</string>
+    <string name="dialog_change_icon_title">Change Icon</string>
+    <string name="dialog_change_icon_gallery">From Gallery</string>
+    <string name="dialog_change_icon_pack">From Icon Pack</string>
+    <string name="dialog_change_icon_remove">Remove Custom Icon</string>
+    <string name="dialog_change_icon_cancel">Cancel</string>
+    <string name="icon_pack_loaded">Icon pack loaded: %s</string>
+    <string name="icon_pack_not_found">Icon pack not found</string>
+    <string name="icon_pack_no_icons">No icons available in this pack</string>
+    <string name="icon_theme_applied">Icon theme applied</string>
+    <string name="settings_icons_icon_theme_key">settings_icons_icon_theme_key</string>
+    <string name="settings_icons_icon_pack_enabled_key">settings_icons_icon_pack_enabled_key</string>
+    <string name="settings_icons_icon_pack_package_key">settings_icons_icon_pack_package_key</string>
 </resources>

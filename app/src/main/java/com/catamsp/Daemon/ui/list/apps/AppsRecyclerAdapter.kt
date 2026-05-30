@@ -2,6 +2,7 @@ package com.catamsp.Daemon.ui.list.apps
 
 import android.annotation.SuppressLint
 import android.app.Activity
+import android.content.Intent
 import android.graphics.Rect
 import android.view.LayoutInflater
 import android.view.View
@@ -59,7 +60,7 @@ class AppsRecyclerAdapter(
 
     // temporarily disable auto launch
     var disableAutoLaunch: Boolean = false
-    
+
     private var searchJob: Job? = null
     private val searchScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
@@ -191,6 +192,10 @@ class AppsRecyclerAdapter(
                     (appInfo.getRawInfo() as? AppInfo)?.openSettings(activity); true
                 }
 
+                R.id.app_menu_change_icon -> {
+                    showChangeIconDialog(appInfo); true
+                }
+
                 R.id.app_menu_favorite -> {
                     appInfo.getRawInfo().toggleFavorite(); true
                 }
@@ -214,6 +219,69 @@ class AppsRecyclerAdapter(
         (activity as? com.catamsp.Daemon.ui.UIObjectActivity)?.applyFontToMenu(activity, popup.menu)
         popup.show()
         return true
+    }
+
+    private fun showChangeIconDialog(appInfo: AbstractDetailedAppInfo) {
+        val hasCustomIcon = com.catamsp.Daemon.apps.CustomIconManager.hasCustomIcon(appInfo.getRawInfo())
+        val hasIconPack = try {
+            com.catamsp.Daemon.apps.IconPackManager.getInstance(activity).isLoaded()
+        } catch (_: Exception) { false }
+
+        val options = mutableListOf<CharSequence>()
+        options.add(activity.getString(R.string.dialog_change_icon_gallery))
+        if (hasIconPack) {
+            options.add(activity.getString(R.string.dialog_change_icon_pack))
+        }
+        if (hasCustomIcon) {
+            options.add(activity.getString(R.string.dialog_change_icon_remove))
+        }
+
+        android.app.AlertDialog.Builder(activity, com.catamsp.Daemon.R.style.AlertDialogCustom)
+            .setTitle(R.string.dialog_change_icon_title)
+            .setItems(options.toTypedArray()) { _, which ->
+                val selected = options[which]
+                when {
+                    selected == activity.getString(R.string.dialog_change_icon_gallery) -> {
+                        // CRITICAL: Prevent activity from finishing when gallery opens
+                        (activity as? com.catamsp.Daemon.ui.UIObjectActivity)?.ignoreAutoClose = true
+                        (activity as? com.catamsp.Daemon.ui.list.AppListActivity)?.pendingIconAppInfo = appInfo
+                        val intent = Intent(Intent.ACTION_GET_CONTENT).apply {
+                            type = "image/*"
+                            addCategory(Intent.CATEGORY_OPENABLE)
+                        }
+                        try {
+                            activity.startActivityForResult(intent, AbstractListActivity.REQUEST_PICK_ICON)
+                        } catch (_: Exception) {
+                            val fallback = Intent(Intent.ACTION_PICK).apply {
+                                type = "image/*"
+                            }
+                            activity.startActivityForResult(fallback, AbstractListActivity.REQUEST_PICK_ICON)
+                        }
+                    }
+                    selected == activity.getString(R.string.dialog_change_icon_pack) -> {
+                        showIconPackPicker(appInfo)
+                    }
+                    selected == activity.getString(R.string.dialog_change_icon_remove) -> {
+                        com.catamsp.Daemon.apps.CustomIconManager.removeIcon(appInfo.getRawInfo())
+                        try { coil.Coil.imageLoader(activity).memoryCache?.clear() } catch (_: Exception) {}
+                        updateAppsList()
+                    }
+                }
+            }
+            .setNegativeButton(R.string.dialog_change_icon_cancel, null)
+            .show()
+    }
+
+    private fun showIconPackPicker(appInfo: AbstractDetailedAppInfo) {
+        val fragmentManager = (activity as? androidx.fragment.app.FragmentActivity)?.supportFragmentManager ?: return
+        if (fragmentManager.isStateSaved || fragmentManager.isDestroyed) return
+
+        val dialog = com.catamsp.Daemon.ui.settings.IconPackPickerDialog { drawableName ->
+            com.catamsp.Daemon.apps.CustomIconManager.setIconFromIconPack(appInfo.getRawInfo(), drawableName)
+            try { coil.Coil.imageLoader(activity).memoryCache?.clear() } catch (_: Exception) {}
+            updateAppsList()
+        }
+        dialog.show(fragmentManager, "IconPackPicker")
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {

@@ -60,6 +60,12 @@ class ListFragmentApps : Fragment(), UIObject {
         applyFontToSearchView(binding.listAppsSearchview)
     }
 
+    fun refreshAppsList() {
+        if (::appsRecyclerAdapter.isInitialized) {
+            appsRecyclerAdapter.updateAppsList()
+        }
+    }
+
     override fun onStart() {
         super<Fragment>.onStart()
         super<UIObject>.onStart()

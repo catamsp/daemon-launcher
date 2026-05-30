@@ -22,6 +22,8 @@ import com.catamsp.Daemon.apps.AbstractAppInfo
 import com.catamsp.Daemon.apps.AbstractDetailedAppInfo
 import com.catamsp.Daemon.apps.AppIconFetcher
 import com.catamsp.Daemon.apps.AppInfo
+import com.catamsp.Daemon.apps.CustomIconManager
+import com.catamsp.Daemon.apps.IconPackManager
 import com.catamsp.Daemon.apps.isPrivateSpaceLocked
 import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.migratePreferencesToNewVersion
@@ -220,6 +222,15 @@ class Application : android.app.Application(), ImageLoaderFactory {
         if (Build.VERSION.SDK_INT >= VERSION_CODES.N_MR1) {
             removeUnusedShortcuts(this)
         }
+
+        // Initialize icon system
+        IconPackManager.init(this)
+        CustomIconManager.init(this)
+        val packPackage = LauncherPreferences.icons().iconPackPackage()
+        if (LauncherPreferences.icons().iconPackEnabled() && !packPackage.isNullOrEmpty()) {
+            IconPackManager.getInstance(this).loadIconPack(packPackage)
+        }
+
         loadApps()
 
         createNotificationChannels(this)

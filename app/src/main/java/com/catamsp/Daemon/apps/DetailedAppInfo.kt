@@ -40,8 +40,34 @@ class DetailedAppInfo(
     }
 
     override fun getIcon(context: Context): Drawable {
-        return app.getLauncherActivityInfo(context)?.getBadgedIcon(0)
+        // 1. Per-app custom override
+        val customIcon = CustomIconManager.getIcon(app)
+        if (customIcon != null) return applyThemeIfNeeded(context, customIcon)
+
+        // 2. Icon pack (exact match OR fallback compositing)
+        val componentName = app.getComponentName()
+        if (componentName != null) {
+            val systemIcon = app.getLauncherActivityInfo(context)?.getBadgedIcon(0)
+            if (systemIcon != null) {
+                val packIcon = IconPackManager.getInstance(context).getIcon(componentName, systemIcon)
+                if (packIcon != null) return applyThemeIfNeeded(context, packIcon)
+            }
+        }
+
+        // 3. System icon (no icon pack, or no match and no fallback)
+        val systemIcon = app.getLauncherActivityInfo(context)?.getBadgedIcon(0)
             ?: AppCompatResources.getDrawable(context, R.drawable.baseline_question_mark_24)!!
+
+        // 4. Apply icon theme
+        return applyThemeIfNeeded(context, systemIcon)
+    }
+
+    private fun applyThemeIfNeeded(context: Context, icon: Drawable): Drawable {
+        return try {
+            IconThemeManager.transform(context, icon)
+        } catch (_: Exception) {
+            icon
+        }
     }
 
     override fun getRawInfo(): AppInfo {
