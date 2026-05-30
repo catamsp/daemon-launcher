@@ -49,3 +49,17 @@ class LauncherGlobeWidgetProvider(context: Context) : LauncherWidgetProvider(
     AppCompatResources.getDrawable(context, R.drawable.baseline_apps_24),
     null
 )
+
+class LauncherAppIconWidgetProvider(context: Context) : LauncherWidgetProvider(
+    context.getString(R.string.widget_app_icon_label),
+    context.getString(R.string.widget_app_icon_description),
+    AppCompatResources.getDrawable(context, R.drawable.baseline_apps_24),
+    null
+)
+
+class LauncherFolderWidgetProvider(context: Context) : LauncherWidgetProvider(
+    context.getString(R.string.widget_folder_label),
+    context.getString(R.string.widget_folder_description),
+    AppCompatResources.getDrawable(context, R.drawable.baseline_menu_24),
+    null
+)

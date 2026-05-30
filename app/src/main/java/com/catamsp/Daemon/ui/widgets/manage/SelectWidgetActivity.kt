@@ -26,7 +26,9 @@ import com.catamsp.Daemon.ui.UIObjectActivity
 import com.catamsp.Daemon.widgets.ClockWidget
 import com.catamsp.Daemon.widgets.GlobeWidget
 import com.catamsp.Daemon.widgets.LauncherAppWidgetProvider
+import com.catamsp.Daemon.widgets.LauncherAppIconWidgetProvider
 import com.catamsp.Daemon.widgets.LauncherClockWidgetProvider
+import com.catamsp.Daemon.widgets.LauncherFolderWidgetProvider
 import com.catamsp.Daemon.widgets.LauncherGlobeWidgetProvider
 import com.catamsp.Daemon.widgets.LauncherWidgetProvider
 import com.catamsp.Daemon.widgets.WidgetPanel
@@ -39,6 +41,8 @@ import kotlinx.coroutines.*
 
 
 private const val REQUEST_WIDGET_PERMISSION = 29
+private const val REQUEST_PICK_APP_FOR_ICON = 30
+private const val REQUEST_PICK_APP_FOR_FOLDER = 31
 
 sealed class WidgetListItem {
     data class Header(val appName: String, val packageName: String, val isExpanded: Boolean) : WidgetListItem()
@@ -121,6 +125,33 @@ class SelectWidgetActivity : UIObjectActivity() {
                     )
                 )
                 finish()
+            }
+
+            is LauncherAppIconWidgetProvider -> {
+                // CRITICAL: Prevent activity from finishing when app picker opens
+                ignoreAutoClose = true
+                // Launch app picker
+                val intent = Intent(this, com.catamsp.Daemon.ui.list.AppListActivity::class.java).apply {
+                    putExtra(com.catamsp.Daemon.ui.list.AbstractListActivity.KEY_FAVORITES_VISIBILITY, com.catamsp.Daemon.apps.AppFilter.Companion.AppSetVisibility.VISIBLE.name)
+                    putExtra(com.catamsp.Daemon.ui.list.AbstractListActivity.KEY_HIDDEN_VISIBILITY, com.catamsp.Daemon.apps.AppFilter.Companion.AppSetVisibility.HIDDEN.name)
+                    putExtra("pick_mode", true)
+                    putExtra("widget_panel_id", widgetPanelId)
+                }
+                startActivityForResult(intent, REQUEST_PICK_APP_FOR_ICON)
+            }
+
+            is LauncherFolderWidgetProvider -> {
+                // CRITICAL: Prevent activity from finishing when app picker opens
+                ignoreAutoClose = true
+                // Launch app picker for folder
+                val intent = Intent(this, com.catamsp.Daemon.ui.list.AppListActivity::class.java).apply {
+                    putExtra(com.catamsp.Daemon.ui.list.AbstractListActivity.KEY_FAVORITES_VISIBILITY, com.catamsp.Daemon.apps.AppFilter.Companion.AppSetVisibility.VISIBLE.name)
+                    putExtra(com.catamsp.Daemon.ui.list.AbstractListActivity.KEY_HIDDEN_VISIBILITY, com.catamsp.Daemon.apps.AppFilter.Companion.AppSetVisibility.HIDDEN.name)
+                    putExtra("pick_mode", true)
+                    putExtra("pick_folder", true)
+                    putExtra("widget_panel_id", widgetPanelId)
+                }
+                startActivityForResult(intent, REQUEST_PICK_APP_FOR_FOLDER)
             }
         }
     }
@@ -228,12 +259,66 @@ class SelectWidgetActivity : UIObjectActivity() {
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
-        if (requestCode == REQUEST_WIDGET_PERMISSION && resultCode == RESULT_OK) {
-            data ?: return
-            val provider =
-                (data.getSerializableExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER) as? AppWidgetProviderInfo)
-                    ?: return
-            tryBindWidget(LauncherAppWidgetProvider(provider, this))
+        when (requestCode) {
+            REQUEST_WIDGET_PERMISSION -> {
+                if (resultCode == RESULT_OK) {
+                    data ?: return
+                    val provider =
+                        (data.getSerializableExtra(AppWidgetManager.EXTRA_APPWIDGET_PROVIDER) as? AppWidgetProviderInfo)
+                            ?: return
+                    tryBindWidget(LauncherAppWidgetProvider(provider, this))
+                }
+            }
+            REQUEST_PICK_APP_FOR_ICON -> {
+                if (resultCode == RESULT_OK) {
+                    data ?: return
+                    val appInfoJson = data.getStringExtra("app_info") ?: return
+                    val appInfo = try {
+                        com.catamsp.Daemon.apps.AppInfo.serializer().let {
+                            kotlinx.serialization.json.Json.decodeFromString(it, appInfoJson)
+                        }
+                    } catch (_: Exception) { return }
+
+                    val widget = com.catamsp.Daemon.widgets.AppIconWidget(
+                        appInfo = appInfo,
+                        position = com.catamsp.Daemon.widgets.WidgetPosition.findFreeSpace(
+                            WidgetPanel.byId(widgetPanelId), 6, 6
+                        ),
+                        panelId = widgetPanelId,
+                        id = generateInternalId()
+                    )
+                    updateWidget(widget)
+                    finish()
+                }
+            }
+            REQUEST_PICK_APP_FOR_FOLDER -> {
+                if (resultCode == RESULT_OK) {
+                    data ?: return
+                    val appInfosJson = data.getStringArrayListExtra("app_infos") ?: return
+                    val appInfos = appInfosJson.mapNotNull { json ->
+                        try {
+                            kotlinx.serialization.json.Json.decodeFromString<com.catamsp.Daemon.apps.AppInfo>(
+                                com.catamsp.Daemon.apps.AppInfo.serializer().descriptor.serialName.let { _ ->
+                                    json
+                                }
+                            )
+                        } catch (_: Exception) { null }
+                    }
+                    if (appInfos.isEmpty()) return
+
+                    val widget = com.catamsp.Daemon.widgets.AppFolderWidget(
+                        apps = appInfos.toMutableList(),
+                        label = "Folder",
+                        position = com.catamsp.Daemon.widgets.WidgetPosition.findFreeSpace(
+                            WidgetPanel.byId(widgetPanelId), 6, 6
+                        ),
+                        panelId = widgetPanelId,
+                        id = generateInternalId()
+                    )
+                    updateWidget(widget)
+                    finish()
+                }
+            }
         }
     }
 

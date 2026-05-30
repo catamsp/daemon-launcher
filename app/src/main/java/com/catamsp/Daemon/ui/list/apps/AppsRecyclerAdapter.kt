@@ -196,6 +196,28 @@ class AppsRecyclerAdapter(
                     showChangeIconDialog(appInfo); true
                 }
 
+                R.id.app_menu_add_to_home -> {
+                    val rawInfo = appInfo.getRawInfo() as? AppInfo
+                    if (rawInfo != null) {
+                        try {
+                            val widget = com.catamsp.Daemon.widgets.AppIconWidget(
+                                appInfo = rawInfo,
+                                position = com.catamsp.Daemon.widgets.WidgetPosition.findFreeSpace(
+                                    com.catamsp.Daemon.widgets.WidgetPanel.HOME, 6, 6
+                                ),
+                                panelId = com.catamsp.Daemon.widgets.WidgetPanel.HOME.id,
+                                id = com.catamsp.Daemon.widgets.generateInternalId()
+                            )
+                            com.catamsp.Daemon.widgets.updateWidget(widget)
+                            android.widget.Toast.makeText(activity, R.string.toast_added_to_home, android.widget.Toast.LENGTH_SHORT).show()
+                        } catch (e: Exception) {
+                            android.util.Log.e("AppsRecyclerAdapter", "Failed to add app icon to home", e)
+                            android.widget.Toast.makeText(activity, "Failed to add: ${e.message}", android.widget.Toast.LENGTH_LONG).show()
+                        }
+                    }
+                    true
+                }
+
                 R.id.app_menu_favorite -> {
                     appInfo.getRawInfo().toggleFavorite(); true
                 }
@@ -294,6 +316,14 @@ class AppsRecyclerAdapter(
     fun selectItem(pos: Int, rect: Rect = Rect()) {
         if (pos < 0 || pos >= currentList.size) return
         val appInfo = getItem(pos) ?: return
+
+        // Pick mode: return selected app as result
+        val appListActivity = activity as? com.catamsp.Daemon.ui.list.AppListActivity
+        if (appListActivity?.isPickMode == true) {
+            appListActivity.returnSelectedApp(appInfo)
+            return
+        }
+
         when (intention) {
             AbstractListActivity.Companion.Intention.VIEW -> {
                 appInfo.getAction().invoke(activity, rect)

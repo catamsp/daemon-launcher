@@ -7,6 +7,9 @@
         android:id="@+id/app_menu_change_icon"
         android:title="@string/list_app_change_icon" />
     <item
+        android:id="@+id/app_menu_add_to_home"
+        android:title="@string/list_app_add_to_home" />
+    <item
         android:id="@+id/app_menu_favorite"
         android:title="@string/list_app_favorite_add" />
     <item

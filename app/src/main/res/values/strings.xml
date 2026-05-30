@@ -498,6 +498,16 @@
     <string name="icon_pack_not_found">Icon pack not found</string>
     <string name="icon_pack_no_icons">No icons available in this pack</string>
     <string name="icon_theme_applied">Icon theme applied</string>
+    <string name="widget_app_icon_label">App Icon</string>
+    <string name="widget_app_icon_description">Place an app shortcut on the home screen</string>
+    <string name="widget_folder_label">App Folder</string>
+    <string name="widget_folder_description">Group apps into a folder</string>
+    <string name="list_app_add_to_home">Add to Home Screen</string>
+    <string name="toast_added_to_home">Added to home screen</string>
+    <string name="toast_folder_created">Folder created</string>
+    <string name="dialog_folder_title">Folder</string>
+    <string name="dialog_folder_empty">No apps in this folder</string>
+    <string name="dialog_folder_add_apps">Add Apps</string>
     <string name="settings_icons_icon_theme_key">settings_icons_icon_theme_key</string>
     <string name="settings_icons_icon_pack_enabled_key">settings_icons_icon_pack_enabled_key</string>
     <string name="settings_icons_icon_pack_package_key">settings_icons_icon_pack_package_key</string>

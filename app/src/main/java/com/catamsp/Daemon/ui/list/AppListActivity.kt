@@ -28,6 +28,10 @@ class AppListActivity : AbstractListActivity() {
     var pendingIconAppInfo: com.catamsp.Daemon.apps.AbstractDetailedAppInfo? = null
         internal set
 
+    // Pick mode: when true, selecting an app returns it as a result
+    var isPickMode = false
+        private set
+
     private fun updateLockIcon(locked: Boolean) {
         if (
         // hide lock when private space does not exist
@@ -68,6 +72,8 @@ class AppListActivity : AbstractListActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        isPickMode = intent.getBooleanExtra("pick_mode", false)
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             onBackInvokedDispatcher.registerOnBackInvokedCallback(
@@ -144,5 +150,15 @@ class AppListActivity : AbstractListActivity() {
                 as? com.catamsp.Daemon.ui.list.apps.ListFragmentApps
             fragment?.refreshAppsList()
         }
+    }
+
+    fun returnSelectedApp(appInfo: com.catamsp.Daemon.apps.AbstractDetailedAppInfo) {
+        val resultIntent = android.content.Intent()
+        val rawInfo = appInfo.getRawInfo()
+        resultIntent.putExtra("app_info", com.catamsp.Daemon.apps.AppInfo.serializer().let {
+            kotlinx.serialization.json.Json.encodeToString(it, rawInfo as com.catamsp.Daemon.apps.AppInfo)
+        })
+        setResult(RESULT_OK, resultIntent)
+        finish()
     }
 }

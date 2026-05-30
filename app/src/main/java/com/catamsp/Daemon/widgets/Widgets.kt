@@ -53,7 +53,9 @@ fun bindAppWidgetOrRequestPermission(
 fun getAppWidgetProviders(context: Context): List<LauncherWidgetProvider> {
     val list = mutableListOf<LauncherWidgetProvider>(
         LauncherClockWidgetProvider(context),
-        LauncherGlobeWidgetProvider(context)
+        LauncherGlobeWidgetProvider(context),
+        LauncherAppIconWidgetProvider(context),
+        LauncherFolderWidgetProvider(context)
     )
     val appWidgetManager = context.getAppWidgetManager()
     val profiles =
