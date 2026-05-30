@@ -41,7 +41,7 @@ enum class LauncherAction(
     val id: String,
     val label: Int,
     val icon: Int,
-    val launch: (Context) -> Unit,
+    val launch: (Context, Bundle?) -> Unit,
     private val canReachSettings: Boolean = false,
     val available: (Context) -> Boolean = { true },
 ) : Action {
@@ -63,18 +63,18 @@ enum class LauncherAction(
         "choose_from_favorites",
         R.string.list_other_list_favorites,
         R.drawable.baseline_favorite_24,
-        { context -> openAppsList(context, favorite = true) },
+        { context, opts -> openAppsList(context, opts, favorite = true) },
         true
     ),
     CHOOSE_FROM_PRIVATE_SPACE(
         "choose_from_private_space",
         R.string.list_other_list_private_space,
         R.drawable.baseline_security_24,
-        { context ->
+        { context, opts ->
             if ((context.applicationContext as Application).privateSpaceLocked.value != true
                 || !hidePrivateSpaceWhenLocked(context)
             ) {
-                openAppsList(context, private = true)
+                openAppsList(context, opts, private = true)
             }
         },
         available = { _ ->
@@ -85,44 +85,44 @@ enum class LauncherAction(
         "toggle_private_space_lock",
         R.string.list_other_toggle_private_space_lock,
         R.drawable.baseline_security_24,
-        ::togglePrivateSpaceLock,
+        { context, _ -> togglePrivateSpaceLock(context) },
         available = { _ -> isPrivateSpaceSupported() }
     ),
     VOLUME_UP(
         "volume_up",
         R.string.list_other_volume_up,
         R.drawable.baseline_volume_up_24,
-        { context -> audioVolumeAdjust(context, AudioManager.ADJUST_RAISE) }
+        { context, _ -> audioVolumeAdjust(context, AudioManager.ADJUST_RAISE) }
     ),
     VOLUME_DOWN(
         "volume_down",
         R.string.list_other_volume_down,
         R.drawable.baseline_volume_down_24,
-        { context -> audioVolumeAdjust(context, AudioManager.ADJUST_LOWER) }
+        { context, _ -> audioVolumeAdjust(context, AudioManager.ADJUST_LOWER) }
     ),
     VOLUME_ADJUST(
         "volume_adjust",
         R.string.list_other_volume_adjust,
         R.drawable.baseline_volume_adjust_24,
-        { context -> audioVolumeAdjust(context, AudioManager.ADJUST_SAME) }
+        { context, _ -> audioVolumeAdjust(context, AudioManager.ADJUST_SAME) }
     ),
     TRACK_PLAY_PAUSE(
         "play_pause_track",
         R.string.list_other_track_play_pause,
         R.drawable.baseline_play_arrow_24,
-        { context -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) }
+        { context, _ -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_PLAY_PAUSE) }
     ),
     TRACK_NEXT(
         "next_track",
         R.string.list_other_track_next,
         R.drawable.baseline_skip_next_24,
-        { context -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_NEXT) }
+        { context, _ -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_NEXT) }
     ),
     TRACK_PREV(
         "previous_track",
         R.string.list_other_track_previous,
         R.drawable.baseline_skip_previous_24,
-        { context -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS) }
+        { context, _ -> audioManagerPressKey(context, KeyEvent.KEYCODE_MEDIA_PREVIOUS) }
     ),
     EXPAND_NOTIFICATIONS_PANEL(
         "expand_notifications_panel",
@@ -140,7 +140,7 @@ enum class LauncherAction(
         "recent_apps",
         R.string.list_other_recent_apps,
         R.drawable.baseline_apps_24,
-        LauncherAccessibilityService::openRecentApps,
+        { context, _ -> LauncherAccessibilityService.openRecentApps(context) },
         false,
         { _ -> BuildConfig.USE_ACCESSIBILITY_SERVICE }
     ),
@@ -148,7 +148,7 @@ enum class LauncherAction(
         "lock_screen",
         R.string.list_other_lock_screen,
         R.drawable.baseline_lock_24,
-        LauncherAccessibilityService::lockScreen,
+        { context, _ -> LauncherAccessibilityService.lockScreen(context) },
         false,
         { _ -> BuildConfig.USE_ACCESSIBILITY_SERVICE }
     ),
@@ -168,7 +168,7 @@ enum class LauncherAction(
         "kill_space",
         R.string.list_other_kill_space,
         R.drawable.baseline_close_24,
-        { context ->
+        { context, _ ->
             com.catamsp.Daemon.ui.settings.system.KillSpaceDialog(context).show()
         },
         canReachSettings = false,
@@ -176,10 +176,10 @@ enum class LauncherAction(
             com.catamsp.Daemon.preferences.LauncherPreferences.internal().killSpaceEnabled()
         }
     ),
-    NOP("nop", R.string.list_other_nop, R.drawable.baseline_not_interested_24, {});
+    NOP("nop", R.string.list_other_nop, R.drawable.baseline_not_interested_24, { _, _ -> });
 
-    override fun invoke(context: Context, rect: Rect?, opts: android.os.Bundle?): Boolean {
-        launch(context)
+    override fun invoke(context: Context, rect: Rect?, opts: Bundle?): Boolean {
+        launch(context, opts)
         return true
     }
 
@@ -230,7 +230,7 @@ private fun audioVolumeAdjust(context: Context, direction: Int) {
 
 /* End media player actions */
 
-private fun toggleTorch(context: Context) {
+private fun toggleTorch(context: Context, opts: Bundle?) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
         Toast.makeText(
             context,
@@ -243,7 +243,7 @@ private fun toggleTorch(context: Context) {
     (context.applicationContext as Application).torchManager?.toggleTorch(context)
 }
 
-private fun expandNotificationsPanel(context: Context) {
+private fun expandNotificationsPanel(context: Context, opts: Bundle?) {
     /* https://stackoverflow.com/a/15582509 */
     try {
         @Suppress("SpellCheckingInspection")
@@ -261,7 +261,7 @@ private fun expandNotificationsPanel(context: Context) {
 }
 
 
-private fun expandSettingsPanel(context: Context) {
+private fun expandSettingsPanel(context: Context, opts: Bundle?) {
     /* https://stackoverflow.com/a/31898506 */
     try {
         @Suppress("SpellCheckingInspection")
@@ -278,21 +278,23 @@ private fun expandSettingsPanel(context: Context) {
     }
 }
 
-private fun launchOtherLauncher(context: Context) {
+private fun launchOtherLauncher(context: Context, opts: Bundle?) {
     context.startActivity(
         Intent.createChooser(
             Intent(Intent.ACTION_MAIN).also { it.addCategory(Intent.CATEGORY_HOME) },
             context.getString(R.string.list_other_launch_other_launcher)
-        )
+        ),
+        opts
     )
 }
 
-private fun openSettings(context: Context) {
-    context.startActivity(Intent(context, SettingsActivity::class.java))
+private fun openSettings(context: Context, opts: Bundle?) {
+    context.startActivity(Intent(context, SettingsActivity::class.java), opts)
 }
 
 fun openAppsList(
     context: Context,
+    opts: Bundle? = null,
     favorite: Boolean = false,
     hidden: Boolean = false,
     private: Boolean = false
@@ -325,7 +327,7 @@ fun openAppsList(
         }
     )
 
-    context.startActivity(intent)
+    context.startActivity(intent, opts)
 }
 
 /* A custom serializer is required to store type information,

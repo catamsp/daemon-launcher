@@ -34,11 +34,8 @@ class SettingsFragmentMeta : Fragment(), UIObject {
 
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            refreshList()
             if (prefKey == LauncherPreferences.theme().keys().font()) {
-                view?.post {
-                    adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
-                }
+                refreshList()
             }
         }
 
@@ -56,6 +53,7 @@ class SettingsFragmentMeta : Fragment(), UIObject {
         
         binding.metaRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.metaRecyclerView.adapter = adapter
+        binding.metaRecyclerView.itemAnimator = null
         
         refreshList()
     }

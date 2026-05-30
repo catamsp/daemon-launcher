@@ -16,6 +16,39 @@ import com.catamsp.Daemon.R
 
 class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolder>(SettingsDiffCallback()) {
 
+    private var cachedTypeface: android.graphics.Typeface? = null
+    private var cachedFontName: String? = null
+    private var cachedSpacingMultiplier: Float = 1.0f
+    private var cachedSpacingPref: String? = null
+
+    fun invalidateCache() {
+        cachedTypeface = null
+        cachedFontName = null
+        cachedSpacingPref = null
+    }
+
+    private fun getTypeface(context: android.content.Context): android.graphics.Typeface {
+        val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
+        if (fontName != cachedFontName || cachedTypeface == null) {
+            cachedFontName = fontName
+            cachedTypeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(context, fontName)
+        }
+        return cachedTypeface!!
+    }
+
+    private fun getSpacingMultiplier(): Float {
+        val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
+        if (spacingPref != cachedSpacingPref) {
+            cachedSpacingPref = spacingPref
+            cachedSpacingMultiplier = when (spacingPref) {
+                "compact" -> 0.85f
+                "spacious" -> 1.15f
+                else -> 1.0f
+            }
+        }
+        return cachedSpacingMultiplier
+    }
+
     private companion object {
         const val TYPE_HEADER = 0
         const val TYPE_TOGGLE = 1
@@ -55,6 +88,8 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.contains("FONT_UPDATE") || payloads.contains("SPACING_UPDATE")) {
+            if (payloads.contains("FONT_UPDATE")) cachedTypeface = null
+            if (payloads.contains("SPACING_UPDATE")) cachedSpacingPref = null
             val item = getItem(position)
             when (holder) {
                 is HeaderViewHolder -> holder.bind(item as SettingsItem.Header)
@@ -71,17 +106,8 @@ class SettingsRecyclerAdapter : ListAdapter<SettingsItem, RecyclerView.ViewHolde
         private val title: TextView = view.findViewById(R.id.settings_item_header_title)
         fun bind(item: SettingsItem.Header) {
             title.text = item.title
-            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            title.typeface = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
-            
-            // Apply spacing density
-            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
-            val multiplier = when (spacingPref) {
-                "compact" -> 0.85f
-                "spacious" -> 1.15f
-                else -> 1.0f
-            }
-            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
+            title.typeface = getTypeface(itemView.context)
+            title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * getSpacingMultiplier())
         }
     }
 
@@ -96,18 +122,10 @@ inner class ToggleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            val tf = getTypeface(itemView.context)
+            val multiplier = getSpacingMultiplier()
             title.typeface = tf
             desc.typeface = tf
-            
-            // Apply spacing density
-            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
-            val multiplier = when (spacingPref) {
-                "compact" -> 0.85f
-                "spacious" -> 1.15f
-                else -> 1.0f
-            }
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
             desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
             
@@ -137,19 +155,11 @@ inner class ToggleViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            val tf = getTypeface(itemView.context)
+            val multiplier = getSpacingMultiplier()
             title.typeface = tf
             desc.typeface = tf
             valueText.typeface = tf
-            
-            // Apply spacing density
-            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
-            val multiplier = when (spacingPref) {
-                "compact" -> 0.85f
-                "spacious" -> 1.15f
-                else -> 1.0f
-            }
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
             desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
             valueText.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
@@ -184,18 +194,10 @@ inner class ClickableViewHolder(view: View) : RecyclerView.ViewHolder(view) {
             desc.text = item.description
             desc.isVisible = item.description != null
             
-            val fontName = com.catamsp.Daemon.preferences.LauncherPreferences.theme().font()
-            val tf = com.catamsp.Daemon.preferences.theme.Font.getTypeface(itemView.context, fontName)
+            val tf = getTypeface(itemView.context)
+            val multiplier = getSpacingMultiplier()
             title.typeface = tf
             desc.typeface = tf
-            
-            // Apply spacing density
-            val spacingPref = com.catamsp.Daemon.preferences.LauncherPreferences.theme().spacingDensity()
-            val multiplier = when (spacingPref) {
-                "compact" -> 0.85f
-                "spacious" -> 1.15f
-                else -> 1.0f
-            }
             title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f * multiplier)
             desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f * multiplier)
             

@@ -176,7 +176,7 @@ class ManageWidgetsActivity : UIObject, Activity() {
 
     private fun configureWidget(data: Intent) {
         val extras = data.extras
-        val appWidgetId = extras!!.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1)
+        val appWidgetId = extras?.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, -1) ?: -1
         val widget = AppWidget(appWidgetId, panelId = panelId)
         if (widget.isConfigurable(this)) {
             widget.configure(this, REQUEST_CREATE_APPWIDGET)

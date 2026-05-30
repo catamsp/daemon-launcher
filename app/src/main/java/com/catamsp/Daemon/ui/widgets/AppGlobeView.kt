@@ -308,7 +308,7 @@ class AppGlobeView(
                 closestApp = p.app
             }
         }
-        closestApp?.let { it.getAction().invoke(context as Activity) }
+        closestApp?.let { it.getAction().invoke(context) }
     }
 
     private val drawRect = RectF()

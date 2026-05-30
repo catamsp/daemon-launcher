@@ -125,7 +125,7 @@ enum class Gesture(
         R.string.settings_gesture_tap_down,
         R.string.settings_gesture_description_tap_down,
         R.array.default_down,
-        R.anim.bottom_up
+        R.anim.top_down
     ),
     SWIPE_DOWN_DOUBLE(
         "action.double_down",

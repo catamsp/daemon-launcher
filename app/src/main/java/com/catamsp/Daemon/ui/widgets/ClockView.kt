@@ -92,11 +92,11 @@ class ClockView(
         binding.clockLowerView.setTextSize(TypedValue.COMPLEX_UNIT_SP, clockSize)
 
         val fontName = LauncherPreferences.clock().font()
-        try {
-            val builtIn = Font.valueOf(fontName)
+        val builtIn = Font.entries.find { it.name == fontName }
+        if (builtIn != null) {
             TextViewCompat.setTextAppearance(binding.clockUpperView, builtIn.id)
             TextViewCompat.setTextAppearance(binding.clockLowerView, builtIn.id)
-        } catch (e: Exception) {
+        } else {
             // Custom font
             binding.clockUpperView.typeface = Font.getTypeface(context, fontName)
             binding.clockLowerView.typeface = Font.getTypeface(context, fontName)

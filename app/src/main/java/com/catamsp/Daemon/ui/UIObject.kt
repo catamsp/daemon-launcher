@@ -29,8 +29,6 @@ import com.catamsp.Daemon.preferences.theme.Font
  */
 @Suppress("deprecation") // FLAG_FULLSCREEN is required to support API level < 30
 fun setWindowFlags(window: Window, homeScreen: Boolean) {
-    window.setFlags(0, 0) // clear flags
-
     // Display notification bar
     if (LauncherPreferences.display().hideStatusBar())
         window.setFlags(
@@ -89,11 +87,7 @@ interface UIObject {
         }
         
         val fontName = LauncherPreferences.theme().font()
-        try {
-            Font.valueOf(fontName).applyToTheme(theme)
-        } catch (e: Exception) {
-            // Custom font - cannot apply to theme style, will be applied to views manually
-        }
+        Font.entries.find { it.name == fontName }?.applyToTheme(theme)
 
         return theme
     }

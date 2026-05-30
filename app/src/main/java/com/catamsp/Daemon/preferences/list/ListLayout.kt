@@ -53,5 +53,5 @@ private fun getNumColumns(context: Context, columnWidthSP: Float = 90f): Int {
     val displayMetrics = context.resources.displayMetrics
     val widthColumnPx =
         TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, columnWidthSP, displayMetrics)
-    return (displayMetrics.widthPixels / widthColumnPx).toInt()
+    return maxOf(1, (displayMetrics.widthPixels / widthColumnPx).toInt())
 }

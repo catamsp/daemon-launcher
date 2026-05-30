@@ -19,9 +19,9 @@ class AppFilter(
     var privateSpaceVisibility: AppSetVisibility = AppSetVisibility.VISIBLE
 ) {
     // Optimization Cache
-    private var lastQuery: String? = null
-    private var normalizedQueryCache: String? = null
-    private var disallowedCharsRegex: Regex? = null
+    @Volatile private var lastQuery: String? = null
+    @Volatile private var normalizedQueryCache: String? = null
+    @Volatile private var disallowedCharsRegex: Regex? = null
 
     operator fun invoke(apps: List<AbstractDetailedAppInfo>): List<AbstractDetailedAppInfo> {
         val hidden = LauncherPreferences.apps().hidden() ?: emptySet()

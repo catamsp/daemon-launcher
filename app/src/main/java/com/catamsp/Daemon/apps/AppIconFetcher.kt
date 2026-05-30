@@ -24,8 +24,10 @@ class AppIconFetcher(
     }
 
     class Factory(private val context: Context) : Fetcher.Factory<AbstractDetailedAppInfo> {
+        private val appContext = context.applicationContext
+
         override fun create(data: AbstractDetailedAppInfo, options: Options, imageLoader: ImageLoader): Fetcher {
-            return AppIconFetcher(data, context, options)
+            return AppIconFetcher(data, appContext, options)
         }
     }
 }

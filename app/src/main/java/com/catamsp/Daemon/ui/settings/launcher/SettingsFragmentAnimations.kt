@@ -21,13 +21,22 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
     private lateinit var binding: SettingsLauncherBinding
     private val adapter = SettingsRecyclerAdapter()
 
+    private val animationKeys by lazy {
+        setOf(
+            LauncherPreferences.animations().keys().masterToggle(),
+            LauncherPreferences.animations().keys().swipeUp(),
+            LauncherPreferences.animations().keys().swipeDown(),
+            LauncherPreferences.animations().keys().swipeLeft(),
+            LauncherPreferences.animations().keys().swipeRight(),
+            LauncherPreferences.animations().keys().other(),
+            LauncherPreferences.theme().keys().font()
+        )
+    }
+
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            refreshList()
-            if (prefKey == LauncherPreferences.theme().keys().font()) {
-                view?.post {
-                    adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
-                }
+            if (prefKey in animationKeys) {
+                refreshList()
             }
         }
 
@@ -49,6 +58,7 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
         super.onViewCreated(view, savedInstanceState)
         binding.launcherRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.launcherRecyclerView.adapter = adapter
+        binding.launcherRecyclerView.itemAnimator = null
         refreshList()
     }
 
@@ -77,7 +87,6 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
         val masterToggle = prefs.getBoolean(LauncherPreferences.animations().keys().masterToggle(), true)
         items.add(SettingsItem.Toggle("tgl_anim_master", getString(R.string.settings_animations_master_toggle), null, null, masterToggle) {
             prefs.edit().putBoolean(LauncherPreferences.animations().keys().masterToggle(), it).apply()
-            refreshList()
         })
 
         if (masterToggle) {

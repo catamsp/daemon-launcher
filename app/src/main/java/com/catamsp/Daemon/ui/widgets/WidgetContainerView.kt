@@ -59,16 +59,19 @@ open class WidgetContainerView(
         }
         val position = PointF(ev.x, ev.y)
 
-        return widgetViewById.filter {
-            RectF(
-                it.value.x,
-                it.value.y,
-                it.value.x + it.value.width,
-                it.value.y + it.value.height
-            ).contains(position) == true
-        }.any {
-            Widget.byId(it.key, context)?.allowInteraction == false
+        val intercepted = synchronized(widgetViewById) {
+            widgetViewById.filter {
+                RectF(
+                    it.value.x,
+                    it.value.y,
+                    it.value.x + it.value.width,
+                    it.value.y + it.value.height
+                ).contains(position) == true
+            }.any {
+                Widget.byId(it.key, context)?.allowInteraction == false
+            }
         }
+        return intercepted
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -145,8 +148,6 @@ open class WidgetContainerView(
                 Gravity.apply(lp.alignment, child.measuredWidth, child.measuredHeight, position, outRect)
                 child.layout(outRect.left, outRect.top, outRect.right, outRect.bottom)
             }
-            child.layoutParams.width = child.width
-            child.layoutParams.height = child.height
         }
     }
 

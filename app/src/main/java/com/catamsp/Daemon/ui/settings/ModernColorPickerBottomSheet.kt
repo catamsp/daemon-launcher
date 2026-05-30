@@ -20,10 +20,28 @@ import com.catamsp.Daemon.preferences.LauncherPreferences
 import com.catamsp.Daemon.preferences.theme.Font
 import com.catamsp.Daemon.ui.views.PremiumRibbonSlider
 
-class ModernColorPickerBottomSheet(
-    private val initialColor: Int,
-    private val onColorSelected: (Int) -> Unit
-) : BottomSheetDialogFragment() {
+class ModernColorPickerBottomSheet() : BottomSheetDialogFragment() {
+
+    private var initialColor: Int = 0
+    private var onColorSelected: ((Int) -> Unit)? = null
+
+    constructor(initialColor: Int, onColorSelected: (Int) -> Unit) : this() {
+        this.initialColor = initialColor
+        this.onColorSelected = onColorSelected
+        arguments = Bundle().apply { putInt(ARG_INITIAL_COLOR, initialColor) }
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        initialColor = savedInstanceState?.getInt(ARG_INITIAL_COLOR, initialColor)
+            ?: arguments?.getInt(ARG_INITIAL_COLOR, initialColor)
+            ?: initialColor
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        super.onSaveInstanceState(outState)
+        outState.putInt(ARG_INITIAL_COLOR, initialColor)
+    }
 
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         val dialog = BottomSheetDialog(requireContext(), theme)
@@ -140,8 +158,12 @@ class ModernColorPickerBottomSheet(
 
         btnCancel.setOnClickListener { dismiss() }
         btnApply.setOnClickListener {
-            onColorSelected(currentColor)
+            onColorSelected?.invoke(currentColor)
             dismiss()
         }
+    }
+
+    companion object {
+        private const val ARG_INITIAL_COLOR = "initial_color"
     }
 }

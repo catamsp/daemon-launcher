@@ -41,7 +41,6 @@ class Application : android.app.Application(), ImageLoaderFactory {
     val privateSpaceLocked = MutableLiveData<Boolean>()
     val activeNotifications = object : MutableLiveData<Set<String>>(emptySet()) {
         override fun postValue(value: Set<String>?) {
-            android.util.Log.d("Application", "DEBUG: Posting active notifications: $value")
             super.postValue(value)
         }
     }
@@ -72,7 +71,8 @@ class Application : android.app.Application(), ImageLoaderFactory {
             apps.postValue(currentApps)
 
             // Clear from cache
-            val userInt = com.catamsp.Daemon.getUserId(user!!, this@Application)
+            val u = user ?: return
+            val userInt = com.catamsp.Daemon.getUserId(u, this@Application)
             val prefix = "AppInfo(packageName=$packageName,"
             val suffix = "user=$userInt)"
             GlobeCache.iconBitmaps.keys.filter { it.startsWith(prefix) && it.endsWith(suffix) }.forEach {
@@ -103,7 +103,8 @@ class Application : android.app.Application(), ImageLoaderFactory {
             apps.postValue(currentApps)
 
             // Clear from cache to pick up potential icon changes
-            val userInt = com.catamsp.Daemon.getUserId(user!!, this@Application)
+            val u = user ?: return
+            val userInt = com.catamsp.Daemon.getUserId(u, this@Application)
             val prefix = "AppInfo(packageName=$packageName,"
             val suffix = "user=$userInt)"
             GlobeCache.iconBitmaps.keys.filter { it.startsWith(prefix) && it.endsWith(suffix) }.forEach {
@@ -239,9 +240,11 @@ class Application : android.app.Application(), ImageLoaderFactory {
             .also { widgets = it }
     }
 
+    private val appScope = CoroutineScope(Dispatchers.Default + kotlinx.coroutines.SupervisorJob())
+
     private fun loadApps() {
         privateSpaceLocked.postValue(isPrivateSpaceLocked(this))
-        CoroutineScope(Dispatchers.Default).launch {
+        appScope.launch {
             apps.postValue(getApps(packageManager, applicationContext))
         }
     }

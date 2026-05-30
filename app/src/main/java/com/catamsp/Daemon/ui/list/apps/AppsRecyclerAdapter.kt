@@ -64,8 +64,10 @@ class AppsRecyclerAdapter(
     private val searchScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
 
     init {
-        apps.observe(this.activity as AppCompatActivity) {
-            updateAppsList()
+        (this.activity as? androidx.lifecycle.LifecycleOwner)?.let { owner ->
+            apps.observe(owner) {
+                updateAppsList()
+            }
         }
         // updateAppsList() is removed here as it will be triggered by the observer immediately if apps.value is not null
     }

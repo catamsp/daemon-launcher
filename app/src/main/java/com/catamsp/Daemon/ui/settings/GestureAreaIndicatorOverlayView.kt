@@ -51,7 +51,10 @@ class GestureAreaIndicatorOverlayView(context: Context?, attrs: AttributeSet?) :
     init {
         overlayPaint.setARGB(50, 255, 0, 0)
         overlayPaint.strokeWidth = 10f
+    }
 
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
         update()
     }
 

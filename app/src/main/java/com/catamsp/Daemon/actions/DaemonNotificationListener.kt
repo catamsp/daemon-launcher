@@ -28,7 +28,7 @@ class DaemonNotificationListener : NotificationListenerService() {
             val packages = active?.mapNotNull { it.packageName }?.toSet() ?: emptySet()
             (applicationContext as? Application)?.activeNotifications?.postValue(packages)
         } catch (e: Exception) {
-            // Silently fail to avoid spamming logs
+            Log.d("NotificationListener", "Failed to update notifications", e)
         }
     }
 }

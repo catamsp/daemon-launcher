@@ -81,13 +81,34 @@ class SettingsFragmentLauncher : Fragment(), UIObject {
         }
     }
 
-private val sharedPreferencesListener =
+    private val relevantPrefKeys by lazy {
+        setOf(
+            LauncherPreferences.theme().keys().font(),
+            LauncherPreferences.theme().keys().colorTheme(),
+            LauncherPreferences.theme().keys().background(),
+            LauncherPreferences.theme().keys().textShadow(),
+            LauncherPreferences.theme().keys().monochromeIcons(),
+            LauncherPreferences.theme().keys().spacingDensity(),
+            LauncherPreferences.functionality().keys().searchAutoLaunch(),
+            LauncherPreferences.functionality().keys().searchWeb(),
+            LauncherPreferences.functionality().keys().searchAutoOpenKeyboard(),
+            LauncherPreferences.functionality().keys().searchAutoCloseKeyboard(),
+            LauncherPreferences.apps().keys().hideBoundApps(),
+            LauncherPreferences.display().keys().rotateScreen(),
+            LauncherPreferences.display().keys().screenTimeoutDisabled(),
+            LauncherPreferences.display().keys().hideStatusBar(),
+            LauncherPreferences.display().keys().hideNavigationBar(),
+            LauncherPreferences.apps().keys().pinnedShortcuts()
+        )
+    }
+
+    private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
                 refreshListWithFontUpdate()
             } else if (prefKey == LauncherPreferences.theme().keys().spacingDensity()) {
                 refreshListWithSpacingUpdate()
-            } else {
+            } else if (prefKey in relevantPrefKeys) {
                 refreshList()
             }
         }
@@ -106,6 +127,7 @@ private val sharedPreferencesListener =
         
         binding.launcherRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.launcherRecyclerView.adapter = adapter
+        binding.launcherRecyclerView.itemAnimator = null
         
         refreshList()
     }

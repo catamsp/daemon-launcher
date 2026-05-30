@@ -1,5 +1,6 @@
 package com.catamsp.Daemon.ui.settings.system
 
+import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.View
@@ -49,7 +50,21 @@ class SettingsFragmentSystem : Fragment(R.layout.settings_launcher) {
 
     override fun onResume() {
         super.onResume()
-        refreshList() 
+        LauncherPreferences.getSharedPreferences()
+            .registerOnSharedPreferenceChangeListener(prefsListener)
+        refreshList()
+    }
+
+    override fun onPause() {
+        LauncherPreferences.getSharedPreferences()
+            .unregisterOnSharedPreferenceChangeListener(prefsListener)
+        super.onPause()
+    }
+
+    private val prefsListener = SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
+        if (prefKey == LauncherPreferences.internal().keys().killSpaceEnabled()) {
+            refreshList()
+        }
     }
 
     private fun refreshList() {

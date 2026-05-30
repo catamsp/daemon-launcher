@@ -48,7 +48,7 @@ class WidgetPanelAction(val widgetPanelId: Int) : Action {
     }
 
     override fun isAvailable(context: Context): Boolean {
-        return true
+        return WidgetPanel.byId(widgetPanelId) != null
     }
 
     override fun canReachSettings(): Boolean {

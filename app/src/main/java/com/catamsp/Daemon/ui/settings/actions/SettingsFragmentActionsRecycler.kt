@@ -52,6 +52,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
         
         binding.settingsActionsRview.layoutManager = LinearLayoutManager(context)
         binding.settingsActionsRview.adapter = adapter
+        binding.settingsActionsRview.itemAnimator = null
         
         refreshList()
     }
@@ -82,7 +83,7 @@ class SettingsFragmentActionsRecycler : Fragment(), UIObject {
     }
 
     private fun refreshList() {
-        val activity = requireActivity()
+        val activity = activity ?: return
         val prefs = LauncherPreferences.getSharedPreferences()
         val gestures = Gesture.entries.filter(Gesture::isEnabled)
         val items = mutableListOf<SettingsItem>()

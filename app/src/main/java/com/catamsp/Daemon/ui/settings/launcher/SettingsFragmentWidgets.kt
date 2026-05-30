@@ -53,15 +53,28 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
         }
     }
 
+    private val widgetPrefKeys by lazy {
+        setOf(
+            LauncherPreferences.clock().keys().font(),
+            LauncherPreferences.clock().keys().clockSize(),
+            LauncherPreferences.clock().keys().color(),
+            LauncherPreferences.clock().keys().localized(),
+            LauncherPreferences.clock().keys().timeVisible(),
+            LauncherPreferences.clock().keys().showSeconds(),
+            LauncherPreferences.clock().keys().dateVisible(),
+            LauncherPreferences.clock().keys().flipDateTime(),
+            LauncherPreferences.globe().keys().perspective(),
+            LauncherPreferences.globe().keys().showGlow(),
+            LauncherPreferences.globe().keys().glowOpacity(),
+            LauncherPreferences.widgets().keys().widgets(),
+            LauncherPreferences.theme().keys().font()
+        )
+    }
+
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
-            if (isAdded) {
+            if (isAdded && prefKey in widgetPrefKeys) {
                 refreshList()
-                if (prefKey == LauncherPreferences.theme().keys().font()) {
-                    view?.post {
-                        adapter.notifyItemRangeChanged(0, adapter.itemCount, "FONT_UPDATE")
-                    }
-                }
             }
         }
 
@@ -78,6 +91,7 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
         super.onViewCreated(view, savedInstanceState)
         binding.launcherRecyclerView.layoutManager = LinearLayoutManager(context)
         binding.launcherRecyclerView.adapter = adapter
+        binding.launcherRecyclerView.itemAnimator = null
         refreshList()
     }
 
@@ -155,7 +169,6 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             items.add(SettingsItem.Clickable("btn_clock_color", getString(R.string.settings_clock_color), "Hex: #%08X".format(LauncherPreferences.clock().color())) {
                 val bottomSheet = ModernColorPickerBottomSheet(LauncherPreferences.clock().color()) { color ->
                     prefs.edit().putInt(LauncherPreferences.clock().keys().color(), color).apply()
-                    refreshList()
                 }
                 bottomSheet.show(parentFragmentManager, "ColorPicker")
             })

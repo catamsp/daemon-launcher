@@ -84,7 +84,7 @@ class DaemonVideoService : WallpaperService() {
                     prepareAsync()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("DaemonVideoService", "Failed to set up media player", e)
                 releaseMediaPlayer()
             }
         }
@@ -96,14 +96,14 @@ class DaemonVideoService : WallpaperService() {
                     release()
                 }
             } catch (e: Exception) {
-                e.printStackTrace()
+                Log.e("DaemonVideoService", "Error releasing media player", e)
             } finally {
                 mediaPlayer = null
                 
                 try {
                     fileInputStream?.close()
                 } catch (e: Exception) {
-                    e.printStackTrace()
+                    Log.e("DaemonVideoService", "Error closing file input stream", e)
                 } finally {
                     fileInputStream = null
                 }

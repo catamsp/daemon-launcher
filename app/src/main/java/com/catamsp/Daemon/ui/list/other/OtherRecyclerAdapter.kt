@@ -37,6 +37,7 @@ class OtherRecyclerAdapter(val activity: Activity) :
 
         override fun onClick(v: View) {
             val pos = bindingAdapterPosition
+            if (pos == RecyclerView.NO_POSITION || pos < 0 || pos >= othersList.size) return
             val content = othersList[pos]
 
             val gestureId = (activity as? SelectActionActivity)?.forGesture ?: return

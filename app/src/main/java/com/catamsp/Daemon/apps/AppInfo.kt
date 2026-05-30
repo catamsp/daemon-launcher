@@ -22,8 +22,9 @@ data class AppInfo(
     val user: Int = INVALID_USER
 ) : AbstractAppInfo {
 
-    fun getComponentName(): ComponentName {
-        return ComponentName(packageName, activityName ?: "")
+    fun getComponentName(): ComponentName? {
+        val name = activityName ?: return null
+        return ComponentName(packageName, name)
     }
 
     fun getLauncherActivityInfo(

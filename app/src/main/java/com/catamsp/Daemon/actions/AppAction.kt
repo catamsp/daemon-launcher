@@ -90,7 +90,8 @@ class AppAction(val app: AppInfo) : Action {
     }
 
     override fun label(context: Context): String {
-        return DetailedAppInfo.fromAppInfo(app, context)?.getCustomLabel(context).toString()
+        return DetailedAppInfo.fromAppInfo(app, context)?.getCustomLabel(context)
+            ?: context.getString(R.string.action_unknown)
     }
 
     override fun getIcon(context: Context): Drawable? {

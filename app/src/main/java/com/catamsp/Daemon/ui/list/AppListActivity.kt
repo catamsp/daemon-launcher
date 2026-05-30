@@ -81,7 +81,7 @@ class AppListActivity : AbstractListActivity() {
         applyFont(binding.listHeading)
 
         binding.listSettings.setOnClickListener {
-            LauncherAction.SETTINGS.launch(this@AppListActivity)
+            LauncherAction.SETTINGS.launch(this@AppListActivity, null)
         }
 
         if (privateSpaceVisibility == AppFilter.Companion.AppSetVisibility.EXCLUSIVE) {

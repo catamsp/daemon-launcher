@@ -195,7 +195,7 @@ object UniversalSearchProvider {
                             if (ContextCompat.checkSelfPermission(activity, Manifest.permission.CALL_PHONE) != PackageManager.PERMISSION_GRANTED) {
                                 ActivityCompat.requestPermissions(activity, arrayOf(Manifest.permission.CALL_PHONE), 103)
                             } else {
-                                val intent = Intent(Intent.ACTION_CALL, Uri.parse("tel:$number"))
+                                val intent = Intent(Intent.ACTION_CALL, Uri.fromParts("tel", number, null))
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                                 activity.startActivity(intent)
                             }

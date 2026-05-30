@@ -12,7 +12,7 @@ import java.io.FileOutputStream
 object FontManager {
 
     private const val CUSTOM_FONT_DIR = "custom_fonts"
-    private val typefaceCache = mutableMapOf<String, Typeface>()
+    private val typefaceCache = java.util.concurrent.ConcurrentHashMap<String, Typeface>()
 
     /**
      * Copies a font file from a Uri to the app's internal private storage.

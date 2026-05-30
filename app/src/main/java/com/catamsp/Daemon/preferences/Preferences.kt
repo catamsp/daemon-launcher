@@ -116,7 +116,7 @@ fun migratePreferencesToNewVersion(context: Context) {
             }
         }
     } catch (e: Exception) {
-        Log.e(TAG, "Unable to restore preferences:\n${e.stackTrace}")
+        Log.e(TAG, "Unable to restore preferences", e)
         sendCrashNotification(context, e)
         resetPreferences(context)
     }

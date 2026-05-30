@@ -32,7 +32,7 @@ class WidgetPanel(val id: Int, var label: String) {
     }
 
     fun getWidgets(): List<Widget> {
-        return LauncherPreferences.widgets().widgets().filter {
+        return (LauncherPreferences.widgets().widgets() ?: emptySet()).filter {
             it.panelId == this.id
         }
     }

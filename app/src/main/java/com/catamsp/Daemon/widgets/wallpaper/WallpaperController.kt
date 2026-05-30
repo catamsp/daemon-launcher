@@ -8,9 +8,11 @@ import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
+import android.os.Build
 import android.util.DisplayMetrics
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.File
@@ -19,6 +21,8 @@ import java.io.FileOutputStream
 import com.catamsp.Daemon.services.DaemonVideoService
 
 object WallpaperController {
+
+    private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
     // Copies the user's selected file to our private internal storage to get a real file path
     // This bypasses volatile URI permissions that expire when the activity finishes.
@@ -41,7 +45,7 @@ object WallpaperController {
     }
 
     fun applyVideoWallpaper(activity: Activity, uri: Uri, onSuccess: () -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+        scope.launch {
             val videoPath = cacheMediaFile(activity, uri, "daemon_video_bg", ".mp4")
             if (videoPath != null) {
                 // Save to private prefs for the service
@@ -61,7 +65,7 @@ object WallpaperController {
     }
 
     fun applyStaticWallpaper(activity: Activity, uri: Uri, onSuccess: () -> Unit, onError: (Exception) -> Unit) {
-        CoroutineScope(Dispatchers.IO).launch {
+        scope.launch {
             try {
                 // 1. Pre-cache the file so we have a reliable absolute path
                 val imagePath = cacheMediaFile(activity, uri, "daemon_static_bg", ".jpg") 
@@ -69,8 +73,15 @@ object WallpaperController {
 
                 // 2. Get Screen Dimensions
                 val metrics = DisplayMetrics()
-                @Suppress("DEPRECATION")
-                activity.windowManager.defaultDisplay.getRealMetrics(metrics)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                    val windowMetrics = activity.windowManager.currentWindowMetrics
+                    val bounds = windowMetrics.bounds
+                    metrics.widthPixels = bounds.width()
+                    metrics.heightPixels = bounds.height()
+                } else {
+                    @Suppress("DEPRECATION")
+                    activity.windowManager.defaultDisplay.getRealMetrics(metrics)
+                }
                 val screenWidth = metrics.widthPixels
                 val screenHeight = metrics.heightPixels
 
@@ -149,7 +160,9 @@ object WallpaperController {
 
         val cropped = Bitmap.createBitmap(src, x, y, width, height)
         // Scale it to exact screen size to prevent OS stretching
-        return Bitmap.createScaledBitmap(cropped, targetWidth, targetHeight, true)
+        val scaled = Bitmap.createScaledBitmap(cropped, targetWidth, targetHeight, true)
+        if (scaled != cropped) cropped.recycle()
+        return scaled
     }
 
     // Mode 2: External 3D / Live Wallpaper App

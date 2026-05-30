@@ -43,7 +43,7 @@ sealed interface Action {
     }
 
     companion object {
-        private val actionCache = mutableMapOf<String, Action>()
+        private val actionCache = java.util.concurrent.ConcurrentHashMap<String, Action>()
 
         fun forGesture(gesture: Gesture): Action? {
             val id = gesture.id
@@ -52,7 +52,7 @@ sealed interface Action {
             actionCache[id]?.let { return it }
 
             val preferences = LauncherPreferences.getSharedPreferences()
-            val json = preferences.getString(id, "null")!!
+            val json = preferences.getString(id, "null") ?: "null"
             return try {
                 val action = Json.decodeFromString<Action>(json)
                 actionCache[id] = action
@@ -135,9 +135,17 @@ sealed interface Action {
 
             if (action != null && action.invoke(context, null, opts)) {
                 if (context is Activity) {
-                    // Fallback overridePendingTransition for older APIs or non-intent actions
-                    @Suppress("deprecation")
-                    context.overridePendingTransition(animIn, animOut)
+                    if (android.os.Build.VERSION.SDK_INT >= 34) {
+                        context.overrideActivityTransition(
+                            Activity.OVERRIDE_TRANSITION_OPEN, animIn, animOut
+                        )
+                        context.overrideActivityTransition(
+                            Activity.OVERRIDE_TRANSITION_CLOSE, animIn, animOut
+                        )
+                    } else {
+                        @Suppress("deprecation")
+                        context.overridePendingTransition(animIn, animOut)
+                    }
                 }
             } else {
                 if (context is Activity && gesture != null) {

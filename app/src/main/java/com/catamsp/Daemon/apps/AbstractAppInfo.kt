@@ -15,8 +15,10 @@ sealed interface AbstractAppInfo {
     companion object {
         const val INVALID_USER = -1
 
+        private val json = Json { ignoreUnknownKeys = true }
+
         fun deserialize(serialized: String): AbstractAppInfo {
-            return Json.decodeFromString(serialized)
+            return json.decodeFromString(serialized)
         }
     }
 }
