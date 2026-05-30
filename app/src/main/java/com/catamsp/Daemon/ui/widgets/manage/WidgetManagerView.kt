@@ -164,8 +164,8 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
 
                 val position =
                     (view.layoutParams as Companion.LayoutParams).position.getAbsoluteRect(
-                        width,
-                        height
+                        gridAreaWidth,
+                        gridAreaHeight
                     )
                 selectedWidgetOverlayView = view
                 selectedWidgetView = widgetViewById[view.widgetId]
@@ -197,11 +197,11 @@ class WidgetManagerView(widgetPanelId: Int, context: Context, attrs: AttributeSe
                 val absoluteNewPosition = (view.mode ?: return true).resize(
                     distanceX.toInt(),
                     distanceY.toInt(),
-                    width, height,
+                    gridAreaWidth, gridAreaHeight,
                     start
                 )
                 val newPosition = WidgetPosition.fromAbsoluteRect(
-                    absoluteNewPosition, width, height
+                    absoluteNewPosition, gridAreaWidth, gridAreaHeight
                 )
                 if (absoluteNewPosition != lastPosition) {
                     lastPosition = absoluteNewPosition

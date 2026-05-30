@@ -31,6 +31,8 @@ open class WidgetContainerView(
     constructor(context: Context, attrs: AttributeSet) : this(WidgetPanel.HOME.id, context, attrs)
 
     var widgetViewById = HashMap<Int, View>()
+    protected var gridAreaWidth: Int = 0
+    protected var gridAreaHeight: Int = 0
 
     open fun updateWidgets(activity: Activity, widgets: Collection<Widget>?) {
         synchronized(widgetViewById) {
@@ -74,12 +76,23 @@ open class WidgetContainerView(
         var maxHeight = suggestedMinimumHeight
         var maxWidth = suggestedMinimumWidth
 
-        val mWidth = MeasureSpec.getSize(widthMeasureSpec)
-        val mHeight = MeasureSpec.getSize(heightMeasureSpec)
+        var mWidth = MeasureSpec.getSize(widthMeasureSpec)
+        var mHeight = MeasureSpec.getSize(heightMeasureSpec)
+
+        // Fallback to absolute display metrics if inside a ScrollView (UNSPECIFIED bounds)
+        if (MeasureSpec.getMode(widthMeasureSpec) == MeasureSpec.UNSPECIFIED || mWidth == 0) {
+            mWidth = context.resources.displayMetrics.widthPixels
+        }
+        if (MeasureSpec.getMode(heightMeasureSpec) == MeasureSpec.UNSPECIFIED || mHeight == 0) {
+            mHeight = context.resources.displayMetrics.heightPixels
+        }
+
+        gridAreaWidth = mWidth
+        gridAreaHeight = mHeight
 
         (0..<size).map { getChildAt(it) }.forEach {
             val lp = it.layoutParams as LayoutParams
-            val position = lp.position.getAbsoluteRect(mWidth, mHeight)
+            val position = lp.position.getAbsoluteRect(gridAreaWidth, gridAreaHeight)
             
             if (lp.alignment == Gravity.FILL) {
                 it.measure(
@@ -97,7 +110,7 @@ open class WidgetContainerView(
         // Find rightmost and bottom-most child
         (0..<size).map { getChildAt(it) }.filter { it.visibility != GONE }.forEach {
             val position =
-                (it.layoutParams as LayoutParams).position.getAbsoluteRect(mWidth, mHeight)
+                (it.layoutParams as LayoutParams).position.getAbsoluteRect(gridAreaWidth, gridAreaHeight)
             maxWidth = max(maxWidth, position.left + it.measuredWidth)
             maxHeight = max(maxHeight, position.top + it.measuredHeight)
         }
@@ -122,7 +135,8 @@ open class WidgetContainerView(
         for (i in 0..<size) {
             val child = getChildAt(i)
             val lp = child.layoutParams as LayoutParams
-            val position = lp.position.getAbsoluteRect(r - l, b - t)
+            // FIXED: Anchor layout rendering to the stable screen-derived grid area
+            val position = lp.position.getAbsoluteRect(gridAreaWidth, gridAreaHeight)
             
             if (lp.alignment == Gravity.FILL) {
                 child.layout(position.left, position.top, position.right, position.bottom)

@@ -141,6 +141,7 @@ private val sharedPreferencesListener =
         items.add(SettingsItem.Clickable("btn_wallpaper", getString(R.string.settings_theme_wallpaper), "Current: Tap to change") {
             // Use Binary Ribbon for wallpaper selection (Static vs Video)
             activity?.showBinaryRibbon(
+                key = "btn_wallpaper",
                 button1Text = "Static Image",
                 button2Text = "Cinematic Video",
                 onButton1Click = {
@@ -220,6 +221,7 @@ private val sharedPreferencesListener =
         val currentSpacingIndex = spacingValues.indexOf(LauncherPreferences.theme().spacingDensity())
         items.add(SettingsItem.Clickable("btn_spacing", getString(R.string.settings_theme_spacing), "Current: ${spacingItems[currentSpacingIndex]}") {
             activity?.showTernaryRibbon(
+                key = "btn_spacing",
                 button1Text = getString(R.string.settings_theme_spacing_item_compact),
                 button2Text = getString(R.string.settings_theme_spacing_item_default),
                 button3Text = getString(R.string.settings_theme_spacing_item_spacious),
@@ -282,6 +284,15 @@ private val sharedPreferencesListener =
         items.add(SettingsItem.Toggle("tgl_nav", getString(R.string.settings_display_hide_navigation_bar), null, null, LauncherPreferences.display().hideNavigationBar()) {
             prefs.edit().putBoolean(LauncherPreferences.display().keys().hideNavigationBar(), it).apply()
         })
+
+        val restoreKey = activity?.intent?.getStringExtra("RESTORE_CAROUSEL")
+        if (restoreKey != null) {
+            activity?.intent?.removeExtra("RESTORE_CAROUSEL")
+            binding.root.postDelayed({
+                val itemToClick = items.find { it.key == restoreKey } as? SettingsItem.Clickable
+                itemToClick?.onClick?.invoke()
+            }, 150)
+        }
 
         return items
     }

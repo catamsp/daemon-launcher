@@ -147,7 +147,7 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             val currentClockSize = LauncherPreferences.clock().clockSize()
             items.add(SettingsItem.Clickable("btn_clock_size", getString(R.string.settings_clock_size), "Current Size: $currentClockSize") {
                 (activity as? UIObjectActivity)?.ignoreAutoClose = true
-                (activity as? SettingsActivity)?.showSliderCarousel(16, 40, currentClockSize) { newValue ->
+                (activity as? SettingsActivity)?.showSliderCarousel("btn_clock_size", 16, 40, currentClockSize) { newValue ->
                     prefs.edit().putInt(LauncherPreferences.clock().keys().clockSize(), newValue).apply()
                 }
             })
@@ -192,10 +192,19 @@ class SettingsFragmentWidgets : Fragment(), UIObject {
             val currentGlowOpacity = LauncherPreferences.globe().glowOpacity()
             items.add(SettingsItem.Clickable("btn_globe_glow_opacity", getString(R.string.settings_globe_glow_opacity), "Current Opacity: $currentGlowOpacity") {
                 (activity as? UIObjectActivity)?.ignoreAutoClose = true
-                (activity as? SettingsActivity)?.showSliderCarousel(0, 255, currentGlowOpacity) { newValue ->
+                (activity as? SettingsActivity)?.showSliderCarousel("btn_globe_glow_opacity", 0, 255, currentGlowOpacity) { newValue ->
                     prefs.edit().putInt(LauncherPreferences.globe().keys().glowOpacity(), newValue).apply()
                 }
             })
+        }
+
+        val restoreKey = activity?.intent?.getStringExtra("RESTORE_CAROUSEL")
+        if (restoreKey != null) {
+            activity?.intent?.removeExtra("RESTORE_CAROUSEL")
+            binding.root.postDelayed({
+                val itemToClick = items.find { it.key == restoreKey } as? SettingsItem.Clickable
+                itemToClick?.onClick?.invoke()
+            }, 150)
         }
 
         adapter.submitList(items)

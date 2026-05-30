@@ -48,21 +48,33 @@ class SettingsActivity : UIObjectActivity() {
 
     private var selectionCarouselListener: ((Int) -> Unit)? = null
     private var currentSelectionItems: List<String> = emptyList()
-    private var activeCarouselKey: String? = null
+    internal var activeCarouselKey: String? = null
 
     private val solidBackground = LauncherPreferences.theme().background() == Background.SOLID
             || LauncherPreferences.theme().colorTheme() == ColorTheme.LIGHT
+
+    private val recreateRunnable = Runnable {
+        this@SettingsActivity.ignoreAutoClose = true
+        intent.putExtra("RESTORE_CAROUSEL", activeCarouselKey)
+        recreate()
+    }
 
     private val sharedPreferencesListener =
         SharedPreferences.OnSharedPreferenceChangeListener { _, prefKey ->
             if (prefKey == LauncherPreferences.theme().keys().font()) {
                 val fontName = LauncherPreferences.theme().font()
 
-                binding.settingsHeading.typeface = Font.getTypeface(this, fontName)
+                binding.settingsHeading.typeface = Font.getTypeface(this@SettingsActivity, fontName)
 
                 val tabAdapter = binding.settingsTabs.adapter as? SettingsTabAdapter
                 tabAdapter?.updateFont(fontName)
                 centerTabs()
+            } else if (prefKey == LauncherPreferences.theme().keys().colorTheme() ||
+                prefKey == LauncherPreferences.theme().keys().background()) {
+
+                // Proper Debouncing: Cancel any pending recreate, and wait 300ms after the last swipe
+                binding.root.removeCallbacks(recreateRunnable)
+                binding.root.postDelayed(recreateRunnable, 300)
             }
         }
     private lateinit var binding: SettingsBinding
@@ -303,44 +315,51 @@ class SettingsActivity : UIObjectActivity() {
      * Unlike the carousel, this provides instant tap-to-select without swiping.
      */
     fun showBinaryRibbon(
+        key: String,
         button1Text: String,
         button2Text: String,
         onButton1Click: () -> Unit,
         onButton2Click: () -> Unit
     ) {
+        if (activeCarouselKey == key) {
+            hideBinaryRibbon()
+            return
+        }
+        activeCarouselKey = key
+
         // Hide the carousel first
         binding.settingsAnimationCarousel.visibility = View.GONE
-        
+
         // Show the binary ribbon
         val ribbon = binding.settingsBinaryRibbon
         val button1 = binding.binaryRibbonButton1
         val button2 = binding.binaryRibbonButton2
-        
+
         // Remove button 3 if present from ternary ribbon
         while (ribbon.childCount > 2) {
             ribbon.removeViewAt(2)
         }
-        
+
         // Set weightSum to 2 for binary layout
         ribbon.weightSum = 2f
-        
+
         // Apply font and styling
         val currentFont = LauncherPreferences.theme().font()
         val textColor = getThemeColor(android.R.attr.textColor)
         val typeface = Font.getTypeface(this, currentFont)
-        
+
         button1.text = button1Text
         button1.typeface = typeface
         button1.setTextColor(textColor)
         button1.setOnClickListener { onButton1Click() }
-        
+
         button2.text = button2Text
         button2.typeface = typeface
         button2.setTextColor(textColor)
         button2.setOnClickListener { onButton2Click() }
-        
+
         ribbon.visibility = View.VISIBLE
-        
+
         // Apply same Dynamic Horizon bottom padding to the Settings list
         binding.root.post {
             val ribbonHeight = ribbon.height
@@ -360,7 +379,8 @@ class SettingsActivity : UIObjectActivity() {
     fun hideBinaryRibbon() {
         val ribbon = binding.settingsBinaryRibbon
         ribbon.visibility = View.GONE
-        
+        activeCarouselKey = null
+
         // Restore the carousel padding
         binding.settingsViewpager.setPadding(
             binding.settingsViewpager.paddingLeft,
@@ -376,6 +396,7 @@ class SettingsActivity : UIObjectActivity() {
     * Unlike the carousel, this provides instant tap-to-select without swiping.
     */
     fun showTernaryRibbon(
+        key: String,
         button1Text: String,
         button2Text: String,
         button3Text: String,
@@ -383,34 +404,40 @@ class SettingsActivity : UIObjectActivity() {
         onButton2Click: () -> Unit,
         onButton3Click: () -> Unit
     ) {
+        if (activeCarouselKey == key) {
+            hideBinaryRibbon()
+            return
+        }
+        activeCarouselKey = key
+
         // Hide the carousel first
         binding.settingsAnimationCarousel.visibility = View.GONE
-        
+
         // Show the ternary ribbon (reuses binary ribbon layout with 3 buttons)
         val ribbon = binding.settingsBinaryRibbon
         val button1 = binding.binaryRibbonButton1
         val button2 = binding.binaryRibbonButton2
-        
+
         // Set weightSum to 3 for ternary layout
         ribbon.weightSum = 3f
-        
+
         // Apply font and styling
         val currentFont = LauncherPreferences.theme().font()
         val textColor = getThemeColor(android.R.attr.textColor)
         val typeface = Font.getTypeface(this, currentFont)
-        
+
         // Configure button1
         button1.text = button1Text
         button1.typeface = typeface
         button1.setTextColor(textColor)
         button1.setOnClickListener { onButton1Click() }
-        
+
         // Configure button2 (center button)
         button2.text = button2Text
         button2.typeface = typeface
         button2.setTextColor(textColor)
         button2.setOnClickListener { onButton2Click() }
-        
+
         // Create button3 dynamically as a TextView
         val button3 = TextView(this).apply {
             text = button3Text
@@ -423,7 +450,7 @@ class SettingsActivity : UIObjectActivity() {
             isClickable = true
             focusable = View.FOCUSABLE
             setPadding(16, 0, 16, 0)
-            
+
             // Create layout params with weight for equal distribution
             val params = LinearLayout.LayoutParams(
                 0,
@@ -431,10 +458,10 @@ class SettingsActivity : UIObjectActivity() {
             )
             params.weight = 1f
             layoutParams = params
-            
+
             setOnClickListener { onButton3Click() }
         }
-        
+
         // Remove any existing button3 and add the new one
         // Only remove views starting from index 2 (button3 position)
         while (ribbon.childCount > 2) {
@@ -509,7 +536,13 @@ class SettingsActivity : UIObjectActivity() {
     /**
      * Shows a premium horizontal slider ribbon for granular adjustments.
      */
-    fun showSliderCarousel(min: Int, max: Int, currentValue: Int, onValueSelected: (Int) -> Unit) {
+    fun showSliderCarousel(key: String, min: Int, max: Int, currentValue: Int, onValueSelected: (Int) -> Unit) {
+        if (activeCarouselKey == key) {
+            hideSelectionCarousel()
+            return
+        }
+        activeCarouselKey = key
+
         // Hide other ribbons first
         binding.settingsAnimationCarousel.visibility = View.GONE
         binding.settingsBinaryRibbon.visibility = View.GONE

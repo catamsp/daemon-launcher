@@ -131,6 +131,15 @@ class SettingsFragmentAnimations : Fragment(), UIObject {
             })
         }
 
+        val restoreKey = activity?.intent?.getStringExtra("RESTORE_CAROUSEL")
+        if (restoreKey != null) {
+            activity?.intent?.removeExtra("RESTORE_CAROUSEL")
+            binding.root.postDelayed({
+                val itemToClick = items.find { it.key == restoreKey } as? SettingsItem.Clickable
+                itemToClick?.onClick?.invoke()
+            }, 150)
+        }
+
         adapter.submitList(items)
     }
 }
